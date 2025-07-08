@@ -22,45 +22,9 @@ import {
   ChevronDownIcon,
   MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
+import { useProducts } from "@/hooks/useProducts"; // <-- 1. Impor custom hook
+import { Product } from "@/types"; // <-- Impor tipe Product
 
-// --- Custom Hook untuk Debounce ---
-function useDebounce(value: string, delay: number) {
-  const [debouncedValue, setDebouncedValue] = React.useState(value);
-
-  React.useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
-
-  return debouncedValue;
-}
-
-// --- Tipe Data ---
-type Product = {
-  kode: string;
-  nama: string;
-  harga_jual: number;
-  harga_beli: number;
-  aktif: number;
-  kode_operator: string;
-  RowNum: string;
-};
-
-type ApiResponse = {
-  totalItems: number;
-  totalPages: number;
-  currentPage: number;
-  data: Product[];
-};
-
-// --- Kolom Tabel ---
 const columns = [
   { name: "NAMA", uid: "nama" },
   { name: "KODE", uid: "kode" },
@@ -75,72 +39,21 @@ const statusOptions = [
   { name: "Nonaktif", uid: "0" },
 ];
 
-// --- Fungsi untuk Fetching Data ---
-const fetchProducts = async (
-  page: number,
-  pageSize: number,
-  filterValue: string,
-  statusFilter: string // Tambahkan parameter status
-): Promise<ApiResponse> => {
-  const endpoint = filterValue
-    ? `http://localhost:4000/api/produk/${filterValue}`
-    : "http://localhost:4000/api/produk";
-
-  // Bangun parameter secara dinamis
-  const params: {
-    page: number;
-    pageSize: number;
-    aktif?: string;
-  } = {
-    page,
-    pageSize,
-  };
-
-  if (statusFilter !== "all") {
-    params.aktif = statusFilter;
-  }
-
-  const { data } = await axios.get(endpoint, {
-    headers: {
-      "x-api-key": "rest-otomax-KEY",
-    },
-    params,
-  });
-
-  return data;
-};
-
 export default function ProdukPage() {
-  const queryClient = useQueryClient();
-  const [page, setPage] = React.useState(1);
-  const [filterValue, setFilterValue] = React.useState("");
-  const [statusFilter, setStatusFilter] = React.useState<string>("all");
-  const debouncedFilterValue = useDebounce(filterValue, 500);
-  const rowsPerPage = 10;
+  // 2. Panggil hook untuk mendapatkan semua logika, state, dan data
+  const {
+    data,
+    isLoading,
+    isError,
+    page,
+    setPage,
+    filterValue,
+    onSearchChange,
+    statusFilter,
+    onStatusChange,
+  } = useProducts();
 
-  // --- useQuery sekarang bergantung pada statusFilter ---
-  const { data, isLoading, isError } = useQuery<ApiResponse, Error>({
-    queryKey: ["products", page, debouncedFilterValue, statusFilter],
-    queryFn: () =>
-      fetchProducts(page, rowsPerPage, debouncedFilterValue, statusFilter),
-  });
-
-  // Prefetching
-  React.useEffect(() => {
-    if (data?.totalPages && page < data.totalPages) {
-      queryClient.prefetchQuery({
-        queryKey: ["products", page + 1, debouncedFilterValue, statusFilter],
-        queryFn: () =>
-          fetchProducts(
-            page + 1,
-            rowsPerPage,
-            debouncedFilterValue,
-            statusFilter
-          ),
-      });
-    }
-  }, [data, page, debouncedFilterValue, statusFilter, queryClient]);
-
+  // Fungsi renderCell tetap sama
   const renderCell = React.useCallback(
     (product: Product, columnUid: React.Key) => {
       const cellValue = product[columnUid as keyof Product];
@@ -180,17 +93,7 @@ export default function ProdukPage() {
     []
   );
 
-  const onSearchChange = React.useCallback((value?: string) => {
-    setFilterValue(value || "");
-    setPage(1);
-  }, []);
-
-  const onStatusChange = React.useCallback((key: React.Key) => {
-    setStatusFilter(key as string);
-    setPage(1);
-  }, []);
-
-  // --- Komponen Atas (Header Tabel) ---
+  // topContent dan bottomContent sekarang menggunakan state dari hook
   const topContent = React.useMemo(() => {
     return (
       <div className="flex flex-col gap-4">
@@ -201,7 +104,7 @@ export default function ProdukPage() {
             placeholder="Cari berdasarkan kode produk..."
             startContent={<MagnifyingGlassIcon className="h-5 w-5" />}
             value={filterValue}
-            onClear={() => setFilterValue("")}
+            onClear={() => onSearchChange("")}
             onValueChange={onSearchChange}
           />
           <div className="flex gap-3">
@@ -246,7 +149,6 @@ export default function ProdukPage() {
     data?.totalItems,
   ]);
 
-  // --- Komponen Bawah (Footer Tabel) ---
   const bottomContent = React.useMemo(() => {
     if (!data || data.totalPages <= 1) return null;
 
@@ -263,7 +165,7 @@ export default function ProdukPage() {
         />
       </div>
     );
-  }, [page, data]);
+  }, [page, data, setPage]);
 
   return (
     <Table
