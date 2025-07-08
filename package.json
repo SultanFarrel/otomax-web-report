@@ -31,6 +31,7 @@
     "@heroui/table": "^2.2.21",
     "@heroui/theme": "2.4.17",
     "@heroui/use-theme": "2.1.9",
+    "@internationalized/date": "^3.8.2",
     "@react-aria/visually-hidden": "3.8.25",
     "@react-types/shared": "3.30.0",
     "@tanstack/react-query": "^5.81.5",

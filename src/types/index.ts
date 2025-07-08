@@ -45,5 +45,5 @@ export type TransactionApiResponse = {
   totalItems: number;
   totalPages: number;
   currentPage: number;
-  data: Product[];
+  data: Transaction[];
 };

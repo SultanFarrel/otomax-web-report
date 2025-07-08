@@ -1,57 +1,51 @@
 import React from "react";
+import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
-import { TransactionApiResponse, Transaction } from "@/types"; // Import Transaction
-import { mockTransactions } from "@/mocks/transactions";
-import { DateValue, RangeValue } from "@react-types/shared"; // Import tipe ini
+import { TransactionApiResponse } from "@/types";
+import { RangeValue } from "@react-types/shared";
+import { DateValue } from "@heroui/calendar";
 
-// --- Mock Fetching Function ---
+const KODE_RESELLER = "AZ0006";
+
+// --- Fungsi Fetching API dengan Format Tanggal YYYY-MM-DD ---
 const fetchTransactions = async (
   page: number,
   filterValue: string,
   statusFilter: string,
-  startDate: Date | null,
-  endDate: Date | null
+  dateRange: RangeValue<DateValue> | null
 ): Promise<TransactionApiResponse> => {
-  console.log(
-    `Fetching page: ${page}, status: ${statusFilter}, dates: ${startDate}-${endDate}`
-  );
-  await new Promise((resolve) => setTimeout(resolve, 500));
+  const endpoint = `http://localhost:4000/api/transaksi/reseller/${KODE_RESELLER}`;
 
-  let allData: Transaction[] = Object.values(mockTransactions).flat();
-
-  // 1. Filter by status
-  if (statusFilter !== "all") {
-    allData = allData.filter((trx) => trx.status.toString() === statusFilter);
-  }
-
-  // 2. Filter by search value (tujuan)
-  if (filterValue) {
-    allData = allData.filter((trx) => trx.tujuan.includes(filterValue));
-  }
-
-  // 3. Filter by date range
-  if (startDate && endDate) {
-    // Set endDate to the end of the day for inclusive filtering
-    const endOfDay = new Date(endDate);
-    endOfDay.setHours(23, 59, 59, 999);
-
-    allData = allData.filter((trx) => {
-      const trxDate = new Date(trx.tgl_entri);
-      return trxDate >= startDate && trxDate <= endOfDay;
-    });
-  }
-
-  const paginatedData = allData.slice((page - 1) * 10, page * 10);
-
-  return {
-    totalItems: allData.length,
-    totalPages: Math.ceil(allData.length / 10),
-    currentPage: page,
-    data: paginatedData,
+  // 1. Kembalikan ke cara yang lebih sederhana
+  const params = {
+    page,
+    pageSize: 10,
+    search: filterValue || undefined,
+    status: statusFilter === "all" ? undefined : statusFilter,
+    // Cukup gunakan .toString() yang akan menghasilkan format 'YYYY-MM-DD'
+    startDate: dateRange ? dateRange.start.toString() : undefined,
+    endDate: dateRange ? dateRange.end.toString() : undefined,
   };
+
+  // Hapus properti yang 'undefined'
+  Object.keys(params).forEach((key) => {
+    const K = key as keyof typeof params;
+    if (params[K] === undefined) {
+      delete params[K];
+    }
+  });
+
+  console.log("API Request Params (Reverted):", params);
+
+  const { data } = await axios.get(endpoint, {
+    headers: { "x-api-key": "rest-otomax-KEY" },
+    params,
+  });
+
+  return data;
 };
 
-// --- Custom Hook untuk Debounce ---
+// --- Custom Hook untuk Debounce (tidak ada perubahan) ---
 function useDebounce(value: string, delay: number) {
   const [debouncedValue, setDebouncedValue] = React.useState(value);
   React.useEffect(() => {
@@ -65,7 +59,7 @@ function useDebounce(value: string, delay: number) {
   return debouncedValue;
 }
 
-// --- Custom Hook useTransactions ---
+// --- Custom Hook useTransactions (tidak ada perubahan) ---
 export function useTransactions() {
   const [page, setPage] = React.useState(1);
   const [filterValue, setFilterValue] = React.useState("");
@@ -78,19 +72,14 @@ export function useTransactions() {
   const { data, isLoading, isError } = useQuery<TransactionApiResponse, Error>({
     queryKey: [
       "transactions",
+      KODE_RESELLER,
       page,
       debouncedFilterValue,
       statusFilter,
       dateRange,
     ],
     queryFn: () =>
-      fetchTransactions(
-        page,
-        debouncedFilterValue,
-        statusFilter,
-        dateRange ? dateRange.start.toDate("UTC") : null,
-        dateRange ? dateRange.end.toDate("UTC") : null
-      ),
+      fetchTransactions(page, debouncedFilterValue, statusFilter, dateRange),
     placeholderData: (previousData) => previousData,
   });
 
@@ -109,7 +98,6 @@ export function useTransactions() {
     setPage(1);
   }, []);
 
-  // --- FUNGSI BARU UNTUK RESET FILTER ---
   const resetFilters = React.useCallback(() => {
     setFilterValue("");
     setStatusFilter("all");
@@ -129,6 +117,6 @@ export function useTransactions() {
     onStatusChange,
     dateRange,
     onDateChange,
-    resetFilters, // <-- Ekspor fungsi baru
+    resetFilters,
   };
 }

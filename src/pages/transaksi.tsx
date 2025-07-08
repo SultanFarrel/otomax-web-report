@@ -28,7 +28,8 @@ import {
 } from "@heroicons/react/24/outline";
 import { useTransactions } from "@/hooks/useTransactions";
 import { Transaction } from "@/types";
-import { RangeValue, DateValue } from "@react-types/shared";
+import { RangeValue } from "@react-types/shared";
+import { DateValue } from "@heroui/calendar";
 
 // ... (ALL_COLUMNS dan konstanta lainnya tetap sama) ...
 const ALL_COLUMNS = [
@@ -48,14 +49,27 @@ const statusColorMap: Record<
 > = {
   "1": { color: "warning", text: "Proses" },
   "20": { color: "success", text: "Sukses" },
+  "201": { color: "danger", text: "Dialihkan" },
+  "64": { color: "danger", text: "Diabaikan" },
   "52": { color: "danger", text: "Tujuan Salah" },
   "40": { color: "danger", text: "Gagal" },
-  "2": { color: "primary", text: "Menunggu" },
+  "2": { color: "primary", text: "Menunggu Jawaban" },
+  "69": { color: "danger", text: "Cutoff" },
   "50": { color: "danger", text: "Dibatalkan" },
   "3": { color: "danger", text: "Gagal Kirim" },
+  "59": { color: "danger", text: "Harga Tidak Sesuai" },
+  "0": { color: "warning", text: "Kirim Ulang" },
+  "54": { color: "danger", text: "Area Tidak Cocok" },
+  "56": { color: "danger", text: "Blacklist" },
   "58": { color: "danger", text: "Tidak Aktif" },
+  "47": { color: "danger", text: "Produk Gangguan" },
+  "200": { color: "warning", text: "Proses Ulang" },
+  "61": { color: "danger", text: "QTY Tidak Sesuai" },
+  "45": { color: "danger", text: "Stok Kosong" },
   "55": { color: "danger", text: "Timeout" },
+  "46": { color: "danger", text: "Transaksi Dobel" },
   "53": { color: "danger", text: "Luar Wilayah" },
+  "4": { color: "warning", text: "Tidak ada Parsing" },
 };
 
 const statusOptions = [
@@ -92,6 +106,10 @@ export default function TransaksiPage() {
     new Set(ALL_COLUMNS.map((c) => c.uid))
   );
 
+  // State baru untuk melacak interaksi dengan filter status
+  const [isStatusFilterTouched, setIsStatusFilterTouched] =
+    React.useState(false);
+
   const headerColumns = React.useMemo(() => {
     return ALL_COLUMNS.filter((column) => visibleColumns.has(column.uid));
   }, [visibleColumns]);
@@ -105,9 +123,21 @@ export default function TransaksiPage() {
         case "kode":
           return <p className="text-sm font-mono">{cellValue}</p>;
         case "tgl_entri":
+          const date = new Date(cellValue as string);
+          // Opsi untuk format tanggal dan waktu dalam UTC
+          const options: Intl.DateTimeFormatOptions = {
+            year: "numeric",
+            month: "numeric",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            hour12: false,
+            timeZone: "UTC",
+          };
           return (
             <p className="text-sm">
-              {new Date(cellValue as string).toLocaleString("id-ID")}
+              {new Intl.DateTimeFormat("id-ID", options).format(date)}
             </p>
           );
         case "harga":
@@ -148,10 +178,35 @@ export default function TransaksiPage() {
   // Format tanggal untuk ditampilkan di tombol
   const formatDateRange = (range: RangeValue<DateValue> | null) => {
     if (!range) return "Pilih Tanggal";
-    const start = range.start.toString();
-    const end = range.end.toString();
+
+    // Helper untuk memformat satu tanggal
+    const format = (date: DateValue) => {
+      // Ambil hari, bulan, dan tahun dari objek DateValue
+      const day = String(date.day).padStart(2, "0");
+      const month = String(date.month).padStart(2, "0");
+      const year = date.year;
+
+      return `${day}/${month}/${year}`;
+    };
+
+    const start = format(range.start);
+    const end = format(range.end);
+
     return `${start} - ${end}`;
   };
+
+  // Logika untuk menentukan teks pada tombol status
+  const statusButtonText = React.useMemo(() => {
+    // Jika belum pernah disentuh atau filternya 'Semua', tampilkan 'Status'
+    if (!isStatusFilterTouched || statusFilter === "all") {
+      return "Status";
+    }
+    // Jika sudah, cari nama status yang aktif
+    return (
+      statusOptions.find((status) => status.uid === statusFilter)?.name ||
+      "Status"
+    );
+  }, [isStatusFilterTouched, statusFilter]);
 
   const topContent = React.useMemo(
     () => (
@@ -160,7 +215,7 @@ export default function TransaksiPage() {
           <Input
             isClearable
             className="w-full sm:max-w-xs"
-            placeholder="Cari no. tujuan..."
+            placeholder="Cari"
             startContent={<MagnifyingGlassIcon className="h-5 w-5" />}
             value={filterValue}
             onClear={() => onSearchChange("")}
@@ -190,11 +245,12 @@ export default function TransaksiPage() {
             </Popover>
             <Dropdown>
               <DropdownTrigger>
+                {/* 3. Gunakan state baru untuk teks tombol */}
                 <Button
                   endContent={<ChevronDownIcon className="h-4 w-4" />}
                   variant="flat"
                 >
-                  Status
+                  {statusButtonText}
                 </Button>
               </DropdownTrigger>
               <DropdownMenu
@@ -203,7 +259,11 @@ export default function TransaksiPage() {
                 closeOnSelect
                 selectedKeys={new Set([statusFilter])}
                 selectionMode="single"
-                onAction={onStatusChange}
+                onAction={(key) => {
+                  // 4. Panggil fungsi dari hook dan set state 'touched'
+                  onStatusChange(key);
+                  setIsStatusFilterTouched(true);
+                }}
               >
                 {statusOptions.map((status) => (
                   <DropdownItem key={status.uid}>{status.name}</DropdownItem>
@@ -236,7 +296,11 @@ export default function TransaksiPage() {
             <Button
               isIconOnly
               variant="light"
-              onPress={resetFilters}
+              onPress={() => {
+                // 5. Panggil fungsi reset dari hook dan reset state 'touched'
+                resetFilters();
+                setIsStatusFilterTouched(false);
+              }}
               className="text-default-500"
               aria-label="Reset Filter"
             >
