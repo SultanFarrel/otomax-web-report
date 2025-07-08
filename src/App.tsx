@@ -1,0 +1,28 @@
+import { Route, Routes } from "react-router-dom";
+
+import DefaultLayout from "@/layouts/default";
+import IndexPage from "@/pages/index";
+import SettingsPage from "@/pages/settings";
+import ProdukPage from "@/pages/produk";
+import TransaksiPage from "@/pages/transaksi";
+import MutasiSaldoPage from "@/pages/mutasi-saldo";
+import DownlinePage from "@/pages/downline";
+import TransaksiDownlinePage from "@/pages/transaksi-downline";
+
+function App() {
+  return (
+    <Routes>
+      <Route element={<DefaultLayout />}>
+        <Route element={<IndexPage />} path="/" />
+        <Route element={<ProdukPage />} path="/produk" />
+        <Route element={<TransaksiPage />} path="/transaksi" />
+        <Route element={<MutasiSaldoPage />} path="/mutasi-saldo" />
+        <Route element={<DownlinePage />} path="/downline" />
+        <Route element={<TransaksiDownlinePage />} path="/transaksi-downline" />
+        <Route element={<SettingsPage />} path="/settings" />
+      </Route>
+    </Routes>
+  );
+}
+
+export default App;

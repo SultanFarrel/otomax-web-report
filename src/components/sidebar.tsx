@@ -1,0 +1,204 @@
+import { Fragment } from "react";
+import * as React from "react";
+import { NavLink } from "react-router-dom";
+import {
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
+} from "@heroui/dropdown";
+import { Link } from "@heroui/link";
+import { Avatar } from "@heroui/avatar";
+import { Button } from "@heroui/button";
+import { Tooltip } from "@heroui/tooltip";
+import cn from "clsx";
+
+import { siteConfig } from "@/config/site";
+import {
+  Cog6ToothIcon,
+  ArrowLeftOnRectangleIcon,
+  HomeIcon,
+  ShoppingBagIcon,
+  CurrencyDollarIcon,
+  ArrowPathIcon,
+  UsersIcon,
+  DocumentTextIcon,
+} from "@heroicons/react/24/outline";
+import { Logo, MoreHorizontalIcon, ChevronLeftIcon } from "@/components/icons";
+
+interface SidebarProps {
+  isCollapsed?: boolean;
+  onCollapse?: () => void;
+  onNavItemClick?: () => void;
+}
+
+export const SidebarContent = ({
+  isCollapsed,
+  onNavItemClick,
+}: SidebarProps) => {
+  // Map routes to their corresponding icons
+  const iconMap: { [key: string]: React.ElementType } = {
+    "/": HomeIcon,
+    "/produk": ShoppingBagIcon,
+    "/transaksi": CurrencyDollarIcon,
+    "/mutasi-saldo": ArrowPathIcon,
+    "/downline": UsersIcon,
+    "/transaksi-downline": DocumentTextIcon,
+  };
+
+  return (
+    <Fragment>
+      {/* Header */}
+      <div
+        className={cn("flex h-16 flex-shrink-0 items-center", {
+          "justify-center": isCollapsed,
+          "justify-between": !isCollapsed,
+        })}
+      >
+        {!isCollapsed && (
+          <Link className="flex items-center gap-3" color="foreground" href="/">
+            <Logo />
+            <p className="font-bold text-inherit">OTOMAX</p>
+          </Link>
+        )}
+        {isCollapsed && <Logo />}
+      </div>
+
+      {/* Navigation */}
+      <nav className="flex-1 space-y-1">
+        {siteConfig.navItems.map((item) => {
+          const Icon = iconMap[item.href];
+
+          return (
+            <Tooltip
+              key={item.href}
+              content={item.label}
+              isDisabled={!isCollapsed}
+              placement="right"
+            >
+              <NavLink
+                to={item.href}
+                onClick={onNavItemClick}
+                className={({ isActive }) =>
+                  cn(
+                    "flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                    {
+                      "bg-primary text-primary-foreground": isActive,
+                      "text-foreground-500 hover:bg-default-100": !isActive,
+                      "justify-center": isCollapsed,
+                    }
+                  )
+                }
+              >
+                {Icon && (
+                  <Icon
+                    className={cn("h-5 w-5 flex-shrink-0", {
+                      "mr-3": !isCollapsed,
+                    })}
+                  />
+                )}
+                {!isCollapsed && item.label}
+              </NavLink>
+            </Tooltip>
+          );
+        })}
+      </nav>
+
+      {/* Footer */}
+      <div className="mt-auto border-t border-divider pt-4">
+        <Dropdown placement="top-end" offset={15}>
+          <DropdownTrigger>
+            <button
+              className={cn(
+                "flex items-center gap-3 rounded-md p-2 text-left transition-colors hover:bg-default-100",
+                {
+                  "w-full": !isCollapsed,
+                  "justify-center": isCollapsed,
+                }
+              )}
+            >
+              <Avatar
+                size="sm"
+                src="https://i.pravatar.cc/150?u=a042581f4e29026024d"
+              />
+              {!isCollapsed && (
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-foreground">admin</p>
+                  <p className="text-xs text-foreground-500">
+                    admin@otomax.com
+                  </p>
+                </div>
+              )}
+              {!isCollapsed && (
+                <MoreHorizontalIcon className="text-default-500" />
+              )}
+            </button>
+          </DropdownTrigger>
+          <DropdownMenu aria-label="Profile Actions" variant="flat">
+            <DropdownItem
+              key="profile"
+              className="h-14 gap-2"
+              textValue="Profile Info"
+              isDisabled
+            >
+              <p className="font-semibold">Signed in as</p>
+              <p className="font-semibold">admin@otomax.com</p>
+            </DropdownItem>
+            <DropdownItem
+              key="settings"
+              href="/settings"
+              startContent={<Cog6ToothIcon className="h-5 w-5" />}
+            >
+              Settings
+            </DropdownItem>
+            <DropdownItem
+              key="logout"
+              color="danger"
+              startContent={<ArrowLeftOnRectangleIcon className="h-5 w-5" />}
+            >
+              Log Out
+            </DropdownItem>
+          </DropdownMenu>
+        </Dropdown>
+      </div>
+    </Fragment>
+  );
+};
+
+export const Sidebar = ({
+  isCollapsed,
+  onCollapse,
+  onNavItemClick,
+}: SidebarProps) => {
+  return (
+    <div
+      className={cn(
+        "relative flex h-full flex-col border-r border-divider bg-background px-4 py-4 transition-width duration-300",
+        {
+          "w-64": !isCollapsed,
+          "w-20": isCollapsed,
+        }
+      )}
+    >
+      <Button
+        isIconOnly
+        size="sm"
+        variant="light"
+        className={cn(
+          "absolute -right-3 top-1/2 z-10 rounded-full bg-background",
+          {
+            "rotate-180": isCollapsed,
+          }
+        )}
+        onPress={onCollapse}
+      >
+        <ChevronLeftIcon />
+      </Button>
+
+      <SidebarContent
+        isCollapsed={isCollapsed}
+        onNavItemClick={onNavItemClick}
+      />
+    </div>
+  );
+};
