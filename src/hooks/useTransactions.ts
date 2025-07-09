@@ -14,7 +14,7 @@ const fetchTransactions = async (
   statusFilter: string,
   dateRange: RangeValue<DateValue> | null
 ): Promise<TransactionApiResponse> => {
-  const endpoint = `http://localhost:4000/api/transaksi/reseller/${KODE_RESELLER}`;
+  const endpoint = `http://192.168.10.29:4000/api/transaksi/reseller/${KODE_RESELLER}`;
 
   // 1. Kembalikan ke cara yang lebih sederhana
   const params = {

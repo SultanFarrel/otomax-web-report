@@ -10,6 +10,8 @@ export type Product = {
   harga_jual: number;
   harga_beli: number;
   aktif: number;
+  kosong: number;
+  gangguan: number;
   kode_operator: string;
   RowNum: string;
 };

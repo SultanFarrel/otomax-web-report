@@ -25,20 +25,38 @@ const fetchProducts = async (
   page: number,
   pageSize: number,
   filterValue: string,
-  statusFilter: string
+  statusFilter: string // status bisa: 'all', 'aktif', 'nonaktif', 'kosong', 'gangguan'
 ): Promise<ApiResponse> => {
-  const endpoint = filterValue
-    ? `http://localhost:4000/api/produk/${filterValue}`
-    : "http://localhost:4000/api/produk";
+  // Endpoint bisa tetap sama atau disesuaikan jika backend butuh endpoint berbeda
+  const endpoint = "http://192.168.10.29:4000/api/produk";
 
-  const params: { page: number; pageSize: number; aktif?: string } = {
+  const params: {
+    page: number;
+    pageSize: number;
+    search?: string;
+    status?: string;
+  } = {
     page,
     pageSize,
   };
 
-  if (statusFilter !== "all") {
-    params.aktif = statusFilter;
+  if (filterValue) {
+    params.search = filterValue; // Menggunakan parameter 'search' yang lebih umum
   }
+
+  // Kirim status filter ke backend
+  if (statusFilter !== "all") {
+    params.status = statusFilter;
+  }
+
+  Object.keys(params).forEach((key) => {
+    const K = key as keyof typeof params;
+    if (params[K] === undefined) {
+      delete params[K];
+    }
+  });
+
+  console.log("Product API Request Params:", params);
 
   const { data } = await axios.get(endpoint, {
     headers: { "x-api-key": "rest-otomax-KEY" },
@@ -52,20 +70,19 @@ const fetchProducts = async (
 export function useProducts() {
   const queryClient = useQueryClient();
 
-  // State untuk filter dan paginasi
   const [page, setPage] = React.useState(1);
   const [filterValue, setFilterValue] = React.useState("");
+  // Ubah nilai default statusFilter menjadi 'all' agar lebih konsisten
   const [statusFilter, setStatusFilter] = React.useState<string>("all");
 
   const debouncedFilterValue = useDebounce(filterValue, 500);
   const rowsPerPage = 10;
 
-  // useQuery untuk mengambil data
   const { data, isLoading, isError } = useQuery<ApiResponse, Error>({
+    // Tambahkan statusFilter ke queryKey
     queryKey: ["products", page, debouncedFilterValue, statusFilter],
     queryFn: () =>
       fetchProducts(page, rowsPerPage, debouncedFilterValue, statusFilter),
-    placeholderData: (previousData) => previousData, // Untuk pengalaman pengguna yang lebih baik saat paginasi
   });
 
   // Prefetching untuk halaman selanjutnya

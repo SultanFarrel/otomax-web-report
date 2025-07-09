@@ -20,6 +20,8 @@ import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
 import { Pagination } from "@heroui/pagination";
 import { Spinner } from "@heroui/spinner";
+import { DateValue } from "@heroui/calendar";
+import { Tooltip } from "@heroui/tooltip";
 import {
   ChevronDownIcon,
   MagnifyingGlassIcon,
@@ -29,7 +31,6 @@ import {
 import { useTransactions } from "@/hooks/useTransactions";
 import { Transaction } from "@/types";
 import { RangeValue } from "@react-types/shared";
-import { DateValue } from "@heroui/calendar";
 
 // ... (ALL_COLUMNS dan konstanta lainnya tetap sama) ...
 const ALL_COLUMNS = [
@@ -292,20 +293,22 @@ export default function TransaksiPage() {
                 ))}
               </DropdownMenu>
             </Dropdown>
-            {/* --- TOMBOL RESET BARU --- */}
-            <Button
-              isIconOnly
-              variant="light"
-              onPress={() => {
-                // 5. Panggil fungsi reset dari hook dan reset state 'touched'
-                resetFilters();
-                setIsStatusFilterTouched(false);
-              }}
-              className="text-default-500"
-              aria-label="Reset Filter"
-            >
-              <ArrowPathIcon className="h-5 w-5" />
-            </Button>
+            {/* --- TOMBOL RESET --- */}
+            <Tooltip content="Reset Filter" placement="bottom">
+              <Button
+                isIconOnly
+                variant="light"
+                onPress={() => {
+                  // 5. Panggil fungsi reset dari hook dan reset state 'touched'
+                  resetFilters();
+                  setIsStatusFilterTouched(false);
+                }}
+                className="text-default-500"
+                aria-label="Reset Filter"
+              >
+                <ArrowPathIcon className="h-5 w-5" />
+              </Button>
+            </Tooltip>
           </div>
         </div>
         <span className="text-default-400 text-small">
