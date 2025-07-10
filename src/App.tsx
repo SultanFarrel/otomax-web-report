@@ -3,7 +3,7 @@ import { Route, Routes } from "react-router-dom";
 import ProtectedRoute from "@/components/protected-route";
 import LoginPage from "@/pages/login";
 import DefaultLayout from "@/layouts/default";
-import IndexPage from "@/pages/index";
+import IndexPage from "@/pages/dashboard";
 import SettingsPage from "@/pages/settings";
 import ProdukPage from "@/pages/produk";
 import TransaksiPage from "@/pages/transaksi";

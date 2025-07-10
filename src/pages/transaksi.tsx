@@ -89,9 +89,9 @@ const statusOptions = [
 
 export default function TransaksiPage() {
   const {
-    data,
-    isLoading,
-    isError,
+    data: tableData,
+    isLoading: isTableLoading,
+    isError: isTableError,
     page,
     setPage,
     filterValue,
@@ -100,7 +100,7 @@ export default function TransaksiPage() {
     onStatusChange,
     dateRange,
     onDateChange,
-    resetFilters, // <-- Ambil fungsi resetFilters
+    resetFilters,
   } = useTransactions();
 
   const [visibleColumns, setVisibleColumns] = React.useState<Set<string>>(
@@ -312,7 +312,7 @@ export default function TransaksiPage() {
           </div>
         </div>
         <span className="text-default-400 text-small">
-          Total {data?.totalItems || 0} transaksi.
+          Total {tableData?.totalItems || 0} transaksi.
         </span>
       </div>
     ),
@@ -321,7 +321,7 @@ export default function TransaksiPage() {
       onSearchChange,
       statusFilter,
       onStatusChange,
-      data?.totalItems,
+      tableData?.totalItems,
       visibleColumns,
       dateRange,
       onDateChange,
@@ -330,12 +330,11 @@ export default function TransaksiPage() {
   );
 
   const bottomContent = React.useMemo(() => {
-    // ... (bottomContent tetap sama)
     return (
       <div className="py-2 px-2 flex justify-between items-center">
         <span className="w-[30%] text-small text-default-400">
-          {data?.totalItems
-            ? `Halaman ${data.currentPage} dari ${data.totalPages}`
+          {tableData?.totalItems
+            ? `Halaman ${tableData.currentPage} dari ${tableData.totalPages}`
             : ""}
         </span>
         <Pagination
@@ -344,17 +343,22 @@ export default function TransaksiPage() {
           showShadow
           color="primary"
           page={page}
-          total={data?.totalPages || 1}
+          total={tableData?.totalPages || 1}
           onChange={setPage}
         />
         <div className="w-[30%]" />
       </div>
     );
-  }, [page, data?.totalItems, data?.currentPage, data?.totalPages, setPage]);
+  }, [
+    page,
+    tableData?.totalItems,
+    tableData?.currentPage,
+    tableData?.totalPages,
+    setPage,
+  ]);
 
   return (
     <Table
-      // ... (properti Tabel tetap sama)
       isHeaderSticky
       bottomContent={bottomContent}
       bottomContentPlacement="outside"
@@ -372,14 +376,14 @@ export default function TransaksiPage() {
       <TableBody
         // ... (properti TableBody tetap sama)
         emptyContent={
-          isLoading
+          isTableLoading
             ? " "
-            : isError
+            : isTableError
               ? "Gagal memuat data"
               : "Transaksi tidak ditemukan"
         }
-        items={data?.data || []}
-        isLoading={isLoading}
+        items={tableData?.data || []}
+        isLoading={isTableLoading}
         loadingContent={<Spinner label="Memuat data..." />}
       >
         {(item) => (
