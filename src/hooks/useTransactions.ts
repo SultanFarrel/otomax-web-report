@@ -1,20 +1,22 @@
 import React from "react";
-import axios from "axios";
+import apiClient from "@/api/axios";
 import { useQuery } from "@tanstack/react-query";
 import { TransactionApiResponse } from "@/types";
 import { RangeValue } from "@react-types/shared";
 import { DateValue } from "@heroui/calendar";
+import { useUserStore } from "@/store/userStore";
 
-const KODE_RESELLER = "AZ0006";
+// const KODE_RESELLER = "AZ0006";
 
 // --- Fungsi Fetching API dengan Format Tanggal YYYY-MM-DD ---
 const fetchTransactions = async (
+  kode: string,
   page: number,
   filterValue: string,
   statusFilter: string,
   dateRange: RangeValue<DateValue> | null
 ): Promise<TransactionApiResponse> => {
-  const endpoint = `http://192.168.10.29:4000/api/transaksi/reseller/${KODE_RESELLER}`;
+  const endpoint = `/transaksi/reseller/${kode}`;
 
   // 1. Kembalikan ke cara yang lebih sederhana
   const params = {
@@ -37,8 +39,7 @@ const fetchTransactions = async (
 
   console.log("API Request Params (Reverted):", params);
 
-  const { data } = await axios.get(endpoint, {
-    headers: { "x-api-key": "rest-otomax-KEY" },
+  const { data } = await apiClient.get(endpoint, {
     params,
   });
 
@@ -61,6 +62,8 @@ function useDebounce(value: string, delay: number) {
 
 // --- Custom Hook useTransactions (tidak ada perubahan) ---
 export function useTransactions() {
+  const user = useUserStore((state) => state.user);
+
   const [page, setPage] = React.useState(1);
   const [filterValue, setFilterValue] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState<string>("all");
@@ -72,14 +75,21 @@ export function useTransactions() {
   const { data, isLoading, isError } = useQuery<TransactionApiResponse, Error>({
     queryKey: [
       "transactions",
-      KODE_RESELLER,
+      user?.kode,
       page,
       debouncedFilterValue,
       statusFilter,
       dateRange,
     ],
     queryFn: () =>
-      fetchTransactions(page, debouncedFilterValue, statusFilter, dateRange),
+      fetchTransactions(
+        user!.kode,
+        page,
+        debouncedFilterValue,
+        statusFilter,
+        dateRange
+      ),
+    enabled: !!user?.kode,
     placeholderData: (previousData) => previousData,
   });
 

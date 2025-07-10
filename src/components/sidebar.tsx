@@ -25,6 +25,8 @@ import {
   DocumentTextIcon,
 } from "@heroicons/react/24/outline";
 import { Logo, MoreHorizontalIcon, ChevronLeftIcon } from "@/components/icons";
+import { useAuthStore } from "@/store/authStore";
+import { useUserStore } from "@/store/userStore";
 
 interface SidebarProps {
   isCollapsed?: boolean;
@@ -36,7 +38,9 @@ export const SidebarContent = ({
   isCollapsed,
   onNavItemClick,
 }: SidebarProps) => {
-  // Map routes to their corresponding icons
+  const user = useUserStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout);
+
   const iconMap: { [key: string]: React.ElementType } = {
     "/": HomeIcon,
     "/produk": ShoppingBagIcon,
@@ -119,13 +123,13 @@ export const SidebarContent = ({
             >
               <Avatar
                 size="sm"
+                name={user?.kode || "U"}
                 src="https://i.pravatar.cc/150?u=a042581f4e29026024d"
               />
               {!isCollapsed && (
                 <div className="flex-1">
-                  <p className="text-sm font-semibold text-foreground">admin</p>
-                  <p className="text-xs text-foreground-500">
-                    admin@otomax.com
+                  <p className="text-sm font-semibold text-foreground">
+                    {user?.nama || "Nama Pengguna"}
                   </p>
                 </div>
               )}
@@ -141,8 +145,16 @@ export const SidebarContent = ({
               textValue="Profile Info"
               isDisabled
             >
-              <p className="font-semibold">Signed in as</p>
-              <p className="font-semibold">admin@otomax.com</p>
+              <p className="font-semibold">{user?.kode}</p>
+              <p className="font-semibold">
+                {user?.saldo !== undefined
+                  ? new Intl.NumberFormat("id-ID", {
+                      style: "currency",
+                      currency: "IDR",
+                      minimumFractionDigits: 0,
+                    }).format(user.saldo)
+                  : "..."}
+              </p>
             </DropdownItem>
             <DropdownItem
               key="settings"
@@ -155,6 +167,7 @@ export const SidebarContent = ({
               key="logout"
               color="danger"
               startContent={<ArrowLeftOnRectangleIcon className="h-5 w-5" />}
+              onPress={logout}
             >
               Log Out
             </DropdownItem>

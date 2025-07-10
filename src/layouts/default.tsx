@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+
 import { Drawer, DrawerContent } from "@heroui/drawer";
 import { Outlet } from "react-router-dom";
 import cn from "clsx";
@@ -6,8 +8,15 @@ import { Sidebar, SidebarContent } from "@/components/sidebar";
 import { Header } from "@/components/header";
 import { useUiStore } from "@/store/uiStore"; // <-- 1. Import store
 
+import { useUserStore } from "@/store/userStore";
+
 export default function DefaultLayout() {
-  // 2. Gantikan useState dengan state dari Zustand
+  const { fetchUserData } = useUserStore();
+
+  useEffect(() => {
+    fetchUserData();
+  }, [fetchUserData]);
+
   const {
     isSidebarCollapsed,
     toggleSidebarCollapse,

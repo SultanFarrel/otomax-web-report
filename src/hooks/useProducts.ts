@@ -1,5 +1,5 @@
 import React from "react";
-import axios from "axios";
+import apiClient from "@/api/axios";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiResponse } from "@/types"; // Impor tipe dari lokasi terpusat
 
@@ -28,7 +28,7 @@ const fetchProducts = async (
   statusFilter: string // status bisa: 'all', 'aktif', 'nonaktif', 'kosong', 'gangguan'
 ): Promise<ApiResponse> => {
   // Endpoint bisa tetap sama atau disesuaikan jika backend butuh endpoint berbeda
-  const endpoint = "http://192.168.10.29:4000/api/produk";
+  const endpoint = "/produk";
 
   const params: {
     page: number;
@@ -58,8 +58,7 @@ const fetchProducts = async (
 
   console.log("Product API Request Params:", params);
 
-  const { data } = await axios.get(endpoint, {
-    headers: { "x-api-key": "rest-otomax-KEY" },
+  const { data } = await apiClient.get(endpoint, {
     params,
   });
 
