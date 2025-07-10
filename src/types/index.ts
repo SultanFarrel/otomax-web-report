@@ -36,6 +36,29 @@ export type Transaction = {
   RowNum: string;
 };
 
+export interface Downline {
+  kode: string;
+  nama: string;
+  saldo: number;
+  alamat: string;
+  aktif: number;
+  suspend: number;
+  kode_upline: string;
+  kode_level: string;
+  keterangan: string | null;
+  tgl_daftar: string;
+  saldo_minimal: number;
+  tgl_aktivitas: string | null;
+  pengingat_saldo: number;
+  RowNum: string;
+  total_downline: number;
+
+  // Properti opsional untuk struktur pohon
+  level?: number;
+  children?: Downline[];
+  hasChildren?: boolean; // Untuk menandakan apakah perlu menampilkan tombol expand
+}
+
 export type ApiResponse = {
   totalItems: number;
   totalPages: number;
@@ -49,3 +72,10 @@ export type TransactionApiResponse = {
   currentPage: number;
   data: Transaction[];
 };
+
+export interface DownlineApiResponse {
+  totalItems: number;
+  totalPages: number;
+  currentPage: number;
+  data: Downline[];
+}
