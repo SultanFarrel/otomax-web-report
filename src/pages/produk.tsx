@@ -98,6 +98,11 @@ export default function ProdukPage() {
             </div>
           );
         case "harga_jual":
+          return new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR",
+            minimumFractionDigits: 0,
+          }).format(product.harga_jual_final);
         case "harga_beli":
           return new Intl.NumberFormat("id-ID", {
             style: "currency",

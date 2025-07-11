@@ -55,6 +55,23 @@ const CustomTooltip = ({ active, payload }: any) => {
   return null;
 };
 
+const SortedLegend = (props: { data: { kode: string; value: number }[] }) => {
+  const { data } = props;
+  return (
+    <div className="flex justify-center flex-wrap gap-x-4 gap-y-2 text-xs mt-4">
+      {data.map((entry, index) => (
+        <div key={`item-${index}`} className="flex items-center gap-1.5">
+          <div
+            className="w-2.5 h-2.5 rounded-sm"
+            style={{ backgroundColor: COLORS[index % COLORS.length] }}
+          />
+          <span>{entry.kode}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 export const TransactionsByProductChart: React.FC<ChartProps> = ({
   data,
   limit,
@@ -147,7 +164,7 @@ export const TransactionsByProductChart: React.FC<ChartProps> = ({
             </Pie>
             {/* FIX 1: Add a formatter to the Tooltip */}
             <Tooltip content={<CustomTooltip />} />
-            <Legend />
+            <Legend content={<SortedLegend data={data} />} />
           </PieChart>
         </ResponsiveContainer>
       </CardBody>

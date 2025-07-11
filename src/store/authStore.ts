@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import axios from "axios";
 import { devtools } from "zustand/middleware";
+import apiClient from "@/api/axios";
 
 interface AuthState {
   token: string | null;
@@ -32,13 +32,10 @@ export const useAuthStore = create<AuthState>()(
       login: async (kode, pin) => {
         set({ isLoading: true, error: null });
         try {
-          const response = await axios.post(
-            "http://localhost:4000/api/auth/login",
-            {
-              kode: kode,
-              pin: pin,
-            }
-          );
+          const response = await apiClient.post("/auth/login", {
+            kode: kode,
+            pin: pin,
+          });
           const { token } = response.data;
           localStorage.setItem("authToken", token);
           set({ token, isLoading: false, error: null });

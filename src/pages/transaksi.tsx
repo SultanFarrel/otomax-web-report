@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Table,
   TableHeader,
@@ -27,10 +27,12 @@ import {
   MagnifyingGlassIcon,
   CalendarIcon,
   ArrowPathIcon,
+  EyeIcon,
 } from "@heroicons/react/24/outline";
 import { useTransactions } from "@/hooks/useTransactions";
 import { Transaction } from "@/types";
 import { RangeValue } from "@react-types/shared";
+import { TransactionDetailModal } from "@/components/TransactionDetailModal";
 
 // ... (ALL_COLUMNS dan konstanta lainnya tetap sama) ...
 const ALL_COLUMNS = [
@@ -42,6 +44,7 @@ const ALL_COLUMNS = [
   { name: "STATUS", uid: "status" },
   { name: "HARGA", uid: "harga", sortable: true },
   { name: "SN", uid: "sn" },
+  { name: "ACTIONS", uid: "actions" },
 ];
 
 const statusColorMap: Record<
@@ -71,6 +74,7 @@ const statusColorMap: Record<
   "46": { color: "danger", text: "Transaksi Dobel" },
   "53": { color: "danger", text: "Luar Wilayah" },
   "4": { color: "warning", text: "Tidak ada Parsing" },
+  "44": { color: "danger", text: "Produk Salah" },
 };
 
 const statusOptions = [
@@ -85,6 +89,7 @@ const statusOptions = [
   { name: "Tujuan Diluar Wilayah", uid: "53" },
   { name: "Timeout", uid: "55" },
   { name: "Nomor Tidak Aktif", uid: "58" },
+  { name: "Produk Salah", uid: "44" },
 ];
 
 export default function TransaksiPage() {
@@ -102,6 +107,8 @@ export default function TransaksiPage() {
     onDateChange,
     resetFilters,
   } = useTransactions();
+
+  const [selectedTrx, setSelectedTrx] = useState<Transaction | null>(null);
 
   const [visibleColumns, setVisibleColumns] = React.useState<Set<string>>(
     new Set(ALL_COLUMNS.map((c) => c.uid))
@@ -168,6 +175,19 @@ export default function TransaksiPage() {
             >
               {cellValue || "N/A"}
             </p>
+          );
+        case "actions":
+          return (
+            <div className="relative flex justify-end items-center gap-2">
+              <Tooltip content="Lihat Detail">
+                <button
+                  onClick={() => setSelectedTrx(trx)}
+                  className="text-lg text-default-400 cursor-pointer active:opacity-50"
+                >
+                  <EyeIcon className="h-5 w-5" />
+                </button>
+              </Tooltip>
+            </div>
           );
         default:
           return <>{cellValue}</>;
@@ -358,42 +378,53 @@ export default function TransaksiPage() {
   ]);
 
   return (
-    <Table
-      isHeaderSticky
-      bottomContent={bottomContent}
-      bottomContentPlacement="outside"
-      topContent={topContent}
-      topContentPlacement="outside"
-      aria-label="Tabel Data Transaksi"
-    >
-      <TableHeader columns={headerColumns}>
-        {(column) => (
-          <TableColumn key={column.uid} allowsSorting={column.sortable}>
-            {column.name}
-          </TableColumn>
-        )}
-      </TableHeader>
-      <TableBody
-        // ... (properti TableBody tetap sama)
-        emptyContent={
-          isTableLoading
-            ? " "
-            : isTableError
-              ? "Gagal memuat data"
-              : "Transaksi tidak ditemukan"
-        }
-        items={tableData?.data || []}
-        isLoading={isTableLoading}
-        loadingContent={<Spinner label="Memuat data..." />}
+    <>
+      <Table
+        isHeaderSticky
+        bottomContent={bottomContent}
+        bottomContentPlacement="outside"
+        topContent={topContent}
+        topContentPlacement="outside"
+        aria-label="Tabel Data Transaksi"
       >
-        {(item) => (
-          <TableRow key={item.kode}>
-            {(columnKey) => (
-              <TableCell>{renderCell(item, columnKey)}</TableCell>
-            )}
-          </TableRow>
-        )}
-      </TableBody>
-    </Table>
+        <TableHeader columns={headerColumns}>
+          {(column) => (
+            <TableColumn
+              key={column.uid}
+              allowsSorting={column.sortable}
+              align={column.uid === "actions" ? "end" : "start"}
+            >
+              {column.name}
+            </TableColumn>
+          )}
+        </TableHeader>
+        <TableBody
+          // ... (properti TableBody tetap sama)
+          emptyContent={
+            isTableLoading
+              ? " "
+              : isTableError
+                ? "Gagal memuat data"
+                : "Transaksi tidak ditemukan"
+          }
+          items={tableData?.data || []}
+          isLoading={isTableLoading}
+          loadingContent={<Spinner label="Memuat data..." />}
+        >
+          {(item) => (
+            <TableRow key={item.kode}>
+              {(columnKey) => (
+                <TableCell>{renderCell(item, columnKey)}</TableCell>
+              )}
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+
+      <TransactionDetailModal
+        trx={selectedTrx}
+        onClose={() => setSelectedTrx(null)}
+      />
+    </>
   );
 }

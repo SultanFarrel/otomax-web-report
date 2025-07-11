@@ -9,6 +9,7 @@ export type Product = {
   nama: string;
   harga_jual: number;
   harga_beli: number;
+  harga_jual_final: number;
   aktif: number;
   kosong: number;
   gangguan: number;
@@ -34,6 +35,9 @@ export type Transaction = {
   poin: number | null;
   saldo_supplier: number | null;
   RowNum: string;
+  tgl_status: string;
+  laba: number;
+  saldo_akhir: number;
 };
 
 export interface Downline {
