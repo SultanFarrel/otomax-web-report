@@ -2,7 +2,7 @@ import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
 
 const apiClient = axios.create({
-  baseURL: "http://localhost:4000/api",
+  baseURL: "http://192.168.10.29:4000/api",
 });
 
 apiClient.interceptors.request.use(
@@ -13,8 +13,6 @@ apiClient.interceptors.request.use(
       // Atur header Authorization dengan format Bearer Token
       config.headers.Authorization = `Bearer ${token}`;
     }
-    // Anda masih bisa menambahkan header lain jika perlu
-    config.headers["x-api-key"] = "rest-otomax-KEY";
     return config;
   },
   (error) => {

@@ -1,6 +1,6 @@
 import React from "react";
 import apiClient from "@/api/axios";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { TransactionApiResponse } from "@/types";
 import { RangeValue } from "@react-types/shared";
 import { DateValue } from "@heroui/calendar";
@@ -37,8 +37,6 @@ const fetchTransactions = async (
     }
   });
 
-  console.log("API Request Params (Reverted):", params);
-
   const { data } = await apiClient.get(endpoint, {
     params,
   });
@@ -62,6 +60,7 @@ function useDebounce(value: string, delay: number) {
 
 // --- Custom Hook useTransactions (tidak ada perubahan) ---
 export function useTransactions() {
+  const queryClient = useQueryClient();
   const user = useUserStore((state) => state.user);
 
   const [page, setPage] = React.useState(1);
@@ -72,26 +71,62 @@ export function useTransactions() {
 
   const debouncedFilterValue = useDebounce(filterValue, 500);
 
-  const { data, isLoading, isError } = useQuery<TransactionApiResponse, Error>({
-    queryKey: [
-      "transactions",
-      user?.kode,
-      page,
-      debouncedFilterValue,
-      statusFilter,
-      dateRange,
-    ],
-    queryFn: () =>
-      fetchTransactions(
-        user!.kode,
+  const { data, isFetching, isError } = useQuery<TransactionApiResponse, Error>(
+    {
+      queryKey: [
+        "transactions",
+        user?.kode,
         page,
         debouncedFilterValue,
         statusFilter,
-        dateRange
-      ),
-    enabled: !!user?.kode,
-    placeholderData: (previousData) => previousData,
-  });
+        dateRange,
+      ],
+      queryFn: () =>
+        fetchTransactions(
+          user!.kode,
+          page,
+          debouncedFilterValue,
+          statusFilter,
+          dateRange
+        ),
+      enabled: !!user?.kode,
+      placeholderData: (previousData) => previousData,
+    }
+  );
+
+  // useEffect untuk prefetching
+  React.useEffect(() => {
+    // Pastikan ada data dan ada halaman selanjutnya
+    if (data?.totalPages && page < data.totalPages) {
+      // Prefetch halaman selanjutnya
+      queryClient.prefetchQuery({
+        queryKey: [
+          "transactions",
+          user?.kode,
+          page + 1, // Prefetch halaman berikutnya
+          debouncedFilterValue,
+          statusFilter,
+          dateRange,
+        ],
+        queryFn: () =>
+          fetchTransactions(
+            user!.kode,
+            page + 1,
+            debouncedFilterValue,
+            statusFilter,
+            dateRange
+          ),
+      });
+    }
+  }, [
+    data,
+    page,
+    queryClient,
+    user,
+    debouncedFilterValue,
+    statusFilter,
+    dateRange,
+  ]);
 
   const onSearchChange = React.useCallback((value?: string) => {
     setFilterValue(value || "");
@@ -117,7 +152,7 @@ export function useTransactions() {
 
   return {
     data,
-    isLoading,
+    isLoading: isFetching && !data,
     isError,
     page,
     setPage,
