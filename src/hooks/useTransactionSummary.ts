@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useUserStore } from "@/store/userStore";
-import apiClient from "@/api/axios";
+import { apiClient } from "@/api/axios";
 import { type DateValue, type RangeValue } from "@heroui/calendar";
 
 // Definisikan tipe agar sesuai dengan respons API Anda

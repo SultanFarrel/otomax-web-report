@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useUserStore } from "@/store/userStore";
-import apiClient from "@/api/axios";
+import { apiClient } from "@/api/axios";
 import { DownlineApiResponse } from "@/types";
 
 // Fungsi helper untuk debounce

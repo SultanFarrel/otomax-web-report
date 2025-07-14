@@ -1,33 +1,18 @@
 import React from "react";
-import apiClient from "@/api/axios";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ApiResponse } from "@/types"; // Impor tipe dari lokasi terpusat
 
-// --- Custom Hook untuk Debounce ---
-function useDebounce(value: string, delay: number) {
-  const [debouncedValue, setDebouncedValue] = React.useState(value);
+import { useQuery } from "@tanstack/react-query";
 
-  React.useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
+import { ApiResponse } from "@/types";
+import { apiClient } from "@/api/axios";
+import { useDebounce } from "@/hooks/useDebounce";
 
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
-
-  return debouncedValue;
-}
-
-// --- Fungsi untuk Fetching Data ---
+// --- Fetching API ---
 const fetchProducts = async (
   page: number,
   pageSize: number,
   filterValue: string,
-  statusFilter: string // status bisa: 'all', 'aktif', 'nonaktif', 'kosong', 'gangguan'
+  statusFilter: string
 ): Promise<ApiResponse> => {
-  // Endpoint bisa tetap sama atau disesuaikan jika backend butuh endpoint berbeda
   const endpoint = "/produk";
 
   const params: {
@@ -41,22 +26,20 @@ const fetchProducts = async (
   };
 
   if (filterValue) {
-    params.search = filterValue; // Menggunakan parameter 'search' yang lebih umum
+    params.search = filterValue;
   }
 
-  // Kirim status filter ke backend
   if (statusFilter !== "all") {
     params.status = statusFilter;
   }
 
+  // Hapus properti yang 'undefined'
   Object.keys(params).forEach((key) => {
     const K = key as keyof typeof params;
     if (params[K] === undefined) {
       delete params[K];
     }
   });
-
-  console.log("Product API Request Params:", params);
 
   const { data } = await apiClient.get(endpoint, {
     params,
@@ -65,40 +48,21 @@ const fetchProducts = async (
   return data;
 };
 
-// --- Inilah Custom Hook kita ---
+// --- Custom Hook useProducts ---
 export function useProducts() {
-  const queryClient = useQueryClient();
-
   const [page, setPage] = React.useState(1);
   const [filterValue, setFilterValue] = React.useState("");
-  // Ubah nilai default statusFilter menjadi 'all' agar lebih konsisten
   const [statusFilter, setStatusFilter] = React.useState<string>("all");
 
   const debouncedFilterValue = useDebounce(filterValue, 500);
   const rowsPerPage = 10;
 
   const { data, isLoading, isError } = useQuery<ApiResponse, Error>({
-    // Tambahkan statusFilter ke queryKey
     queryKey: ["products", page, debouncedFilterValue, statusFilter],
     queryFn: () =>
       fetchProducts(page, rowsPerPage, debouncedFilterValue, statusFilter),
+    placeholderData: (previousData) => previousData,
   });
-
-  // Prefetching untuk halaman selanjutnya
-  React.useEffect(() => {
-    if (data?.totalPages && page < data.totalPages) {
-      queryClient.prefetchQuery({
-        queryKey: ["products", page + 1, debouncedFilterValue, statusFilter],
-        queryFn: () =>
-          fetchProducts(
-            page + 1,
-            rowsPerPage,
-            debouncedFilterValue,
-            statusFilter
-          ),
-      });
-    }
-  }, [data, page, debouncedFilterValue, statusFilter, queryClient]);
 
   // Handler untuk mengubah filter
   const onSearchChange = React.useCallback((value?: string) => {

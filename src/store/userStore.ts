@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { jwtDecode } from "jwt-decode";
-import apiClient from "@/api/axios";
+import { apiClient } from "@/api/axios";
 import { useAuthStore } from "./authStore";
 
 interface JwtPayload {

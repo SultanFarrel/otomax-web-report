@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Downline } from "@/types";
-import apiClient from "@/api/axios";
+import { apiClient } from "@/api/axios";
 import { Spinner } from "@heroui/spinner";
 import { Chip, type ChipProps } from "@heroui/chip";
 import { ChevronRightIcon } from "@heroicons/react/24/solid";

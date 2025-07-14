@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useUserStore } from "@/store/userStore";
-import apiClient from "@/api/axios";
+import { apiClient } from "@/api/axios";
 import { Downline } from "@/types";
 import { DownlineNode } from "@/components/downline-node";
 import { Spinner } from "@heroui/spinner";

@@ -1,14 +1,14 @@
-import { TransactionsByProductChart } from "@/components/charts/TransactionsByProductChart";
-import { TransactionsByStatusChart } from "@/components/charts/TransactionsByStatusChart";
+import { TransactionsByProductChart } from "@/pages/dashboard/charts/TransactionsByProductChart";
+import { TransactionsByStatusChart } from "@/pages/dashboard/charts/TransactionsByStatusChart";
 import { useTransactionSummary } from "@/hooks/useTransactionSummary";
 import { Card } from "@heroui/card";
 import { Spinner } from "@heroui/spinner";
 import { Popover, PopoverTrigger, PopoverContent } from "@heroui/popover";
-import { RangeCalendar, type DateValue } from "@heroui/calendar";
+import { RangeCalendar } from "@heroui/calendar";
 import { Button } from "@heroui/button";
 import { Tooltip } from "@heroui/tooltip";
 import { ArrowPathIcon, CalendarIcon } from "@heroicons/react/24/outline";
-import { type RangeValue } from "@react-types/shared";
+import { formatDateRange } from "@/utils/formatters";
 
 export default function IndexPage() {
   const {
@@ -22,20 +22,6 @@ export default function IndexPage() {
     onDateChange,
     resetDateFilter,
   } = useTransactionSummary();
-
-  // Fungsi untuk memformat tanggal di tombol
-  const formatDateRange = (range: RangeValue<DateValue> | null) => {
-    if (!range) return "Pilih Tanggal";
-    const format = (date: DateValue) => {
-      const day = String(date.day).padStart(2, "0");
-      const month = String(date.month).padStart(2, "0");
-      const year = date.year;
-      return `${day}/${month}/${year}`;
-    };
-    const start = format(range.start);
-    const end = format(range.end);
-    return `${start} - ${end}`;
-  };
 
   return (
     <div className="flex flex-col gap-8">

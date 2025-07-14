@@ -1,4 +1,9 @@
 import React from "react";
+
+import { Transaction } from "@/types";
+import { STATUS_COLORS } from "@/pages/transaction/constants/transaction-constants";
+import { formatCurrency, formatDate } from "@/utils/formatters";
+
 import {
   Modal,
   ModalContent,
@@ -7,39 +12,7 @@ import {
   ModalFooter,
 } from "@heroui/modal";
 import { Button } from "@heroui/button";
-import { Chip, type ChipProps } from "@heroui/chip";
-import { Transaction } from "@/types";
-
-// Helper untuk status, pastikan ini konsisten dengan halaman transaksi
-const statusColorMap: Record<
-  string,
-  { color: ChipProps["color"]; text: string }
-> = {
-  "1": { color: "warning", text: "Proses" },
-  "20": { color: "success", text: "Sukses" },
-  "201": { color: "danger", text: "Dialihkan" },
-  "64": { color: "danger", text: "Diabaikan" },
-  "52": { color: "danger", text: "Tujuan Salah" },
-  "40": { color: "danger", text: "Gagal" },
-  "2": { color: "primary", text: "Menunggu Jawaban" },
-  "69": { color: "danger", text: "Cutoff" },
-  "50": { color: "danger", text: "Dibatalkan" },
-  "3": { color: "danger", text: "Gagal Kirim" },
-  "59": { color: "danger", text: "Harga Tidak Sesuai" },
-  "0": { color: "warning", text: "Kirim Ulang" },
-  "54": { color: "danger", text: "Area Tidak Cocok" },
-  "56": { color: "danger", text: "Blacklist" },
-  "58": { color: "danger", text: "Tidak Aktif" },
-  "47": { color: "danger", text: "Produk Gangguan" },
-  "200": { color: "warning", text: "Proses Ulang" },
-  "61": { color: "danger", text: "QTY Tidak Sesuai" },
-  "45": { color: "danger", text: "Stok Kosong" },
-  "55": { color: "danger", text: "Timeout" },
-  "46": { color: "danger", text: "Transaksi Dobel" },
-  "53": { color: "danger", text: "Luar Wilayah" },
-  "4": { color: "warning", text: "Tidak ada Parsing" },
-  "44": { color: "danger", text: "Produk Salah" },
-};
+import { Chip } from "@heroui/chip";
 
 // Komponen untuk menampilkan satu baris detail
 const DetailRow = ({
@@ -67,24 +40,10 @@ export const TransactionDetailModal: React.FC<ModalProps> = ({
 }) => {
   if (!trx) return null;
 
-  const statusInfo = statusColorMap[trx.status] || {
+  const statusInfo = STATUS_COLORS[trx.status] || {
     color: "default",
     text: `Status ${trx.status}`,
   };
-
-  const formatCurrency = (amount: number) =>
-    new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-    }).format(amount);
-
-  const formatDate = (dateString: string) =>
-    new Intl.DateTimeFormat("id-ID", {
-      dateStyle: "medium",
-      timeStyle: "medium",
-      timeZone: "UTC",
-    }).format(new Date(dateString));
 
   return (
     <Modal isOpen={!!trx} onClose={onClose} size="2xl">

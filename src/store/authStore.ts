@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import apiClient from "@/api/axios";
+import { apiClient } from "@/api/axios";
 
 interface AuthState {
   token: string | null;

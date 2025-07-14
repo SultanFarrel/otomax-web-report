@@ -1,33 +1,50 @@
 import React from "react";
-import apiClient from "@/api/axios";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { TransactionApiResponse } from "@/types";
+
 import { RangeValue } from "@react-types/shared";
-import { DateValue } from "@heroui/calendar";
+import { useQuery } from "@tanstack/react-query";
+
+import { TransactionApiResponse } from "@/types";
+import { apiClient } from "@/api/axios";
 import { useUserStore } from "@/store/userStore";
+import { useDebounce } from "@/hooks/useDebounce";
 
-// const KODE_RESELLER = "AZ0006";
+import { DateValue } from "@heroui/calendar";
 
-// --- Fungsi Fetching API dengan Format Tanggal YYYY-MM-DD ---
+// --- Fetching API ---
 const fetchTransactions = async (
   kode: string,
   page: number,
+  pageSize: number,
   filterValue: string,
   statusFilter: string,
   dateRange: RangeValue<DateValue> | null
 ): Promise<TransactionApiResponse> => {
   const endpoint = `/transaksi/reseller/${kode}`;
 
-  // 1. Kembalikan ke cara yang lebih sederhana
-  const params = {
+  const params: {
+    page: number;
+    pageSize: number;
+    search?: string;
+    status?: string;
+    startDate?: string;
+    endDate?: string;
+  } = {
     page,
-    pageSize: 10,
-    search: filterValue || undefined,
-    status: statusFilter === "all" ? undefined : statusFilter,
-    // Cukup gunakan .toString() yang akan menghasilkan format 'YYYY-MM-DD'
-    startDate: dateRange ? dateRange.start.toString() : undefined,
-    endDate: dateRange ? dateRange.end.toString() : undefined,
+    pageSize,
   };
+
+  if (filterValue) {
+    params.search = filterValue;
+  }
+
+  if (statusFilter !== "all") {
+    params.status = statusFilter;
+  }
+
+  if (dateRange !== null) {
+    params.startDate = dateRange.start.toString();
+    params.endDate = dateRange.end.toString();
+  }
 
   // Hapus properti yang 'undefined'
   Object.keys(params).forEach((key) => {
@@ -44,23 +61,8 @@ const fetchTransactions = async (
   return data;
 };
 
-// --- Custom Hook untuk Debounce (tidak ada perubahan) ---
-function useDebounce(value: string, delay: number) {
-  const [debouncedValue, setDebouncedValue] = React.useState(value);
-  React.useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
-  return debouncedValue;
-}
-
-// --- Custom Hook useTransactions (tidak ada perubahan) ---
+// --- Custom Hook useTransactions ---
 export function useTransactions() {
-  const queryClient = useQueryClient();
   const user = useUserStore((state) => state.user);
 
   const [page, setPage] = React.useState(1);
@@ -70,64 +72,31 @@ export function useTransactions() {
     React.useState<RangeValue<DateValue> | null>(null);
 
   const debouncedFilterValue = useDebounce(filterValue, 500);
+  const rowsPerPage = 10;
 
-  const { data, isFetching, isError } = useQuery<TransactionApiResponse, Error>(
-    {
-      queryKey: [
-        "transactions",
-        user?.kode,
+  const { data, isLoading, isError } = useQuery<TransactionApiResponse, Error>({
+    queryKey: [
+      "transactions",
+      user?.kode,
+      page,
+      debouncedFilterValue,
+      statusFilter,
+      dateRange,
+    ],
+    queryFn: () =>
+      fetchTransactions(
+        user!.kode,
         page,
+        rowsPerPage,
         debouncedFilterValue,
         statusFilter,
-        dateRange,
-      ],
-      queryFn: () =>
-        fetchTransactions(
-          user!.kode,
-          page,
-          debouncedFilterValue,
-          statusFilter,
-          dateRange
-        ),
-      enabled: !!user?.kode,
-      placeholderData: (previousData) => previousData,
-    }
-  );
+        dateRange
+      ),
+    enabled: !!user?.kode,
+    placeholderData: (previousData) => previousData,
+  });
 
-  // useEffect untuk prefetching
-  React.useEffect(() => {
-    // Pastikan ada data dan ada halaman selanjutnya
-    if (data?.totalPages && page < data.totalPages) {
-      // Prefetch halaman selanjutnya
-      queryClient.prefetchQuery({
-        queryKey: [
-          "transactions",
-          user?.kode,
-          page + 1, // Prefetch halaman berikutnya
-          debouncedFilterValue,
-          statusFilter,
-          dateRange,
-        ],
-        queryFn: () =>
-          fetchTransactions(
-            user!.kode,
-            page + 1,
-            debouncedFilterValue,
-            statusFilter,
-            dateRange
-          ),
-      });
-    }
-  }, [
-    data,
-    page,
-    queryClient,
-    user,
-    debouncedFilterValue,
-    statusFilter,
-    dateRange,
-  ]);
-
+  // Handler untuk mengubah filter
   const onSearchChange = React.useCallback((value?: string) => {
     setFilterValue(value || "");
     setPage(1);
@@ -152,7 +121,7 @@ export function useTransactions() {
 
   return {
     data,
-    isLoading: isFetching && !data,
+    isLoading,
     isError,
     page,
     setPage,

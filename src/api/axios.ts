@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
 
-const apiClient = axios.create({
+export const apiClient = axios.create({
   baseURL: "http://192.168.10.29:4000/api",
 });
 
@@ -19,5 +19,3 @@ apiClient.interceptors.request.use(
     return Promise.reject(error);
   }
 );
-
-export default apiClient;
