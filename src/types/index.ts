@@ -63,6 +63,14 @@ export interface Downline {
   hasChildren?: boolean; // Untuk menandakan apakah perlu menampilkan tombol expand
 }
 
+export type BalanceMutation = {
+  kode: number;
+  tanggal: string;
+  jumlah: number;
+  keterangan: string;
+  saldo_akhir: number;
+};
+
 export type ApiResponse = {
   totalItems: number;
   totalPages: number;
@@ -83,3 +91,10 @@ export interface DownlineApiResponse {
   currentPage: number;
   data: Downline[];
 }
+
+export type BalanceMutationApiResponse = {
+  totalItems: number;
+  totalPages: number;
+  currentPage: number;
+  data: BalanceMutation[];
+};

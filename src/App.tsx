@@ -3,13 +3,13 @@ import { Route, Routes } from "react-router-dom";
 import ProtectedRoute from "@/components/protected-route";
 import LoginPage from "@/pages/login";
 import DefaultLayout from "@/layouts/default";
-import IndexPage from "@/pages/dashboard";
+import IndexPage from "@/pages/dashboard/dashboard";
 import SettingsPage from "@/pages/settings";
 import ProdukPage from "@/pages/product/product-pages";
 import TransactionPage from "@/pages/transaction/transaction-pages";
-import MutasiSaldoPage from "@/pages/mutasi-saldo";
+import MutasiSaldoPage from "@/pages/balance mutation/balance-mutation";
 import DownlinePage from "@/pages/downline";
-import TransaksiDownlinePage from "@/pages/transaksi-downline";
+import TransaksiDownlinePage from "@/pages/downline-transaction/downline-transactions";
 
 function App() {
   return (

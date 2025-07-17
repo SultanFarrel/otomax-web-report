@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   PieChart,
   Pie,
@@ -33,11 +33,10 @@ const COLORS = [
 const limitOptions = [
   { key: "3", label: "Top 3" },
   { key: "5", label: "Top 5" },
-  { key: "10", label: "Top 10" },
 ];
 
 interface ChartProps {
-  data: { kode: string; value: number }[];
+  data?: { kode: string; value: number }[];
   limit: number;
   onLimitChange: (limit: number) => void;
 }
@@ -51,7 +50,6 @@ const CustomTooltip = ({ active, payload }: any) => {
       </div>
     );
   }
-
   return null;
 };
 
@@ -73,10 +71,14 @@ const SortedLegend = (props: { data: { kode: string; value: number }[] }) => {
 };
 
 export const TransactionsByProductChart: React.FC<ChartProps> = ({
-  data,
+  data = [],
   limit,
   onLimitChange,
 }) => {
+  const sortedData = useMemo(() => {
+    return [...data].sort((a, b) => b.value - a.value);
+  }, [data]);
+
   return (
     <Card className="p-4">
       <CardHeader className="flex items-center justify-between">
@@ -106,67 +108,42 @@ export const TransactionsByProductChart: React.FC<ChartProps> = ({
         </Dropdown>
       </CardHeader>
       <CardBody>
-        <ResponsiveContainer width="100%" height={300}>
-          <PieChart>
-            <Pie
-              data={data}
-              dataKey="value"
-              nameKey="kode"
-              cx="50%"
-              cy="50%"
-              outerRadius={100}
-              fill="#8884d8"
-              labelLine={false}
-              // FIX 2: Handle potentially undefined properties and remove unused 'entry'
-              label={({
-                cx,
-                cy,
-                midAngle,
-                innerRadius,
-                outerRadius,
-                percent,
-              }) => {
-                // Add a check to prevent rendering if properties are undefined
-                if (
-                  percent === undefined ||
-                  midAngle === undefined ||
-                  cx === undefined ||
-                  cy === undefined ||
-                  innerRadius === undefined ||
-                  outerRadius === undefined
-                ) {
-                  return null;
-                }
-                const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-                const x = cx + radius * Math.cos(-midAngle * (Math.PI / 180));
-                const y = cy + radius * Math.sin(-midAngle * (Math.PI / 180));
-                return (
-                  <text
-                    x={x}
-                    y={y}
-                    fill="white"
-                    textAnchor={x > cx ? "start" : "end"}
-                    dominantBaseline="central"
-                    fontSize={12}
-                  >
-                    {`${(percent * 100).toFixed(0)}%`}
-                  </text>
-                );
-              }}
-              minAngle={20}
-            >
-              {data.map((_entry, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={COLORS[index % COLORS.length]}
-                />
-              ))}
-            </Pie>
-            {/* FIX 1: Add a formatter to the Tooltip */}
-            <Tooltip content={<CustomTooltip />} />
-            <Legend content={<SortedLegend data={data} />} />
-          </PieChart>
-        </ResponsiveContainer>
+        {sortedData.length > 0 ? (
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={sortedData}
+                dataKey="value"
+                nameKey="kode"
+                cx="50%"
+                cy="50%"
+                outerRadius={100}
+                innerRadius={60}
+                fill="#8884d8"
+                paddingAngle={2}
+                labelLine={false}
+                label={({ percent = 0 }) => {
+                  if (percent < 0.05) return null;
+                  return `${(percent * 100).toFixed(0)}%`;
+                }}
+              >
+                {sortedData.map((_entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
+                ))}
+              </Pie>
+              <Tooltip content={<CustomTooltip />} />
+              {/* --- PERBAIKAN DI SINI --- */}
+              <Legend content={<SortedLegend data={sortedData} />} />
+            </PieChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="flex items-center justify-center h-full text-gray-500">
+            Data tidak tersedia.
+          </div>
+        )}
       </CardBody>
     </Card>
   );
