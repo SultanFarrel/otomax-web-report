@@ -62,6 +62,7 @@ export function useProducts() {
     queryFn: () =>
       fetchProducts(page, rowsPerPage, debouncedFilterValue, statusFilter),
     placeholderData: (previousData) => previousData,
+    staleTime: 1 * 60 * 1000, // Cache data selama 1 menit
   });
 
   // Handler untuk mengubah filter

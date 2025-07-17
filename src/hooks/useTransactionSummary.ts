@@ -61,7 +61,7 @@ export function useTransactionSummary() {
     queryKey: ["transactionSummary", user?.kode, limit, dateRange],
     queryFn: () => fetchTransactionSummary(user!.kode, limit, dateRange),
     enabled: !!user?.kode,
-    staleTime: 5 * 60 * 1000, // Cache data selama 5 menit
+    staleTime: 1 * 60 * 1000, // Cache data selama 1 menit
   });
 
   // Handler untuk mengubah state tanggal
