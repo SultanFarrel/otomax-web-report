@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState } from "react"; // Impor useState
 import {
   BarChart,
   Bar,
@@ -10,52 +10,41 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Card, CardHeader, CardBody } from "@heroui/card";
-import {
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
-} from "@heroui/dropdown";
 import { Button } from "@heroui/button";
-import { ChevronDownIcon } from "@heroicons/react/24/outline";
+import { Popover, PopoverTrigger, PopoverContent } from "@heroui/popover";
+import { RangeCalendar, DateValue } from "@heroui/calendar";
+import { RangeValue } from "@react-types/shared";
+import { CalendarIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
+import { formatDateRange } from "@/utils/formatters";
+import { Spinner } from "@heroui/spinner";
 
-// Tentukan tipe props yang diterima komponen
 interface ChartProps {
   data: { status: string; jumlah: number }[];
+  dateRange: RangeValue<DateValue> | null;
+  onDateChange: (range: RangeValue<DateValue>) => void;
+  onResetDateFilter: () => void;
+  isUpdating?: boolean;
 }
 
-/**
- * Komponen untuk menampilkan grafik batang jumlah transaksi berdasarkan status,
- * dengan filter dropdown multi-pilihan.
- * @param data - Data yang sudah diagregasi dari API summary.
- */
-export const TransactionsByStatusChart: React.FC<ChartProps> = ({ data }) => {
-  // State untuk menyimpan status mana saja yang dipilih
-  const [selectedStatuses, setSelectedStatuses] = useState<Set<string>>(
-    new Set()
-  );
+export const TransactionsByStatusChart: React.FC<ChartProps> = ({
+  data,
+  dateRange,
+  onDateChange,
+  onResetDateFilter,
+  isUpdating,
+}) => {
+  // Langkah 1: Tambahkan state untuk mengontrol visibilitas popover
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
-  // Efek untuk menginisialisasi state saat data pertama kali tiba
-  useEffect(() => {
-    if (data && data.length > 0) {
-      // Secara default, pilih semua status yang tersedia
-      setSelectedStatuses(new Set(data.map((item) => item.status)));
+  // Langkah 3: Buat handler baru
+  const handleDateChangeAndClose = (range: RangeValue<DateValue>) => {
+    // Jalankan fungsi update dari parent
+    onDateChange(range);
+
+    // Jika tanggal awal dan akhir sudah terpilih, tutup popover
+    if (range.start && range.end) {
+      setIsCalendarOpen(false);
     }
-  }, [data]);
-
-  // Gunakan useMemo untuk memfilter data yang akan ditampilkan di grafik
-  // berdasarkan status yang dipilih.
-  const filteredData = useMemo(() => {
-    if (!data) return [];
-    // Jika tidak ada yang dipilih, tampilkan data kosong
-    if (selectedStatuses.size === 0) return [];
-    // Filter data asli untuk hanya menyertakan status yang ada di `selectedStatuses`
-    return data.filter((item) => selectedStatuses.has(item.status));
-  }, [data, selectedStatuses]);
-
-  // Handler untuk mengubah pilihan status
-  const handleSelectionChange = (keys: any) => {
-    setSelectedStatuses(new Set(keys));
   };
 
   return (
@@ -63,35 +52,53 @@ export const TransactionsByStatusChart: React.FC<ChartProps> = ({ data }) => {
       <CardHeader className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">Transaksi per Status</h3>
 
-        {/* Dropdown untuk filter status */}
-        <Dropdown>
-          <DropdownTrigger>
-            <Button
-              variant="flat"
-              endContent={<ChevronDownIcon className="h-4 w-4" />}
-            >
-              Pilih Status
-            </Button>
-          </DropdownTrigger>
-          <DropdownMenu
-            aria-label="Pilih Status untuk ditampilkan"
-            variant="flat"
-            closeOnSelect={false} // Biarkan menu tetap terbuka saat memilih
-            disallowEmptySelection
-            selectionMode="multiple"
-            selectedKeys={selectedStatuses}
-            onSelectionChange={handleSelectionChange}
+        <div className="flex items-center gap-2">
+          {/* Langkah 2: Jadikan Popover controlled */}
+          <Popover
+            placement="bottom-end"
+            isOpen={isCalendarOpen}
+            onOpenChange={setIsCalendarOpen}
           >
-            {(data || []).map((item) => (
-              <DropdownItem key={item.status}>{item.status}</DropdownItem>
-            ))}
-          </DropdownMenu>
-        </Dropdown>
+            <PopoverTrigger>
+              <Button
+                variant="flat"
+                startContent={
+                  <CalendarIcon className="h-4 w-4 text-default-500" />
+                }
+              >
+                {formatDateRange(dateRange)}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="p-0">
+              <RangeCalendar
+                aria-label="Filter tanggal dashboard"
+                value={dateRange}
+                onChange={handleDateChangeAndClose} // Gunakan handler baru
+              />
+            </PopoverContent>
+          </Popover>
+          {dateRange && (
+            <Button
+              isIconOnly
+              variant="light"
+              onPress={onResetDateFilter}
+              aria-label="Reset filter tanggal"
+              className="ml-2"
+            >
+              <ArrowPathIcon className="h-5 w-5 text-default-500" />
+            </Button>
+          )}
+        </div>
       </CardHeader>
-      <CardBody className="overflow-hidden">
+      <CardBody className="relative overflow-hidden">
+        {isUpdating && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/50 backdrop-blur-sm">
+            <Spinner size="md" />
+          </div>
+        )}
         <ResponsiveContainer width="100%" height={300}>
           <BarChart
-            data={filteredData} // Gunakan data yang sudah difilter
+            data={data}
             margin={{
               top: 5,
               right: 20,

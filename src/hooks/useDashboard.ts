@@ -2,37 +2,41 @@ import { useQueries } from "@tanstack/react-query";
 import { apiClient } from "@/api/axios";
 import { useUserStore } from "@/store/userStore";
 import { DashboardData } from "@/types";
+import { DateValue, RangeValue } from "@heroui/calendar";
 
-// Fungsi untuk mengambil semua data dashboard
 const fetchDashboardData = async (
   kodeUpline: string,
-  limit: number // Tambahkan parameter limit
+  limit: number,
+  dateRange: RangeValue<DateValue> | null
 ): Promise<DashboardData> => {
-  // Tambahkan 'limit' sebagai query param di URL
   const { data } = await apiClient.get(`/dashboard/summary/${kodeUpline}`, {
-    params: { limit },
+    params: {
+      limit,
+      startDate: dateRange ? dateRange.start.toString() : undefined,
+      endDate: dateRange ? dateRange.end.toString() : undefined,
+    },
   });
   return data;
 };
 
-// Hook kustom untuk dashboard
-export function useDashboard() {
+export function useDashboard(dateRange: RangeValue<DateValue> | null) {
   const user = useUserStore((state) => state.user);
   const limitsToPrefetch = [3, 5];
 
-  // Gunakan useQueries
   const dashboardQueries = useQueries({
     queries: limitsToPrefetch.map((limit) => {
       return {
-        queryKey: ["dashboardData", user?.kode, limit],
-        queryFn: () => fetchDashboardData(user!.kode, limit),
+        queryKey: ["dashboardData", user?.kode, limit, dateRange],
+        queryFn: () => fetchDashboardData(user!.kode, limit, dateRange),
         enabled: !!user?.kode,
+        // ✅ INI KUNCINYA: Tetap tampilkan data sebelumnya saat data baru sedang diambil
+        placeholderData: (previousData: DashboardData | undefined) =>
+          previousData,
         meta: { limit },
       };
     }),
   });
 
-  // Tambahkan limit secara eksplisit agar bisa difilter nantinya
   return dashboardQueries.map((query, index) => ({
     ...query,
     limit: limitsToPrefetch[index],
