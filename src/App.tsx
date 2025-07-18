@@ -10,12 +10,14 @@ import TransactionPage from "@/pages/transaction/transaction-pages";
 import MutasiSaldoPage from "@/pages/balance mutation/balance-mutation";
 import DownlinePage from "@/pages/downline";
 import TransaksiDownlinePage from "@/pages/downline-transaction/downline-transactions";
+import SessionExpiredPage from "./pages/errors/session-expired";
 
 function App() {
   return (
     <Routes>
       {/* Rute publik, bisa diakses tanpa login */}
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/session-expired" element={<SessionExpiredPage />} />
 
       <Route element={<ProtectedRoute />}>
         <Route element={<DefaultLayout />}>

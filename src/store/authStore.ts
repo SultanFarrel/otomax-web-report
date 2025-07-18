@@ -40,9 +40,23 @@ export const useAuthStore = create<AuthState>()(
           localStorage.setItem("authToken", token);
           set({ token, isLoading: false, error: null });
           window.location.href = "/";
-        } catch (err) {
-          const errorMessage = "Kode atau PIN salah.";
-          set({ error: errorMessage, isLoading: false, token: null });
+        } catch (err: any) {
+          // Cek jika error datang dari server dan bukan error jaringan
+          if (err.response) {
+            // Atur pesan error spesifik untuk login
+            set({
+              error: "Kode reseller atau PIN yang Anda masukkan salah.",
+              isLoading: false,
+              token: null,
+            });
+          } else {
+            // Handle error lain (misal: tidak ada koneksi)
+            set({
+              error: "Gagal terhubung ke server.",
+              isLoading: false,
+              token: null,
+            });
+          }
         }
       },
 

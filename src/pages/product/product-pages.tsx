@@ -28,6 +28,7 @@ export default function ProdukPage() {
     onSearchChange,
     statusFilter,
     onStatusChange,
+    resetFilters,
   } = useProducts();
 
   const topContent = React.useMemo(
@@ -37,6 +38,7 @@ export default function ProdukPage() {
         onSearchChange={onSearchChange}
         statusFilter={statusFilter}
         onStatusChange={onStatusChange}
+        onResetFilters={resetFilters}
         totalItems={tableData?.totalItems || 0}
       />
     ),
@@ -45,6 +47,7 @@ export default function ProdukPage() {
       onSearchChange,
       statusFilter,
       onStatusChange,
+      resetFilters,
       tableData?.totalItems,
     ]
   );

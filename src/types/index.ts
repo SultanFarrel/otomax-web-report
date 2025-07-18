@@ -98,3 +98,44 @@ export type BalanceMutationApiResponse = {
   currentPage: number;
   data: BalanceMutation[];
 };
+
+// Tipe data untuk ringkasan statistik
+interface DashboardStats {
+  total_trx_today: number;
+  total_laba_today: number;
+  total_mutasi_in_today: number;
+  total_mutasi_out_today: number;
+  total_komisi_today: number;
+  total_komisi_all: number;
+}
+
+// Tipe data untuk tren transaksi
+interface TransactionTrend {
+  tanggal: string;
+  jumlah: number;
+}
+
+// Tipe data untuk top produk
+interface TopProduct {
+  kode_produk: string;
+  jumlah: number;
+}
+
+// Tipe data untuk top reseller
+interface TopReseller {
+  kode_reseller: string;
+  nama_reseller: string;
+  jumlah_transaksi: number;
+}
+
+// Tipe data untuk respons gabungan dari API
+export interface DashboardData {
+  stats: DashboardStats;
+  transactionsByStatus: { status: string; jumlah: number }[];
+  transactionsByProduct: { kode: string; value: number }[];
+  transactionTrend: TransactionTrend[]; // Data baru untuk tren
+  recentTransactions: Transaction[];
+  recentMutasi: BalanceMutation[];
+  topProducts: TopProduct[];
+  topResellers: TopReseller[];
+}

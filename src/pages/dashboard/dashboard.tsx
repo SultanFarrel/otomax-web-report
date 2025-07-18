@@ -8,11 +8,20 @@ import { TopResellersWidget } from "./components/top-resellers-widget";
 import { TransactionActivity } from "./components/transactions-activity";
 import { TransactionsByStatusChart } from "./charts/TransactionsByStatusChart";
 import { TransactionsByProductChart } from "./charts/TransactionsByProductChart";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 export default function DashboardPage() {
-  const { data, isLoading, isError, refetch, limit, onLimitChange } =
-    useDashboard();
+  const [limit, setLimit] = useState(5);
+  const dashboardQueries = useDashboard();
+
+  const isAnyLoading = dashboardQueries.some((query) => query.isLoading);
+  const firstErrorResult = dashboardQueries.find((query) => query.isError);
+
+  const currentQuery = useMemo(() => {
+    return dashboardQueries.find((q) => q.limit === limit);
+  }, [dashboardQueries, limit]);
+
+  const { data, refetch } = currentQuery || {};
 
   const topProductsChartData = useMemo(() => {
     // Pastikan data tidak undefined sebelum di-map
@@ -26,7 +35,7 @@ export default function DashboardPage() {
     }));
   }, [data?.topProducts]);
 
-  if (isLoading) {
+  if (isAnyLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <Spinner label="Memuat Dashboard..." size="lg" />
@@ -34,11 +43,11 @@ export default function DashboardPage() {
     );
   }
 
-  if (isError || !data) {
+  if (firstErrorResult || !data) {
     return (
       <div className="text-center">
         <p className="text-danger mb-4">Gagal memuat data dashboard.</p>
-        <Button color="primary" onClick={() => refetch()}>
+        <Button color="primary" onClick={() => refetch?.()}>
           Coba Lagi
         </Button>
       </div>
@@ -55,7 +64,7 @@ export default function DashboardPage() {
         <TransactionsByProductChart
           data={topProductsChartData}
           limit={limit}
-          onLimitChange={onLimitChange}
+          onLimitChange={setLimit}
         />
 
         <TransactionActivity

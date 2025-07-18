@@ -1,3 +1,19 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* === Global scrollbar style === */
+html,
+body {
+  @apply scrollbar-thin scrollbar-thumb-default-300 scrollbar-track-transparent;
+}
+
+/* Tambahan opsional untuk dark mode */
+.dark html,
+.dark body {
+  @apply scrollbar-thumb-default-500;
+}
+
+.recharts-wrapper *:focus {
+  outline: none !important;
+}

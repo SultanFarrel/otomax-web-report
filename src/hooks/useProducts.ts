@@ -76,6 +76,12 @@ export function useProducts() {
     setPage(1);
   }, []);
 
+  const resetFilters = React.useCallback(() => {
+    setFilterValue("");
+    setStatusFilter("all");
+    setPage(1);
+  }, []);
+
   // Kembalikan semua state dan fungsi yang dibutuhkan oleh UI
   return {
     data,
@@ -87,5 +93,6 @@ export function useProducts() {
     onSearchChange,
     statusFilter,
     onStatusChange,
+    resetFilters,
   };
 }

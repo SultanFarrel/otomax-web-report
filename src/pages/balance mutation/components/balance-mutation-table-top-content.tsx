@@ -39,7 +39,7 @@ export const BalanceMutationTableTopContent: React.FC<
         <Input
           isClearable
           className="w-full sm:max-w-xs"
-          placeholder="Cari di keterangan..."
+          placeholder="Cari berdasarkan keterangan..."
           startContent={<MagnifyingGlassIcon className="h-5 w-5" />}
           value={filterValue}
           onClear={() => onSearchChange("")}

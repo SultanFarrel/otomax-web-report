@@ -14,5 +14,5 @@ export default {
     extend: {},
   },
   darkMode: "class",
-  plugins: [heroui(), scrollbar],
+  plugins: [heroui(), scrollbar({ nocompatible: true })],
 };

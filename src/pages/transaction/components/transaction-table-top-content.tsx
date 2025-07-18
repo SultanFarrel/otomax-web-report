@@ -73,32 +73,13 @@ export const TransactionTableTopContent: React.FC<
         <Input
           isClearable
           className="w-full sm:max-w-xs"
-          placeholder="Cari"
+          placeholder="Cari..."
           startContent={<MagnifyingGlassIcon className="h-5 w-5" />}
           value={filterValue}
           onClear={() => onSearchChange("")}
           onValueChange={onSearchChange}
         />
         <div className="flex flex-wrap gap-3 items-end">
-          <Popover placement="bottom-start">
-            <PopoverTrigger>
-              <Button
-                variant="flat"
-                startContent={
-                  <CalendarIcon className="h-4 w-4 text-default-500" />
-                }
-              >
-                {formatDateRange(dateRange)}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="p-0">
-              <RangeCalendar
-                aria-label="Date filter"
-                value={dateRange}
-                onChange={onDateChange}
-              />
-            </PopoverContent>
-          </Popover>
           <Dropdown>
             <DropdownTrigger>
               <Button
@@ -146,13 +127,30 @@ export const TransactionTableTopContent: React.FC<
               ))}
             </DropdownMenu>
           </Dropdown>
-          {/* --- TOMBOL RESET --- */}
+          <Popover placement="bottom-start">
+            <PopoverTrigger>
+              <Button
+                variant="flat"
+                startContent={
+                  <CalendarIcon className="h-4 w-4 text-default-500" />
+                }
+              >
+                {formatDateRange(dateRange)}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="p-0">
+              <RangeCalendar
+                aria-label="Date filter"
+                value={dateRange}
+                onChange={onDateChange}
+              />
+            </PopoverContent>
+          </Popover>
           <Tooltip content="Reset Filter" placement="bottom">
             <Button
               isIconOnly
               variant="light"
               onPress={() => {
-                // 5. Panggil fungsi reset dari hook dan reset state 'touched'
                 onResetFilters();
                 setIsStatusFilterTouched(false);
               }}

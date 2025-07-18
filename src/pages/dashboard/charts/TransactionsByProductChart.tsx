@@ -79,6 +79,41 @@ export const TransactionsByProductChart: React.FC<ChartProps> = ({
     return [...data].sort((a, b) => b.value - a.value);
   }, [data]);
 
+  const chart = useMemo(
+    () => (
+      <ResponsiveContainer width="100%" height={300}>
+        <PieChart>
+          <Pie
+            data={sortedData}
+            dataKey="value"
+            nameKey="kode"
+            cx="50%"
+            cy="50%"
+            outerRadius={100}
+            innerRadius={60}
+            fill="#8884d8"
+            paddingAngle={2}
+            labelLine={false}
+            label={({ percent = 0 }) => {
+              if (percent < 0.05) return null;
+              return `${(percent * 100).toFixed(0)}%`;
+            }}
+          >
+            {sortedData.map((_entry, index) => (
+              <Cell
+                key={`cell-${index}`}
+                fill={COLORS[index % COLORS.length]}
+              />
+            ))}
+          </Pie>
+          <Tooltip content={<CustomTooltip />} />
+          <Legend content={<SortedLegend data={sortedData} />} />
+        </PieChart>
+      </ResponsiveContainer>
+    ),
+    [sortedData]
+  );
+
   return (
     <Card className="p-4">
       <CardHeader className="flex items-center justify-between">
@@ -108,42 +143,7 @@ export const TransactionsByProductChart: React.FC<ChartProps> = ({
         </Dropdown>
       </CardHeader>
       <CardBody>
-        {sortedData.length > 0 ? (
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={sortedData}
-                dataKey="value"
-                nameKey="kode"
-                cx="50%"
-                cy="50%"
-                outerRadius={100}
-                innerRadius={60}
-                fill="#8884d8"
-                paddingAngle={2}
-                labelLine={false}
-                label={({ percent = 0 }) => {
-                  if (percent < 0.05) return null;
-                  return `${(percent * 100).toFixed(0)}%`;
-                }}
-              >
-                {sortedData.map((_entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
-                  />
-                ))}
-              </Pie>
-              <Tooltip content={<CustomTooltip />} />
-              {/* --- PERBAIKAN DI SINI --- */}
-              <Legend content={<SortedLegend data={sortedData} />} />
-            </PieChart>
-          </ResponsiveContainer>
-        ) : (
-          <div className="flex items-center justify-center h-full text-gray-500">
-            Data tidak tersedia.
-          </div>
-        )}
+        {sortedData.length > 0 ? chart : <div>Data tidak tersedia</div>}
       </CardBody>
     </Card>
   );

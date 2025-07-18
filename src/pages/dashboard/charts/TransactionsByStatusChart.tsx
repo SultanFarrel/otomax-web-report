@@ -88,7 +88,7 @@ export const TransactionsByStatusChart: React.FC<ChartProps> = ({ data }) => {
           </DropdownMenu>
         </Dropdown>
       </CardHeader>
-      <CardBody>
+      <CardBody className="overflow-hidden">
         <ResponsiveContainer width="100%" height={300}>
           <BarChart
             data={filteredData} // Gunakan data yang sudah difilter

@@ -31,3 +31,23 @@ apiClient.interceptors.request.use(
     return Promise.reject(error);
   }
 );
+
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // Cek jika error memiliki respons dan statusnya 401
+    if (error.response && error.response.status === 401) {
+      // **KONDISI PENTING**: Cek apakah URL bukan dari endpoint login
+      if (error.config.url !== "/auth/login") {
+        // (Opsional tapi direkomendasikan) Cek body respons jika ada
+        const responseData = error.response.data;
+        if (responseData && responseData.error === "SESSION_EXPIRED") {
+          // Arahkan ke halaman sesi berakhir
+          window.location.href = "/session-expired";
+        }
+      }
+    }
+    // Kembalikan error agar bisa ditangani oleh fungsi pemanggil (seperti di authStore)
+    return Promise.reject(error);
+  }
+);
