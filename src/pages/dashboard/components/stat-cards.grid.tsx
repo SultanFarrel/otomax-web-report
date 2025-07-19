@@ -30,6 +30,18 @@ export const StatCardsGrid: React.FC<StatCardsGridProps> = ({ stats }) => {
 
         <Card>
           <CardBody>
+            <p className="text-sm text-default-500">Komisi Hari Ini</p>
+            <p className="text-xl font-bold text-warning">
+              {formatCurrency(stats.total_komisi_today)}
+            </p>
+            <p className="text-xs text-default-500 mt-1">
+              Komisi Keseluruhan: {formatCurrency(stats.total_komisi_all)}
+            </p>
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardBody>
             <p className="text-sm text-default-500">Mutasi Masuk</p>
             <div className="flex items-center gap-2">
               <p className="text-2xl font-bold text-success">
@@ -49,18 +61,6 @@ export const StatCardsGrid: React.FC<StatCardsGridProps> = ({ stats }) => {
               </p>
               <ArrowDownLeftIcon className="h-5 w-5 text-danger" />
             </div>
-          </CardBody>
-        </Card>
-
-        <Card>
-          <CardBody>
-            <p className="text-sm text-default-500">Komisi Hari Ini</p>
-            <p className="text-xl font-bold text-warning">
-              {formatCurrency(stats.total_komisi_today)}
-            </p>
-            <p className="text-xs text-default-500 mt-1">
-              Komisi Keseluruhan: {formatCurrency(stats.total_komisi_all)}
-            </p>
           </CardBody>
         </Card>
       </div>

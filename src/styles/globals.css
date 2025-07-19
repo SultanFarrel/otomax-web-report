@@ -2,6 +2,70 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+    Definisi Palet Warna untuk Light Mode (Default)
+    Menggunakan warna dasar netral dan biru modern.
+  */
+:root {
+  --heroui-background: 240 10% 99%; /* Off-white, sangat terang */
+  --heroui-foreground: 240 10% 3.9%; /* Abu-abu gelap untuk teks */
+  --heroui-card: 0 0% 100%; /* Putih bersih untuk kartu */
+  --heroui-card-foreground: 240 10% 3.9%;
+  --heroui-popover: 0 0% 100%;
+  --heroui-popover-foreground: 240 10% 3.9%;
+  --heroui-primary: 221.2 83.2% 53.3%; /* Biru modern */
+  --heroui-primary-foreground: 210 40% 98%; /* Teks putih keabuan di atas primer */
+  --heroui-secondary: 240 4.8% 95.9%; /* Abu-abu terang */
+  --heroui-secondary-foreground: 240 5.9% 10%;
+  --heroui-muted: 240 4.8% 95.9%;
+  --heroui-muted-foreground: 240 3.8% 46.1%; /* Teks abu-abu pudar */
+  --heroui-accent: 240 4.8% 95.9%;
+  --heroui-accent-foreground: 240 5.9% 10%;
+  --heroui-destructive: 0 84.2% 60.2%; /* Merah untuk 'danger' */
+  --heroui-destructive-foreground: 210 40% 98%;
+  --heroui-border: 240 5.9% 90%; /* Border abu-abu terang */
+  --heroui-input: 240 5.9% 90%;
+  --heroui-ring: 221.2 83.2% 53.3%; /* Warna outline saat focus */
+
+  /* Warna tambahan */
+  --heroui-success: 142.1 76.2% 36.3%; /* Hijau untuk 'success' */
+  --heroui-success-foreground: 210 40% 98%;
+  --heroui-warning: 47.9 95.8% 53.1%; /* Kuning untuk 'warning' */
+  --heroui-warning-foreground: 240 5.9% 10%;
+}
+
+/*
+    Definisi Palet Warna untuk Dark Mode
+    Menggunakan latar belakang biru gelap (slate) untuk kenyamanan mata.
+  */
+.dark {
+  --heroui-background: 222.2 84% 4.9%; /* Biru sangat gelap */
+  --heroui-foreground: 210 40% 98%; /* Teks putih keabuan */
+  --heroui-card: 222.2 84% 4.9%; /* Sama dengan background */
+  --heroui-card-foreground: 210 40% 98%;
+  --heroui-popover: 222.2 84% 4.9%;
+  --heroui-popover-foreground: 210 40% 98%;
+  --heroui-primary: 217.2 91.2% 59.8%; /* Biru yang lebih cerah di dark mode */
+  --heroui-primary-foreground: 222.2 47.4% 11.2%; /* Teks gelap di atas primer */
+  --heroui-secondary: 217.2 32.6% 17.5%; /* Biru keabuan pudar */
+  --heroui-secondary-foreground: 210 40% 98%;
+  --heroui-muted: 217.2 32.6% 17.5%;
+  --heroui-muted-foreground: 215 20.2% 65.1%; /* Teks abu-abu pudar */
+  --heroui-accent: 217.2 32.6% 17.5%;
+  --heroui-accent-foreground: 210 40% 98%;
+  --heroui-destructive: 0 62.8% 30.6%; /* Merah gelap */
+  --heroui-destructive-foreground: 210 40% 98%;
+  --heroui-border: 217.2 32.6% 17.5%; /* Border yang lebih gelap */
+  --heroui-input: 217.2 32.6% 17.5%;
+  --heroui-ring: 217.2 91.2% 59.8%; /* Warna outline saat focus */
+
+  /* Warna tambahan */
+  --heroui-success: 142.1 70.2% 40.3%; /* Hijau gelap */
+  --heroui-success-foreground: 210 40% 98%;
+  --heroui-warning: 47.9 90.8% 48.1%; /* Kuning gelap */
+  --heroui-warning-foreground: 222.2 47.4% 11.2%;
+}
+
 /* === Global scrollbar style === */
 html,
 body {

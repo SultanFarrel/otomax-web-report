@@ -5,7 +5,7 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
+  Tooltip as RechartTooltip,
   Legend,
   ResponsiveContainer,
 } from "recharts";
@@ -17,6 +17,7 @@ import { RangeValue } from "@react-types/shared";
 import { CalendarIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
 import { formatDateRange } from "@/utils/formatters";
 import { Spinner } from "@heroui/spinner";
+import { Tooltip as TooltipComponent } from "@heroui/tooltip";
 
 interface ChartProps {
   data: { status: string; jumlah: number }[];
@@ -78,15 +79,17 @@ export const TransactionsByStatusChart: React.FC<ChartProps> = ({
             </PopoverContent>
           </Popover>
           {dateRange && (
-            <Button
-              isIconOnly
-              variant="light"
-              onPress={onResetDateFilter}
-              aria-label="Reset filter tanggal"
-              className="ml-2"
-            >
-              <ArrowPathIcon className="h-5 w-5 text-default-500" />
-            </Button>
+            <TooltipComponent content="Reset Filter" placement="bottom">
+              <Button
+                isIconOnly
+                variant="light"
+                onPress={onResetDateFilter}
+                aria-label="Reset filter tanggal"
+                className="ml-2"
+              >
+                <ArrowPathIcon className="h-5 w-5 text-default-500" />
+              </Button>
+            </TooltipComponent>
           )}
         </div>
       </CardHeader>
@@ -114,7 +117,7 @@ export const TransactionsByStatusChart: React.FC<ChartProps> = ({
               axisLine={false}
             />
             <YAxis fontSize={12} tickLine={false} axisLine={false} />
-            <Tooltip
+            <RechartTooltip
               contentStyle={{
                 backgroundColor: "hsl(var(--heroui-background))",
                 borderColor: "hsl(var(--heroui-divider))",

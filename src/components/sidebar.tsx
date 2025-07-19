@@ -123,8 +123,8 @@ export const SidebarContent = ({
             >
               <Avatar
                 size="sm"
-                name={user?.kode || "U"}
-                src="https://i.pravatar.cc/150?u=a042581f4e29026024d"
+                name={user?.nama}
+                className="bg-primary text-primary-foreground"
               />
               {!isCollapsed && (
                 <div className="flex-1">
