@@ -6,18 +6,20 @@ import { STATUS_COLORS } from "../constants/transaction-constants";
 
 import { Tooltip } from "@heroui/tooltip";
 import { Chip } from "@heroui/chip";
-import { EyeIcon } from "@heroicons/react/24/outline";
+import { EyeIcon, PrinterIcon } from "@heroicons/react/24/outline";
 
 interface TransactionTableCellProps {
   trx: Transaction;
   columnKey: React.Key;
   onViewDetails: (trx: Transaction) => void;
+  onPrint: (trx: Transaction) => void;
 }
 
 const TransactionTableCellComponent: React.FC<TransactionTableCellProps> = ({
   trx,
   columnKey,
   onViewDetails,
+  onPrint,
 }) => {
   const cellValue = trx[columnKey as keyof Transaction];
 
@@ -58,7 +60,13 @@ const TransactionTableCellComponent: React.FC<TransactionTableCellProps> = ({
     case "actions":
       return (
         <div className="relative flex justify-end items-center gap-2">
-          <Tooltip content="Lihat Detail">
+          <Tooltip
+            content="Lihat Detail"
+            closeDelay={0}
+            classNames={{
+              content: "tooltip-no-pointer",
+            }}
+          >
             <button
               onClick={() => onViewDetails(trx)}
               className="text-lg text-default-400 cursor-pointer active:opacity-50"
@@ -66,10 +74,24 @@ const TransactionTableCellComponent: React.FC<TransactionTableCellProps> = ({
               <EyeIcon className="h-5 w-5" />
             </button>
           </Tooltip>
+          <Tooltip
+            content="Cetak Struk"
+            closeDelay={0}
+            classNames={{
+              content: "tooltip-no-pointer",
+            }}
+          >
+            <button
+              onClick={() => onPrint(trx)}
+              className="text-lg text-default-400 cursor-pointer active:opacity-50"
+            >
+              <PrinterIcon className="h-5 w-5" />
+            </button>
+          </Tooltip>
         </div>
       );
     default:
-      return <>{cellValue}</>;
+      return <p className="text-sm">{cellValue}</p>;
   }
 };
 

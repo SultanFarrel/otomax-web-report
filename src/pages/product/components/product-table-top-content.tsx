@@ -84,7 +84,7 @@ export const ProductTableTopContent: React.FC<ProductTableTopContentProps> = ({
               ))}
             </DropdownMenu>
           </Dropdown>
-          <Tooltip content="Reset Filter" placement="bottom">
+          <Tooltip content="Reset Filter" placement="bottom" closeDelay={0}>
             <Button
               isIconOnly
               variant="light"

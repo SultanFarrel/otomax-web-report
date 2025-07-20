@@ -7,6 +7,7 @@ const COLUMN_NAMES = [
   { name: "RESELLER", uid: "kode_reseller" },
   { name: "PRODUK", uid: "kode_produk" },
   { name: "TUJUAN", uid: "tujuan" },
+  { name: "PENGIRIM", uid: "pengirim" },
   { name: "STATUS", uid: "status" },
   { name: "HARGA", uid: "harga", sortable: true },
   { name: "KOMISI", uid: "komisi", sortable: true },

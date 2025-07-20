@@ -144,7 +144,7 @@ export const DownlineTransactionTableTopContent: React.FC<
               />
             </PopoverContent>
           </Popover>
-          <Tooltip content="Reset Filter" placement="bottom">
+          <Tooltip content="Reset Filter" placement="bottom" closeDelay={0}>
             <Button
               isIconOnly
               variant="light"

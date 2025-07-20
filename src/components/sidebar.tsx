@@ -79,6 +79,7 @@ export const SidebarContent = ({
               content={item.label}
               isDisabled={!isCollapsed}
               placement="right"
+              closeDelay={0}
             >
               <NavLink
                 to={item.href}

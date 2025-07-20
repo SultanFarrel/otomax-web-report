@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Transaction } from "@/types";
 import { useTransactions } from "@/hooks/useTransactions";
 import { TransactionDetailModal } from "@/pages/transaction/components/transaction-detail-modal";
+import { TransactionReceipt } from "@/pages/transaction/components/transaction-receipt";
 
 import { COLUMN_NAMES } from "./constants/transaction-constants";
 import { TransactionTableTopContent } from "./components/transaction-table-top-content";
@@ -36,6 +37,7 @@ export default function TransactionPage() {
   } = useTransactions();
 
   const [selectedTrx, setSelectedTrx] = useState<Transaction | null>(null);
+  const [trxToPrint, setTrxToPrint] = useState<Transaction | null>(null);
 
   const [visibleColumns, setVisibleColumns] = React.useState<Set<string>>(
     new Set(COLUMN_NAMES.map((c) => c.uid))
@@ -44,6 +46,14 @@ export default function TransactionPage() {
   const headerColumns = React.useMemo(() => {
     return COLUMN_NAMES.filter((column) => visibleColumns.has(column.uid));
   }, [visibleColumns]);
+
+  const handlePrint = (trx: Transaction) => {
+    setTrxToPrint(trx);
+    setTimeout(() => {
+      window.print();
+      setTrxToPrint(null);
+    }, 100);
+  };
 
   const topContent = React.useMemo(
     () => (
@@ -93,57 +103,63 @@ export default function TransactionPage() {
 
   return (
     <>
-      <Table
-        isHeaderSticky
-        bottomContent={bottomContent}
-        bottomContentPlacement="outside"
-        topContent={topContent}
-        topContentPlacement="outside"
-        aria-label="Tabel Data Transaksi"
-      >
-        <TableHeader columns={headerColumns}>
-          {(column) => (
-            <TableColumn
-              key={column.uid}
-              allowsSorting={column.sortable}
-              align={column.uid === "actions" ? "end" : "start"}
-            >
-              {column.name}
-            </TableColumn>
-          )}
-        </TableHeader>
-        <TableBody
-          emptyContent={
-            isTableLoading
-              ? " "
-              : isTableError
-                ? "Gagal memuat data"
-                : "Transaksi tidak ditemukan"
-          }
-          items={tableData?.data || []}
-          isLoading={isTableLoading}
-          loadingContent={<Spinner label="Memuat data..." />}
+      <div className="printable-area">
+        <TransactionReceipt transaction={trxToPrint} />
+      </div>
+      <div className="main-content">
+        <Table
+          isHeaderSticky
+          bottomContent={bottomContent}
+          bottomContentPlacement="outside"
+          topContent={topContent}
+          topContentPlacement="outside"
+          aria-label="Tabel Data Transaksi"
         >
-          {(item) => (
-            <TableRow key={item.kode}>
-              {(columnKey) => (
-                <TableCell>
-                  <TransactionTableCell
-                    trx={item}
-                    columnKey={columnKey}
-                    onViewDetails={setSelectedTrx}
-                  />
-                </TableCell>
-              )}
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+          <TableHeader columns={headerColumns}>
+            {(column) => (
+              <TableColumn
+                key={column.uid}
+                allowsSorting={column.sortable}
+                align={column.uid === "actions" ? "end" : "start"}
+              >
+                {column.name}
+              </TableColumn>
+            )}
+          </TableHeader>
+          <TableBody
+            emptyContent={
+              isTableLoading
+                ? " "
+                : isTableError
+                  ? "Gagal memuat data"
+                  : "Transaksi tidak ditemukan"
+            }
+            items={tableData?.data || []}
+            isLoading={isTableLoading}
+            loadingContent={<Spinner label="Memuat data..." />}
+          >
+            {(item) => (
+              <TableRow key={item.kode}>
+                {(columnKey) => (
+                  <TableCell>
+                    <TransactionTableCell
+                      trx={item}
+                      columnKey={columnKey}
+                      onViewDetails={setSelectedTrx}
+                      onPrint={handlePrint}
+                    />
+                  </TableCell>
+                )}
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
 
-      <TransactionDetailModal
-        trx={selectedTrx}
-        onClose={() => setSelectedTrx(null)}
-      />
+        <TransactionDetailModal
+          trx={selectedTrx}
+          onClose={() => setSelectedTrx(null)}
+        />
+      </div>
     </>
   );
 }

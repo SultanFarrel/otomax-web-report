@@ -39,11 +39,11 @@
     Menggunakan latar belakang biru gelap (slate) untuk kenyamanan mata.
   */
 .dark {
-  --heroui-background: 222.2 84% 4.9%; /* Biru sangat gelap */
+  --heroui-background: 0 0% 3.9%;
   --heroui-foreground: 210 40% 98%; /* Teks putih keabuan */
-  --heroui-card: 222.2 84% 4.9%; /* Sama dengan background */
+  --heroui-card: 0 0% 3.9%; /* Sama dengan background */
   --heroui-card-foreground: 210 40% 98%;
-  --heroui-popover: 222.2 84% 4.9%;
+  --heroui-popover: 0 0% 3.9%;
   --heroui-popover-foreground: 210 40% 98%;
   --heroui-primary: 217.2 91.2% 59.8%; /* Biru yang lebih cerah di dark mode */
   --heroui-primary-foreground: 222.2 47.4% 11.2%; /* Teks gelap di atas primer */
@@ -80,4 +80,43 @@ body {
 
 .recharts-wrapper *:focus {
   outline: none !important;
+}
+
+.tooltip-no-pointer {
+  pointer-events: none !important;
+}
+
+/* Style untuk Print */
+@media print {
+  /* Sembunyikan semua elemen kecuali area yang bisa dicetak */
+  body * {
+    visibility: hidden;
+  }
+  .printable-area,
+  .printable-area * {
+    visibility: visible;
+  }
+  /* Atur tata letak struk agar mengisi kertas */
+  .printable-area {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  /* Atur ukuran kertas dan hilangkan margin bawaan browser */
+  @page {
+    size: 58mm auto; /* Atur ukuran kertas thermal */
+    margin: 2mm; /* Beri sedikit margin agar tidak terpotong */
+  }
+
+  /* Styling spesifik untuk div struk saat dicetak */
+  #receipt-to-print {
+    width: 100%;
+    box-sizing: border-box; /* Pastikan padding tidak menambah lebar */
+  }
 }

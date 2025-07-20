@@ -79,7 +79,11 @@ export const TransactionsByStatusChart: React.FC<ChartProps> = ({
             </PopoverContent>
           </Popover>
           {dateRange && (
-            <TooltipComponent content="Reset Filter" placement="bottom">
+            <TooltipComponent
+              content="Reset Filter"
+              placement="bottom"
+              closeDelay={0}
+            >
               <Button
                 isIconOnly
                 variant="light"

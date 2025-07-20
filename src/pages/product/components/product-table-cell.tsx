@@ -35,9 +35,11 @@ export const ProductTableCell: React.FC<ProductTableCellProps> = ({
         </div>
       );
     case "harga_jual":
-      return formatCurrency(product.harga_jual_final);
+      return (
+        <p className="text-sm"> {formatCurrency(product.harga_jual_final)}</p>
+      );
     case "harga_beli":
-      return formatCurrency(cellValue as number);
+      return <p className="text-sm"> {formatCurrency(cellValue as number)}</p>;
 
     case "status": {
       const statusText = getProductStatus(product);
@@ -53,6 +55,6 @@ export const ProductTableCell: React.FC<ProductTableCellProps> = ({
       );
     }
     default:
-      return cellValue;
+      return <p className="text-sm"> {cellValue}</p>;
   }
 };
