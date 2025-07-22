@@ -9,6 +9,7 @@ import { useUserStore } from "@/store/userStore";
 import { useDebounce } from "@/hooks/useDebounce";
 
 import { DateValue } from "@heroui/calendar";
+import { SortDescriptor } from "@heroui/table";
 
 // --- Fetching API ---
 const fetchTransactions = async (
@@ -17,6 +18,7 @@ const fetchTransactions = async (
   pageSize: number,
   filterValue: string,
   statusFilter: string,
+  sortDescriptor: SortDescriptor,
   dateRange: RangeValue<DateValue> | null
 ): Promise<TransactionApiResponse> => {
   const endpoint = `/transaksi/reseller/${kode}`;
@@ -28,6 +30,8 @@ const fetchTransactions = async (
     status?: string;
     startDate?: string;
     endDate?: string;
+    sortBy?: string;
+    sortDirection?: "ascending" | "descending";
   } = {
     page,
     pageSize,
@@ -44,6 +48,11 @@ const fetchTransactions = async (
   if (dateRange !== null) {
     params.startDate = dateRange.start.toString();
     params.endDate = dateRange.end.toString();
+  }
+
+  if (sortDescriptor && sortDescriptor.column) {
+    params.sortBy = sortDescriptor.column as string;
+    params.sortDirection = sortDescriptor.direction;
   }
 
   // Hapus properti yang 'undefined'
@@ -70,6 +79,10 @@ export function useTransactions() {
   const [statusFilter, setStatusFilter] = React.useState<string>("all");
   const [dateRange, setDateRange] =
     React.useState<RangeValue<DateValue> | null>(null);
+  const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor>({
+    column: "tgl_entri",
+    direction: "descending",
+  });
 
   const debouncedFilterValue = useDebounce(filterValue, 500);
   const rowsPerPage = 10;
@@ -81,6 +94,7 @@ export function useTransactions() {
       page,
       debouncedFilterValue,
       statusFilter,
+      sortDescriptor,
       dateRange,
     ],
     queryFn: () =>
@@ -90,6 +104,7 @@ export function useTransactions() {
         rowsPerPage,
         debouncedFilterValue,
         statusFilter,
+        sortDescriptor,
         dateRange
       ),
     enabled: !!user?.kode,
@@ -116,6 +131,7 @@ export function useTransactions() {
     setFilterValue("");
     setStatusFilter("all");
     setDateRange(null);
+    setSortDescriptor({ column: "tgl_entri", direction: "descending" });
     setPage(1);
   }, []);
 
@@ -132,5 +148,7 @@ export function useTransactions() {
     dateRange,
     onDateChange,
     resetFilters,
+    sortDescriptor,
+    setSortDescriptor,
   };
 }

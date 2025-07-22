@@ -19,6 +19,7 @@ import {
   TableCell,
 } from "@heroui/table";
 import { Spinner } from "@heroui/spinner";
+import { SortDescriptor } from "@heroui/table";
 
 export default function TransactionPage() {
   const {
@@ -34,6 +35,8 @@ export default function TransactionPage() {
     dateRange,
     onDateChange,
     resetFilters,
+    sortDescriptor,
+    setSortDescriptor,
   } = useTransactions();
 
   const [selectedTrx, setSelectedTrx] = useState<Transaction | null>(null);
@@ -101,6 +104,11 @@ export default function TransactionPage() {
     setPage,
   ]);
 
+  const handleSortChange = (descriptor: SortDescriptor) => {
+    setSortDescriptor(descriptor);
+    setPage(1);
+  };
+
   return (
     <>
       <div className="printable-area">
@@ -114,13 +122,15 @@ export default function TransactionPage() {
           topContent={topContent}
           topContentPlacement="outside"
           aria-label="Tabel Data Transaksi"
+          sortDescriptor={sortDescriptor}
+          onSortChange={handleSortChange}
         >
           <TableHeader columns={headerColumns}>
             {(column) => (
               <TableColumn
                 key={column.uid}
-                allowsSorting={column.sortable}
                 align={column.uid === "actions" ? "end" : "start"}
+                allowsSorting={column.sortable}
               >
                 {column.name}
               </TableColumn>

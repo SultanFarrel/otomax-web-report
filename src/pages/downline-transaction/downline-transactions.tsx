@@ -17,6 +17,7 @@ import {
   TableCell,
 } from "@heroui/table";
 import { Spinner } from "@heroui/spinner";
+import { SortDescriptor } from "@heroui/table";
 
 export default function DownlineTransactionPage() {
   const {
@@ -32,6 +33,8 @@ export default function DownlineTransactionPage() {
     dateRange,
     onDateChange,
     resetFilters,
+    sortDescriptor,
+    setSortDescriptor,
   } = useDownlineTransactions();
 
   const [selectedTrx, setSelectedTrx] = React.useState<Transaction | null>(
@@ -84,6 +87,11 @@ export default function DownlineTransactionPage() {
     );
   }, [page, tableData?.totalPages, setPage]);
 
+  const handleSortChange = (descriptor: SortDescriptor) => {
+    setSortDescriptor(descriptor);
+    setPage(1);
+  };
+
   return (
     <>
       <Table
@@ -93,13 +101,15 @@ export default function DownlineTransactionPage() {
         topContent={topContent}
         topContentPlacement="outside"
         aria-label="Tabel Data Transaksi Downline"
+        sortDescriptor={sortDescriptor}
+        onSortChange={handleSortChange}
       >
         <TableHeader columns={headerColumns}>
           {(column) => (
             <TableColumn
               key={column.uid}
-              allowsSorting={column.sortable}
               align={column.uid === "actions" ? "end" : "start"}
+              allowsSorting={column.sortable}
             >
               {column.name}
             </TableColumn>

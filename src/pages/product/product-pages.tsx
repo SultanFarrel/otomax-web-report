@@ -16,6 +16,7 @@ import {
   TableCell,
 } from "@heroui/table";
 import { Spinner } from "@heroui/spinner";
+import { SortDescriptor } from "@heroui/table";
 
 export default function ProdukPage() {
   const {
@@ -29,6 +30,8 @@ export default function ProdukPage() {
     statusFilter,
     onStatusChange,
     resetFilters,
+    sortDescriptor,
+    setSortDescriptor,
   } = useProducts();
 
   const topContent = React.useMemo(
@@ -70,6 +73,11 @@ export default function ProdukPage() {
     setPage,
   ]);
 
+  const handleSortChange = (descriptor: SortDescriptor) => {
+    setSortDescriptor(descriptor);
+    setPage(1);
+  };
+
   return (
     <Table
       aria-label="Tabel data produk"
@@ -78,10 +86,16 @@ export default function ProdukPage() {
       bottomContentPlacement="outside"
       topContent={topContent}
       topContentPlacement="outside"
+      sortDescriptor={sortDescriptor}
+      onSortChange={handleSortChange}
     >
       <TableHeader columns={COLUMN_NAMES}>
         {(column) => (
-          <TableColumn key={column.uid} align="start">
+          <TableColumn
+            key={column.uid}
+            align="start"
+            allowsSorting={column.sortable}
+          >
             {column.name}
           </TableColumn>
         )}

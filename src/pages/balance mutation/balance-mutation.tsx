@@ -15,6 +15,7 @@ import {
   TableCell,
 } from "@heroui/table";
 import { Spinner } from "@heroui/spinner";
+import { SortDescriptor } from "@heroui/table";
 
 export default function BalanceMutationPage() {
   const {
@@ -28,6 +29,8 @@ export default function BalanceMutationPage() {
     dateRange,
     onDateChange,
     resetFilters,
+    sortDescriptor,
+    setSortDescriptor,
   } = useBalanceMutation();
 
   const topContent = React.useMemo(
@@ -61,6 +64,11 @@ export default function BalanceMutationPage() {
     );
   }, [page, tableData?.totalPages, setPage]);
 
+  const handleSortChange = (descriptor: SortDescriptor) => {
+    setSortDescriptor(descriptor);
+    setPage(1);
+  };
+
   return (
     <Table
       isHeaderSticky
@@ -69,13 +77,15 @@ export default function BalanceMutationPage() {
       topContent={topContent}
       topContentPlacement="outside"
       aria-label="Tabel Data Mutasi Saldo"
+      sortDescriptor={sortDescriptor}
+      onSortChange={handleSortChange}
     >
       <TableHeader columns={COLUMN_NAMES}>
         {(column) => (
           <TableColumn
             key={column.uid}
-            allowsSorting={column.sortable}
             align={column.uid === "actions" ? "end" : "start"}
+            allowsSorting={column.sortable}
           >
             {column.name}
           </TableColumn>

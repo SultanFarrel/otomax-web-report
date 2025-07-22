@@ -4,12 +4,12 @@ import { ChipProps } from "@heroui/chip";
 const COLUMN_NAMES = [
   { name: "TRX ID", uid: "kode", sortable: true },
   { name: "TGL ENTRI", uid: "tgl_entri", sortable: true },
-  { name: "PRODUK", uid: "kode_produk" },
-  { name: "TUJUAN", uid: "tujuan" },
-  { name: "PENGIRIM", uid: "pengirim" },
-  { name: "STATUS", uid: "status" },
+  { name: "PRODUK", uid: "kode_produk", sortable: true },
+  { name: "TUJUAN", uid: "tujuan", sortable: true },
+  { name: "PENGIRIM", uid: "pengirim", sortable: true },
+  { name: "STATUS", uid: "status", sortable: true },
   { name: "HARGA", uid: "harga", sortable: true },
-  { name: "SN", uid: "sn" },
+  { name: "SN", uid: "sn", sortable: true },
   { name: "ACTIONS", uid: "actions" },
 ];
 

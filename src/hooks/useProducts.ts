@@ -6,12 +6,15 @@ import { ApiResponse } from "@/types";
 import { apiClient } from "@/api/axios";
 import { useDebounce } from "@/hooks/useDebounce";
 
+import { SortDescriptor } from "@heroui/table";
+
 // --- Fetching API ---
 const fetchProducts = async (
   page: number,
   pageSize: number,
   filterValue: string,
-  statusFilter: string
+  statusFilter: string,
+  sortDescriptor: SortDescriptor
 ): Promise<ApiResponse> => {
   const endpoint = "/produk";
 
@@ -20,6 +23,8 @@ const fetchProducts = async (
     pageSize: number;
     search?: string;
     status?: string;
+    sortBy?: string;
+    sortDirection?: "ascending" | "descending";
   } = {
     page,
     pageSize,
@@ -31,6 +36,11 @@ const fetchProducts = async (
 
   if (statusFilter !== "all") {
     params.status = statusFilter;
+  }
+
+  if (sortDescriptor && sortDescriptor.column) {
+    params.sortBy = sortDescriptor.column as string;
+    params.sortDirection = sortDescriptor.direction;
   }
 
   // Hapus properti yang 'undefined'
@@ -53,16 +63,32 @@ export function useProducts() {
   const [page, setPage] = React.useState(1);
   const [filterValue, setFilterValue] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState<string>("all");
+  const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor>({
+    column: "kode",
+    direction: "ascending",
+  });
 
   const debouncedFilterValue = useDebounce(filterValue, 500);
   const rowsPerPage = 10;
 
   const { data, isLoading, isError } = useQuery<ApiResponse, Error>({
-    queryKey: ["products", page, debouncedFilterValue, statusFilter],
+    queryKey: [
+      "products",
+      page,
+      debouncedFilterValue,
+      statusFilter,
+      sortDescriptor,
+    ],
     queryFn: () =>
-      fetchProducts(page, rowsPerPage, debouncedFilterValue, statusFilter),
+      fetchProducts(
+        page,
+        rowsPerPage,
+        debouncedFilterValue,
+        statusFilter,
+        sortDescriptor
+      ),
     placeholderData: (previousData) => previousData,
-    staleTime: 1 * 60 * 1000, // Cache data selama 1 menit
+    staleTime: 5 * 60 * 1000, // Cache data selama 5 menit
   });
 
   // Handler untuk mengubah filter
@@ -79,6 +105,7 @@ export function useProducts() {
   const resetFilters = React.useCallback(() => {
     setFilterValue("");
     setStatusFilter("all");
+    setSortDescriptor({ column: "kode", direction: "ascending" });
     setPage(1);
   }, []);
 
@@ -94,5 +121,7 @@ export function useProducts() {
     statusFilter,
     onStatusChange,
     resetFilters,
+    sortDescriptor,
+    setSortDescriptor,
   };
 }
