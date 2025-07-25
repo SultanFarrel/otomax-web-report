@@ -16,6 +16,8 @@ import {
 } from "@heroui/dropdown";
 import { Button } from "@heroui/button";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
+import { useTopProductsAndResellers } from "@/hooks/dashboard/useTopProductsAndResellers";
+import { TransactionsByProductChartSkeleton } from "../components/skeleton/TransactionsByProductChart.skeleton";
 
 const COLORS = [
   "#0088FE",
@@ -36,7 +38,6 @@ const limitOptions = [
 ];
 
 interface ChartProps {
-  data?: { kode: string; value: number }[];
   limit: number;
   onLimitChange: (limit: number) => void;
 }
@@ -71,13 +72,28 @@ const SortedLegend = (props: { data: { kode: string; value: number }[] }) => {
 };
 
 export const TransactionsByProductChart: React.FC<ChartProps> = ({
-  data = [],
   limit,
   onLimitChange,
 }) => {
+  const {
+    data: TopProductsData,
+    isLoading,
+    isError,
+  } = useTopProductsAndResellers(limit);
+
   const sortedData = useMemo(() => {
-    return [...data].sort((a, b) => b.value - a.value);
-  }, [data]);
+    // 1. Handle jika data belum ada (saat loading atau error)
+    if (!TopProductsData?.topProducts) {
+      return [];
+    }
+    // 2. Map data ke format yang dibutuhkan chart ({kode, value})
+    const mappedData = TopProductsData.topProducts.map((product) => ({
+      kode: product.kode_produk,
+      value: product.jumlah,
+    }));
+    // 3. Sortir data yang sudah di-map
+    return mappedData.sort((a, b) => b.value - a.value);
+  }, [TopProductsData]);
 
   const chart = useMemo(
     () => (
@@ -113,6 +129,22 @@ export const TransactionsByProductChart: React.FC<ChartProps> = ({
     ),
     [sortedData]
   );
+
+  if (isLoading) {
+    return <TransactionsByProductChartSkeleton />;
+  }
+
+  if (isError || !TopProductsData) {
+    return (
+      <div className="grid grid-cols-1">
+        <Card className="bg-danger-50 border-danger-200">
+          <CardBody>
+            <p className="text-danger-700">Gagal memuat chart.</p>
+          </CardBody>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <Card className="p-4">

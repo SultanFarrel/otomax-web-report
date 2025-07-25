@@ -4,19 +4,28 @@ import React from "react";
 import { Card, CardBody } from "@heroui/card";
 import { formatCurrency } from "@/utils/formatters";
 import { ArrowUpRightIcon, ArrowDownLeftIcon } from "@heroicons/react/24/solid";
+import { useDashboardStats } from "@/hooks/dashboard/useDashboardStats";
+import { StatCardsGridSkeleton } from "./skeleton/stat-cards-grid.skeleton";
 
-interface StatCardsGridProps {
-  stats: {
-    total_trx_today: number;
-    total_laba_today: number;
-    total_mutasi_in_today: number;
-    total_mutasi_out_today: number;
-    total_komisi_today: number;
-    total_komisi_all: number;
-  };
-}
+export const StatCardsGrid: React.FC = () => {
+  const { data: stats, isLoading, isError } = useDashboardStats();
 
-export const StatCardsGrid: React.FC<StatCardsGridProps> = ({ stats }) => {
+  if (isLoading) {
+    return <StatCardsGridSkeleton />;
+  }
+
+  if (isError || !stats) {
+    return (
+      <div className="grid grid-cols-1">
+        <Card className="bg-danger-50 border-danger-200">
+          <CardBody>
+            <p className="text-danger-700">Gagal memuat data statistik.</p>
+          </CardBody>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-4">
       {/* Grid 4 Kolom */}

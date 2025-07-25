@@ -1,19 +1,35 @@
 import React from "react";
 import { Card, CardHeader, CardBody } from "@heroui/card";
 import { Avatar } from "@heroui/avatar";
-
-interface TopResellersListProps {
-  data: {
-    kode_reseller: string;
-    nama_reseller: string;
-    jumlah_transaksi: number;
-  }[];
-}
+import { useTopProductsAndResellers } from "@/hooks/dashboard/useTopProductsAndResellers";
+import { TopResellersWidgetSkeleton } from "./skeleton/top-resellers-widget.skeleton";
 
 const formatNumber = (num: number) =>
   new Intl.NumberFormat("id-ID").format(num);
 
-export const TopResellersList: React.FC<TopResellersListProps> = ({ data }) => {
+export const TopResellersList: React.FC = () => {
+  const {
+    data: TopResellersData,
+    isLoading,
+    isError,
+  } = useTopProductsAndResellers(5);
+
+  if (isLoading) {
+    return <TopResellersWidgetSkeleton />;
+  }
+
+  if (isError || !TopResellersData) {
+    return (
+      <div className="grid grid-cols-1">
+        <Card className="bg-danger-50 border-danger-200">
+          <CardBody>
+            <p className="text-danger-700">Gagal memuat chart.</p>
+          </CardBody>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -21,7 +37,7 @@ export const TopResellersList: React.FC<TopResellersListProps> = ({ data }) => {
       </CardHeader>
       <CardBody className="p-0">
         <div className="divide-y divide-default-100">
-          {data.map((reseller, index) => (
+          {TopResellersData.topResellers.map((reseller, index) => (
             <div
               key={reseller.kode_reseller}
               className="p-4 flex items-center justify-between hover:bg-default-50 transition-colors"

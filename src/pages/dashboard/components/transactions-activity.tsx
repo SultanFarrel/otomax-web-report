@@ -3,19 +3,31 @@ import { Card, CardHeader, CardBody } from "@heroui/card";
 import { Button } from "@heroui/button";
 import { RecentTransactions } from "./recent-transactions";
 import { RecentBalanceMutations } from "./recent-balance-mutations";
+import { useRecentActivity } from "@/hooks/dashboard/useRecentActivity";
+import { TransactionActivitySkeleton } from "./skeleton/TransactionActivity.skeleton";
 
-interface Props {
-  recentTransactions: any[];
-  recentMutasi: any[];
-}
+export const TransactionActivity: React.FC = () => {
+  const { data: recentActivityData, isLoading, isError } = useRecentActivity();
 
-export const TransactionActivity: React.FC<Props> = ({
-  recentTransactions,
-  recentMutasi,
-}) => {
   const [activeTab, setActiveTab] = useState<"transactions" | "mutasi">(
     "transactions"
   );
+
+  if (isLoading) {
+    return <TransactionActivitySkeleton />;
+  }
+
+  if (isError || !recentActivityData) {
+    return (
+      <div className="grid grid-cols-1">
+        <Card className="bg-danger-50 border-danger-200">
+          <CardBody>
+            <p className="text-danger-700">Gagal memuat chart.</p>
+          </CardBody>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <Card>
@@ -49,9 +61,9 @@ export const TransactionActivity: React.FC<Props> = ({
       <CardBody>
         <div className="max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-default-300 scrollbar-track-transparent px-2 transition-all duration-300 ease-in-out">
           {activeTab === "transactions" ? (
-            <RecentTransactions data={recentTransactions} />
+            <RecentTransactions data={recentActivityData?.recentTransactions} />
           ) : (
-            <RecentBalanceMutations data={recentMutasi} />
+            <RecentBalanceMutations data={recentActivityData?.recentMutasi} />
           )}
         </div>
       </CardBody>

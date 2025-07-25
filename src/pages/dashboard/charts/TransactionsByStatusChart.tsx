@@ -16,28 +16,31 @@ import { RangeCalendar, DateValue } from "@heroui/calendar";
 import { RangeValue } from "@react-types/shared";
 import { CalendarIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
 import { formatDateRange } from "@/utils/formatters";
-import { Spinner } from "@heroui/spinner";
 import { Tooltip as TooltipComponent } from "@heroui/tooltip";
+import { useTransactionsByStatusChart } from "@/hooks/dashboard/useTransactionsByStatusChart";
+import { TransactionsByStatusChartSkeleton } from "../components/skeleton/TransactionsByStatusChart.skeleton";
 
 interface ChartProps {
-  data: { status: string; jumlah: number }[];
   dateRange: RangeValue<DateValue> | null;
   onDateChange: (range: RangeValue<DateValue>) => void;
   onResetDateFilter: () => void;
-  isUpdating?: boolean;
 }
 
 export const TransactionsByStatusChart: React.FC<ChartProps> = ({
-  data,
   dateRange,
   onDateChange,
   onResetDateFilter,
-  isUpdating,
 }) => {
-  // Langkah 1: Tambahkan state untuk mengontrol visibilitas popover
+  const {
+    data: transactionChartData,
+    isLoading,
+    isError,
+  } = useTransactionsByStatusChart(dateRange);
+
+  // Tambahkan state untuk mengontrol visibilitas popover
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
-  // Langkah 3: Buat handler baru
+  // Buat handler baru
   const handleDateChangeAndClose = (range: RangeValue<DateValue>) => {
     // Jalankan fungsi update dari parent
     onDateChange(range);
@@ -48,13 +51,28 @@ export const TransactionsByStatusChart: React.FC<ChartProps> = ({
     }
   };
 
+  if (isLoading) {
+    return <TransactionsByStatusChartSkeleton />;
+  }
+
+  if (isError || !transactionChartData) {
+    return (
+      <div className="grid grid-cols-1">
+        <Card className="bg-danger-50 border-danger-200">
+          <CardBody>
+            <p className="text-danger-700">Gagal memuat chart.</p>
+          </CardBody>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <Card className="p-4">
       <CardHeader className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">Transaksi per Status</h3>
 
         <div className="flex items-center gap-2">
-          {/* Langkah 2: Jadikan Popover controlled */}
           <Popover
             placement="bottom-end"
             isOpen={isCalendarOpen}
@@ -98,14 +116,9 @@ export const TransactionsByStatusChart: React.FC<ChartProps> = ({
         </div>
       </CardHeader>
       <CardBody className="relative overflow-hidden">
-        {isUpdating && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/50 backdrop-blur-sm">
-            <Spinner size="md" />
-          </div>
-        )}
         <ResponsiveContainer width="100%" height={300}>
           <BarChart
-            data={data}
+            data={transactionChartData}
             margin={{
               top: 5,
               right: 20,
