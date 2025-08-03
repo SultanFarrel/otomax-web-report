@@ -149,7 +149,7 @@ export const TransactionsByProductChart: React.FC<ChartProps> = ({
   return (
     <Card className="p-4">
       <CardHeader className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Top Produk</h3>
+        <h3 className="text-lg font-semibold">Top Produk (7 hari terakhir)</h3>
 
         <Dropdown>
           <DropdownTrigger>

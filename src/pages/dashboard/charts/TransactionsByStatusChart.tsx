@@ -70,7 +70,9 @@ export const TransactionsByStatusChart: React.FC<ChartProps> = ({
   return (
     <Card className="p-4">
       <CardHeader className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Transaksi per Status</h3>
+        <h3 className="text-lg font-semibold">
+          Transaksi per Status {dateRange ? "" : "(7 hari terakhir)"}
+        </h3>
 
         <div className="flex items-center gap-2">
           <Popover

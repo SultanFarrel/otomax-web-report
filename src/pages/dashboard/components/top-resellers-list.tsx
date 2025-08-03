@@ -33,7 +33,9 @@ export const TopResellersList: React.FC = () => {
   return (
     <Card>
       <CardHeader>
-        <h3 className="text-lg font-semibold">Top Reseller</h3>
+        <h3 className="text-lg font-semibold">
+          Top Reseller (7 hari terakhir)
+        </h3>
       </CardHeader>
       <CardBody className="p-0">
         <div className="divide-y divide-default-100">
@@ -60,7 +62,7 @@ export const TopResellersList: React.FC = () => {
               </div>
               <div className="text-right">
                 <p className="font-semibold text-sm">
-                  {formatNumber(reseller.jumlah_transaksi)}{" "}
+                  {formatNumber(reseller.jumlah_transaksi)}
                   <span className="text-xs text-default-400">TRX</span>
                 </p>
               </div>

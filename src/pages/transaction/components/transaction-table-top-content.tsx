@@ -73,7 +73,7 @@ export const TransactionTableTopContent: React.FC<
         <Input
           isClearable
           className="w-full sm:max-w-xs"
-          placeholder="Cari..."
+          placeholder="Cari tujuan"
           startContent={<MagnifyingGlassIcon className="h-5 w-5" />}
           value={filterValue}
           onClear={() => onSearchChange("")}

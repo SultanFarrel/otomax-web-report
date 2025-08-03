@@ -16,7 +16,7 @@ export const fetchTopProductsAndResellers = async (
   const { data } = await apiClient.get(
     `/dashboard/top-products-resellers/${kodeUpline}`,
     {
-      params: { limit },
+      params: { limit, refereceDate: "2025-07-18" },
     }
   );
   return data;

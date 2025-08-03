@@ -18,6 +18,7 @@ const fetchTransactionsByStatusChart = async (
     `/dashboard/status-chart/${kodeUpline}`,
     {
       params: {
+        referenceDate: "2025-07-18", // DELETE THIS FOR PRODUCTION
         startDate: dateRange ? dateRange.start.toString() : undefined,
         endDate: dateRange ? dateRange.end.toString() : undefined,
       },
