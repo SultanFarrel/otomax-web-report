@@ -1,10 +1,7 @@
-// src/pages/balance-mutation.tsx
-
-import React from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { useBalanceMutation } from "@/hooks/useBalanceMutation";
 import { COLUMN_NAMES } from "./constants/balance-mutation-constants";
 import { BalanceMutationTableTopContent } from "./components/balance-mutation-table-top-content";
-import { BalanceMutationTableBottomContent } from "./components/balance-mutation-table-bottom-contents";
 import { BalanceMutationTableCellComponent } from "./components/balance-mutation-table-cell";
 import {
   Table,
@@ -15,15 +12,16 @@ import {
   TableCell,
 } from "@heroui/table";
 import { Spinner } from "@heroui/spinner";
+import { Button } from "@heroui/button";
 import { SortDescriptor } from "@heroui/table";
+
+const ITEMS_PER_LOAD = 20;
 
 export default function BalanceMutationPage() {
   const {
-    data: tableData,
-    isLoading: isTableLoading,
-    isError: isTableError,
-    page,
-    setPage,
+    allFetchedItems,
+    isLoading,
+    isError,
     filterValue,
     onSearchChange,
     dateRange,
@@ -33,7 +31,33 @@ export default function BalanceMutationPage() {
     setSortDescriptor,
   } = useBalanceMutation();
 
-  const topContent = React.useMemo(
+  const [visibleItemCount, setVisibleItemCount] = useState(ITEMS_PER_LOAD);
+  const [isClientLoading, setIsClientLoading] = useState(false);
+
+  useEffect(() => {
+    setVisibleItemCount(ITEMS_PER_LOAD);
+  }, [allFetchedItems]);
+
+  const itemsToDisplay = useMemo(
+    () => allFetchedItems.slice(0, visibleItemCount),
+    [allFetchedItems, visibleItemCount]
+  );
+
+  const handleLoadMore = useCallback(() => {
+    setIsClientLoading(true);
+    // Simulasi loading agar spinner terlihat
+    setTimeout(() => {
+      setVisibleItemCount((prev) =>
+        // Pastikan tidak melebihi total item yang ada
+        Math.min(prev + ITEMS_PER_LOAD, allFetchedItems.length)
+      );
+      setIsClientLoading(false);
+    }, 300);
+  }, [allFetchedItems.length]);
+
+  const canLoadMore = visibleItemCount < allFetchedItems.length;
+
+  const topContent = useMemo(
     () => (
       <BalanceMutationTableTopContent
         filterValue={filterValue}
@@ -41,7 +65,7 @@ export default function BalanceMutationPage() {
         dateRange={dateRange}
         onDateChange={onDateChange}
         onResetFilters={resetFilters}
-        totalItems={tableData?.totalItems || 0}
+        totalItems={itemsToDisplay.length}
       />
     ),
     [
@@ -50,23 +74,27 @@ export default function BalanceMutationPage() {
       dateRange,
       onDateChange,
       resetFilters,
-      tableData?.totalItems,
+      itemsToDisplay.length,
     ]
   );
 
-  const bottomContent = React.useMemo(() => {
+  const bottomContent = useMemo(() => {
+    if (!canLoadMore) return null;
     return (
-      <BalanceMutationTableBottomContent
-        page={page}
-        totalPages={tableData?.totalPages || 1}
-        onPageChange={setPage}
-      />
+      <div className="flex w-full justify-center py-4">
+        <Button
+          isLoading={isClientLoading}
+          onPress={handleLoadMore}
+          variant="flat"
+        >
+          Tampilkan Lebih Banyak
+        </Button>
+      </div>
     );
-  }, [page, tableData?.totalPages, setPage]);
+  }, [canLoadMore, isClientLoading, handleLoadMore]);
 
   const handleSortChange = (descriptor: SortDescriptor) => {
     setSortDescriptor(descriptor);
-    setPage(1);
   };
 
   return (
@@ -79,6 +107,9 @@ export default function BalanceMutationPage() {
       aria-label="Tabel Data Mutasi Saldo"
       sortDescriptor={sortDescriptor}
       onSortChange={handleSortChange}
+      classNames={{
+        wrapper: "max-h-[600px] overflow-y-auto p-0",
+      }}
     >
       <TableHeader columns={COLUMN_NAMES}>
         {(column) => (
@@ -92,16 +123,12 @@ export default function BalanceMutationPage() {
         )}
       </TableHeader>
       <TableBody
-        emptyContent={
-          isTableLoading
-            ? " "
-            : isTableError
-              ? "Gagal memuat data"
-              : "Mutasi tidak ditemukan"
-        }
-        items={tableData?.data || []}
-        isLoading={isTableLoading}
+        items={itemsToDisplay}
+        isLoading={isLoading}
         loadingContent={<Spinner label="Memuat data..." />}
+        emptyContent={
+          !isLoading && isError ? "Gagal memuat data" : "Mutasi tidak ditemukan"
+        }
       >
         {(item) => (
           <TableRow key={item.kode}>

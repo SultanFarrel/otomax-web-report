@@ -1,146 +1,113 @@
-import React from "react";
-
+import { useCallback, useState } from "react";
 import { RangeValue } from "@react-types/shared";
-import { useQuery } from "@tanstack/react-query";
-
+import { useQuery } from "@tanstack/react-query"; // Kembali ke useQuery
 import { TransactionApiResponse } from "@/types";
 import { apiClient } from "@/api/axios";
 import { useUserStore } from "@/store/userStore";
 import { useDebounce } from "@/hooks/useDebounce";
-
 import { DateValue } from "@heroui/calendar";
 import { SortDescriptor } from "@heroui/table";
 
-// --- Fetching API ---
-const fetchTransactions = async (
-  kode: string,
-  page: number,
-  pageSize: number,
-  filterValue: string,
-  statusFilter: string,
-  sortDescriptor: SortDescriptor,
-  dateRange: RangeValue<DateValue> | null
-): Promise<TransactionApiResponse> => {
+// Fungsi fetch tetap sama, tapi tidak lagi butuh pageParam/offset
+const fetchTransactions = async ({
+  kode,
+  limit,
+  filterValue,
+  statusFilter,
+  sortDescriptor,
+  dateRange,
+}: {
+  kode: string;
+  limit: number;
+  filterValue: string;
+  statusFilter: string;
+  sortDescriptor: SortDescriptor;
+  dateRange: RangeValue<DateValue> | null;
+}): Promise<TransactionApiResponse> => {
   const endpoint = `/transaksi/reseller/${kode}`;
 
-  const params: {
-    page: number;
-    pageSize: number;
-    search?: string;
-    status?: string;
-    startDate?: string;
-    endDate?: string;
-    sortBy?: string;
-    sortDirection?: "ascending" | "descending";
-  } = {
-    page,
-    pageSize,
+  const params: any = {
+    limit, // Hanya butuh limit
+    search: filterValue || undefined,
+    status: statusFilter !== "all" ? statusFilter : undefined,
+    startDate: dateRange?.start?.toString(),
+    endDate: dateRange?.end?.toString(),
+    sortBy: sortDescriptor.column as string,
+    sortDirection: sortDescriptor.direction,
   };
 
-  if (filterValue) {
-    params.search = filterValue;
-  }
-
-  if (statusFilter !== "all") {
-    params.status = statusFilter;
-  }
-
-  if (dateRange !== null) {
-    params.startDate = dateRange.start.toString();
-    params.endDate = dateRange.end.toString();
-  }
-
-  if (sortDescriptor && sortDescriptor.column) {
-    params.sortBy = sortDescriptor.column as string;
-    params.sortDirection = sortDescriptor.direction;
-  }
-
-  // Hapus properti yang 'undefined'
   Object.keys(params).forEach((key) => {
-    const K = key as keyof typeof params;
-    if (params[K] === undefined) {
-      delete params[K];
-    }
+    if (params[key] === undefined || params[key] === "") delete params[key];
   });
 
-  const { data } = await apiClient.get(endpoint, {
-    params,
-  });
-
+  const { data } = await apiClient.get(endpoint, { params });
   return data;
 };
 
-// --- Custom Hook useTransactions ---
+// Hook disederhanakan
 export function useTransactions() {
   const user = useUserStore((state) => state.user);
-
-  const [page, setPage] = React.useState(1);
-  const [filterValue, setFilterValue] = React.useState("");
-  const [statusFilter, setStatusFilter] = React.useState<string>("all");
-  const [dateRange, setDateRange] =
-    React.useState<RangeValue<DateValue> | null>(null);
-  const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor>({
+  const [filterValue, setFilterValue] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [dateRange, setDateRange] = useState<RangeValue<DateValue> | null>(
+    null
+  );
+  const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: "tgl_entri",
     direction: "descending",
   });
 
   const debouncedFilterValue = useDebounce(filterValue, 500);
-  const rowsPerPage = 10;
+  const limit = 500;
 
+  // Gunakan useQuery biasa untuk fetch sekali
   const { data, isLoading, isError } = useQuery<TransactionApiResponse, Error>({
     queryKey: [
       "transactions",
       user?.kode,
-      page,
       debouncedFilterValue,
       statusFilter,
       sortDescriptor,
       dateRange,
     ],
     queryFn: () =>
-      fetchTransactions(
-        user!.kode,
-        page,
-        rowsPerPage,
-        debouncedFilterValue,
+      fetchTransactions({
+        kode: user!.kode,
+        limit,
+        filterValue: debouncedFilterValue,
         statusFilter,
         sortDescriptor,
-        dateRange
-      ),
+        dateRange,
+      }),
     enabled: !!user?.kode,
-    placeholderData: (previousData) => previousData,
+    // (Opsional) Tambahkan staleTime agar tidak re-fetch terlalu sering
+    staleTime: 5 * 60 * 1000, // 5 menit
   });
 
-  // Handler untuk mengubah filter
-  const onSearchChange = React.useCallback((value?: string) => {
-    setFilterValue(value || "");
-    setPage(1);
-  }, []);
-
-  const onStatusChange = React.useCallback((key: React.Key) => {
-    setStatusFilter(key as string);
-    setPage(1);
-  }, []);
-
-  const onDateChange = React.useCallback((range: RangeValue<DateValue>) => {
-    setDateRange(range);
-    setPage(1);
-  }, []);
-
-  const resetFilters = React.useCallback(() => {
+  const onSearchChange = useCallback(
+    (value?: string) => setFilterValue(value || ""),
+    []
+  );
+  const onStatusChange = useCallback(
+    (key: React.Key) => setStatusFilter(key as string),
+    []
+  );
+  const onDateChange = useCallback(
+    (range: RangeValue<DateValue>) => setDateRange(range),
+    []
+  );
+  const resetFilters = useCallback(() => {
     setFilterValue("");
     setStatusFilter("all");
     setDateRange(null);
     setSortDescriptor({ column: "tgl_entri", direction: "descending" });
-    setPage(1);
   }, []);
 
   return {
-    data,
+    // Kembalikan semua data yang sudah di-fetch
+    allFetchedItems: data?.data ?? [],
     isLoading,
     isError,
-    page,
-    setPage,
     filterValue,
     onSearchChange,
     statusFilter,

@@ -1,4 +1,4 @@
-import React from "react";
+import { useCallback, useState } from "react";
 import { RangeValue } from "@react-types/shared";
 import { useQuery } from "@tanstack/react-query";
 import { BalanceMutationApiResponse } from "@/types";
@@ -8,74 +8,53 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { DateValue } from "@heroui/calendar";
 import { SortDescriptor } from "@heroui/table";
 
-// --- Fungsi Fetching API ---
-const fetchBalanceMutation = async (
-  kode: string,
-  page: number,
-  pageSize: number,
-  filterValue: string,
-  sortDescriptor: SortDescriptor,
-  dateRange: RangeValue<DateValue> | null
-): Promise<BalanceMutationApiResponse> => {
+// Fungsi fetch hanya butuh limit, bukan offset/pageParam
+const fetchBalanceMutation = async ({
+  kode,
+  limit,
+  filterValue,
+  sortDescriptor,
+  dateRange,
+}: {
+  kode: string;
+  limit: number;
+  filterValue: string;
+  sortDescriptor: SortDescriptor;
+  dateRange: RangeValue<DateValue> | null;
+}): Promise<BalanceMutationApiResponse> => {
   const endpoint = `/mutasi/reseller/${kode}`;
 
-  const params: {
-    page: number;
-    pageSize: number;
-    search?: string;
-    startDate?: string;
-    endDate?: string;
-    sortBy?: string;
-    sortDirection?: "ascending" | "descending";
-  } = {
-    page,
-    pageSize,
+  const params: any = {
+    limit,
+    search: filterValue || undefined,
+    startDate: dateRange?.start?.toString(),
+    endDate: dateRange?.end?.toString(),
+    sortBy: sortDescriptor.column as string,
+    sortDirection: sortDescriptor.direction,
   };
 
-  if (filterValue) {
-    params.search = filterValue;
-  }
-
-  if (dateRange !== null) {
-    params.startDate = dateRange.start.toString();
-    params.endDate = dateRange.end.toString();
-  }
-
-  if (sortDescriptor && sortDescriptor.column) {
-    params.sortBy = sortDescriptor.column as string;
-    params.sortDirection = sortDescriptor.direction;
-  }
-
-  // Hapus properti yang 'undefined'
   Object.keys(params).forEach((key) => {
-    const K = key as keyof typeof params;
-    if (params[K] === undefined) {
-      delete params[K];
-    }
+    if (params[key] === undefined || params[key] === "") delete params[key];
   });
 
-  const { data } = await apiClient.get(endpoint, {
-    params,
-  });
-
+  const { data } = await apiClient.get(endpoint, { params });
   return data;
 };
 
-// --- Hook Kustom useBalanceMutation ---
+// Hook disederhanakan kembali ke useQuery
 export function useBalanceMutation() {
   const user = useUserStore((state) => state.user);
-
-  const [page, setPage] = React.useState(1);
-  const [filterValue, setFilterValue] = React.useState("");
-  const [dateRange, setDateRange] =
-    React.useState<RangeValue<DateValue> | null>(null);
-  const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor>({
-    column: "tanggal",
+  const [filterValue, setFilterValue] = useState("");
+  const [dateRange, setDateRange] = useState<RangeValue<DateValue> | null>(
+    null
+  );
+  const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
+    column: "kode",
     direction: "descending",
   });
 
   const debouncedFilterValue = useDebounce(filterValue, 500);
-  const rowsPerPage = 10;
+  const limit = 500;
 
   const { data, isLoading, isError } = useQuery<
     BalanceMutationApiResponse,
@@ -84,48 +63,40 @@ export function useBalanceMutation() {
     queryKey: [
       "balanceMutation",
       user?.kode,
-      page,
       debouncedFilterValue,
       sortDescriptor,
       dateRange,
     ],
     queryFn: () =>
-      fetchBalanceMutation(
-        user!.kode,
-        page,
-        rowsPerPage,
-        debouncedFilterValue,
+      fetchBalanceMutation({
+        kode: user!.kode,
+        limit,
+        filterValue: debouncedFilterValue,
         sortDescriptor,
-        dateRange
-      ),
+        dateRange,
+      }),
     enabled: !!user?.kode,
-    placeholderData: (previousData) => previousData,
+    staleTime: 5 * 60 * 1000, // 5 menit
   });
 
-  // Handler untuk mengubah filter
-  const onSearchChange = React.useCallback((value?: string) => {
-    setFilterValue(value || "");
-    setPage(1);
-  }, []);
-
-  const onDateChange = React.useCallback((range: RangeValue<DateValue>) => {
-    setDateRange(range);
-    setPage(1);
-  }, []);
-
-  const resetFilters = React.useCallback(() => {
+  const onSearchChange = useCallback(
+    (value?: string) => setFilterValue(value || ""),
+    []
+  );
+  const onDateChange = useCallback(
+    (range: RangeValue<DateValue>) => setDateRange(range),
+    []
+  );
+  const resetFilters = useCallback(() => {
     setFilterValue("");
     setDateRange(null);
-    setSortDescriptor({ column: "tanggal", direction: "descending" });
-    setPage(1);
+    setSortDescriptor({ column: "kode", direction: "descending" });
   }, []);
 
   return {
-    data,
+    allFetchedItems: data?.data ?? [],
     isLoading,
     isError,
-    page,
-    setPage,
     filterValue,
     onSearchChange,
     dateRange,

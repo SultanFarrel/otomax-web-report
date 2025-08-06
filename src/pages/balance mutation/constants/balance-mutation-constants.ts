@@ -1,9 +1,9 @@
 // LIST TABLE COLUMNS
 const COLUMN_NAMES = [
-  { name: "TANGGAL", uid: "tanggal", sortable: true },
-  { name: "KETERANGAN", uid: "keterangan", sortable: true },
-  { name: "JUMLAH", uid: "jumlah", sortable: true },
-  { name: "SALDO AKHIR", uid: "saldo_akhir", sortable: true },
+  { name: "TANGGAL", uid: "tanggal" },
+  { name: "KETERANGAN", uid: "keterangan" },
+  { name: "JUMLAH", uid: "jumlah" },
+  { name: "SALDO AKHIR", uid: "saldo_akhir" },
 ];
 
 export { COLUMN_NAMES };

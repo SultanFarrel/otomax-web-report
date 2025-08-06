@@ -1,12 +1,9 @@
-// src/pages/transaksi-downline.tsx
-
-import React from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { Transaction } from "@/types";
-import { useDownlineTransactions } from "@/hooks/useDownlineTransactions";
+import { useDownlineTransactions } from "@/hooks/useDownlineTransactions"; // Hook Anda yang sudah diupdate
 import { TransactionDetailModal } from "@/pages/transaction/components/transaction-detail-modal";
 import { COLUMN_NAMES } from "./constants/downline-transactions-contants";
 import { DownlineTransactionTableTopContent } from "./components/downline-transaction-table-top-content";
-import { DownlineTransactionTableBottomContent } from "./components/downline-transaction-table-bottom-content";
 import { DownlineTransactionTableCellComponent } from "./components/downline-transaction-table-cell";
 import {
   Table,
@@ -17,15 +14,18 @@ import {
   TableCell,
 } from "@heroui/table";
 import { Spinner } from "@heroui/spinner";
+import { Button } from "@heroui/button";
 import { SortDescriptor } from "@heroui/table";
 
+// Jumlah item yang akan ditampilkan setiap kali menekan "load more"
+const ITEMS_PER_LOAD = 20;
+
 export default function DownlineTransactionPage() {
+  // 1. Destrukturisasi hook baru Anda
   const {
-    data: tableData,
-    isLoading: isTableLoading,
-    isError: isTableError,
-    page,
-    setPage,
+    allFetchedItems,
+    isLoading,
+    isError,
     filterValue,
     onSearchChange,
     statusFilter,
@@ -37,19 +37,47 @@ export default function DownlineTransactionPage() {
     setSortDescriptor,
   } = useDownlineTransactions();
 
-  const [selectedTrx, setSelectedTrx] = React.useState<Transaction | null>(
-    null
+  // 2. Tambahkan state untuk mengelola tampilan di client
+  const [visibleItemCount, setVisibleItemCount] = useState(ITEMS_PER_LOAD);
+  const [isClientLoading, setIsClientLoading] = useState(false);
+
+  // Reset tampilan jika filter berubah
+  useEffect(() => {
+    setVisibleItemCount(ITEMS_PER_LOAD);
+  }, [allFetchedItems]);
+
+  // Buat array yang hanya berisi item yang akan ditampilkan
+  const itemsToDisplay = useMemo(
+    () => allFetchedItems.slice(0, visibleItemCount),
+    [allFetchedItems, visibleItemCount]
   );
 
-  const [visibleColumns, setVisibleColumns] = React.useState<Set<string>>(
+  // 3. Buat fungsi handleLoadMore
+  const handleLoadMore = useCallback(() => {
+    setIsClientLoading(true);
+    // Simulasi loading agar spinner terlihat
+    setTimeout(() => {
+      setVisibleItemCount((prev) =>
+        // Pastikan tidak melebihi total item yang ada
+        Math.min(prev + ITEMS_PER_LOAD, allFetchedItems.length)
+      );
+      setIsClientLoading(false);
+    }, 300);
+  }, [allFetchedItems.length]);
+
+  const canLoadMore = visibleItemCount < allFetchedItems.length;
+
+  const [selectedTrx, setSelectedTrx] = useState<Transaction | null>(null);
+  const [visibleColumns, setVisibleColumns] = useState<Set<string>>(
     new Set(COLUMN_NAMES.map((c) => c.uid))
   );
 
-  const headerColumns = React.useMemo(() => {
+  const headerColumns = useMemo(() => {
     return COLUMN_NAMES.filter((column) => visibleColumns.has(column.uid));
   }, [visibleColumns]);
 
-  const topContent = React.useMemo(
+  // 4. Update topContent untuk menggunakan panjang data yang ditampilkan
+  const topContent = useMemo(
     () => (
       <DownlineTransactionTableTopContent
         filterValue={filterValue}
@@ -61,7 +89,7 @@ export default function DownlineTransactionPage() {
         visibleColumns={visibleColumns}
         onVisibleColumnsChange={setVisibleColumns as any}
         onResetFilters={resetFilters}
-        totalItems={tableData?.totalItems || 0}
+        totalItems={itemsToDisplay.length} // Update ini
       />
     ),
     [
@@ -73,23 +101,30 @@ export default function DownlineTransactionPage() {
       onDateChange,
       visibleColumns,
       resetFilters,
-      tableData?.totalItems,
+      itemsToDisplay.length, // Update ini
     ]
   );
 
-  const bottomContent = React.useMemo(() => {
-    return (
-      <DownlineTransactionTableBottomContent
-        page={page}
-        totalPages={tableData?.totalPages || 1}
-        onPageChange={setPage}
-      />
-    );
-  }, [page, tableData?.totalPages, setPage]);
+  // 5. Ganti bottomContent dari paginasi menjadi tombol "Load More"
+  const bottomContent = useMemo(() => {
+    if (!canLoadMore) return null;
 
+    return (
+      <div className="flex w-full justify-center py-4">
+        <Button
+          isLoading={isClientLoading}
+          onPress={handleLoadMore}
+          variant="flat"
+        >
+          Tampilkan Lebih Banyak
+        </Button>
+      </div>
+    );
+  }, [canLoadMore, isClientLoading, handleLoadMore]);
+
+  // Handler sort tidak perlu setPage lagi
   const handleSortChange = (descriptor: SortDescriptor) => {
     setSortDescriptor(descriptor);
-    setPage(1);
   };
 
   return (
@@ -103,6 +138,10 @@ export default function DownlineTransactionPage() {
         aria-label="Tabel Data Transaksi Downline"
         sortDescriptor={sortDescriptor}
         onSortChange={handleSortChange}
+        // 6. Tambahkan classNames untuk scroll & styling
+        classNames={{
+          wrapper: "max-h-[600px] overflow-y-auto p-0",
+        }}
       >
         <TableHeader columns={headerColumns}>
           {(column) => (
@@ -116,16 +155,15 @@ export default function DownlineTransactionPage() {
           )}
         </TableHeader>
         <TableBody
-          emptyContent={
-            isTableLoading
-              ? " "
-              : isTableError
-                ? "Gagal memuat data"
-                : "Transaksi tidak ditemukan"
-          }
-          items={tableData?.data || []}
-          isLoading={isTableLoading}
+          // 7. Update props untuk TableBody
+          items={itemsToDisplay}
+          isLoading={isLoading} // Hanya untuk loading awal
           loadingContent={<Spinner label="Memuat data..." />}
+          emptyContent={
+            !isLoading && isError
+              ? "Gagal memuat data"
+              : "Transaksi tidak ditemukan"
+          }
         >
           {(item) => (
             <TableRow key={item.kode}>
