@@ -17,11 +17,9 @@ import { Spinner } from "@heroui/spinner";
 import { Button } from "@heroui/button";
 import { SortDescriptor } from "@heroui/table";
 
-// Jumlah item yang akan ditampilkan setiap kali menekan "load more"
 const ITEMS_PER_LOAD = 20;
 
 export default function DownlineTransactionPage() {
-  // 1. Destrukturisasi hook baru Anda
   const {
     allFetchedItems,
     isLoading,
@@ -35,24 +33,22 @@ export default function DownlineTransactionPage() {
     resetFilters,
     sortDescriptor,
     setSortDescriptor,
+    limit,
+    onLimitChange,
   } = useDownlineTransactions();
 
-  // 2. Tambahkan state untuk mengelola tampilan di client
   const [visibleItemCount, setVisibleItemCount] = useState(ITEMS_PER_LOAD);
   const [isClientLoading, setIsClientLoading] = useState(false);
 
-  // Reset tampilan jika filter berubah
   useEffect(() => {
     setVisibleItemCount(ITEMS_PER_LOAD);
   }, [allFetchedItems]);
 
-  // Buat array yang hanya berisi item yang akan ditampilkan
   const itemsToDisplay = useMemo(
     () => allFetchedItems.slice(0, visibleItemCount),
     [allFetchedItems, visibleItemCount]
   );
 
-  // 3. Buat fungsi handleLoadMore
   const handleLoadMore = useCallback(() => {
     setIsClientLoading(true);
     // Simulasi loading agar spinner terlihat
@@ -68,6 +64,7 @@ export default function DownlineTransactionPage() {
   const canLoadMore = visibleItemCount < allFetchedItems.length;
 
   const [selectedTrx, setSelectedTrx] = useState<Transaction | null>(null);
+
   const [visibleColumns, setVisibleColumns] = useState<Set<string>>(
     new Set(COLUMN_NAMES.map((c) => c.uid))
   );
@@ -76,7 +73,6 @@ export default function DownlineTransactionPage() {
     return COLUMN_NAMES.filter((column) => visibleColumns.has(column.uid));
   }, [visibleColumns]);
 
-  // 4. Update topContent untuk menggunakan panjang data yang ditampilkan
   const topContent = useMemo(
     () => (
       <DownlineTransactionTableTopContent
@@ -89,7 +85,9 @@ export default function DownlineTransactionPage() {
         visibleColumns={visibleColumns}
         onVisibleColumnsChange={setVisibleColumns as any}
         onResetFilters={resetFilters}
-        totalItems={itemsToDisplay.length} // Update ini
+        totalItems={allFetchedItems.length}
+        limit={limit}
+        onLimitChange={onLimitChange}
       />
     ),
     [
@@ -101,11 +99,12 @@ export default function DownlineTransactionPage() {
       onDateChange,
       visibleColumns,
       resetFilters,
-      itemsToDisplay.length, // Update ini
+      allFetchedItems.length,
+      limit,
+      onLimitChange,
     ]
   );
 
-  // 5. Ganti bottomContent dari paginasi menjadi tombol "Load More"
   const bottomContent = useMemo(() => {
     if (!canLoadMore) return null;
 
@@ -122,7 +121,6 @@ export default function DownlineTransactionPage() {
     );
   }, [canLoadMore, isClientLoading, handleLoadMore]);
 
-  // Handler sort tidak perlu setPage lagi
   const handleSortChange = (descriptor: SortDescriptor) => {
     setSortDescriptor(descriptor);
   };
@@ -138,9 +136,8 @@ export default function DownlineTransactionPage() {
         aria-label="Tabel Data Transaksi Downline"
         sortDescriptor={sortDescriptor}
         onSortChange={handleSortChange}
-        // 6. Tambahkan classNames untuk scroll & styling
         classNames={{
-          wrapper: "max-h-[600px] overflow-y-auto p-0",
+          wrapper: "max-h-[600px] p-0 ps-2 overflow-y-auto stable-scrollbar",
         }}
       >
         <TableHeader columns={headerColumns}>
@@ -155,14 +152,11 @@ export default function DownlineTransactionPage() {
           )}
         </TableHeader>
         <TableBody
-          // 7. Update props untuk TableBody
           items={itemsToDisplay}
-          isLoading={isLoading} // Hanya untuk loading awal
+          isLoading={isLoading}
           loadingContent={<Spinner label="Memuat data..." />}
           emptyContent={
-            !isLoading && isError
-              ? "Gagal memuat data"
-              : "Transaksi tidak ditemukan"
+            isError ? "Gagal memuat data" : "Transaksi tidak ditemukan"
           }
         >
           {(item) => (

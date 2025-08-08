@@ -33,9 +33,7 @@ export const TopResellersList: React.FC = () => {
   return (
     <Card>
       <CardHeader>
-        <h3 className="text-lg font-semibold">
-          Top Reseller (7 hari terakhir)
-        </h3>
+        <h3 className="text-lg font-semibold">Top Reseller Hari Ini</h3>
       </CardHeader>
       <CardBody className="p-0">
         <div className="divide-y divide-default-100">

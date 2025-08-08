@@ -37,6 +37,8 @@ export default function TransactionPage() {
     resetFilters,
     sortDescriptor,
     setSortDescriptor,
+    limit,
+    onLimitChange,
   } = useTransactions();
 
   const [visibleItemCount, setVisibleItemCount] = useState(ITEMS_PER_LOAD);
@@ -64,22 +66,6 @@ export default function TransactionPage() {
   }, [allFetchedItems.length]);
 
   const canLoadMore = visibleItemCount < allFetchedItems.length;
-
-  const bottomContent = useMemo(() => {
-    if (!canLoadMore) return null;
-
-    return (
-      <div className="flex w-full justify-center py-4">
-        <Button
-          isLoading={isClientLoading}
-          onPress={handleLoadMore}
-          variant="flat"
-        >
-          Tampilkan Lebih Banyak
-        </Button>
-      </div>
-    );
-  }, [canLoadMore, isClientLoading, handleLoadMore]);
 
   const [selectedTrx, setSelectedTrx] = useState<Transaction | null>(null);
   const [trxToPrint, setTrxToPrint] = useState<Transaction | null>(null);
@@ -112,7 +98,9 @@ export default function TransactionPage() {
         visibleColumns={visibleColumns}
         onVisibleColumnsChange={setVisibleColumns as any}
         onResetFilters={resetFilters}
-        totalItems={itemsToDisplay.length}
+        totalItems={allFetchedItems.length}
+        limit={limit}
+        onLimitChange={onLimitChange}
       />
     ),
     [
@@ -124,9 +112,27 @@ export default function TransactionPage() {
       onDateChange,
       visibleColumns,
       resetFilters,
-      itemsToDisplay.length,
+      allFetchedItems.length,
+      limit,
+      onLimitChange,
     ]
   );
+
+  const bottomContent = useMemo(() => {
+    if (!canLoadMore) return null;
+
+    return (
+      <div className="flex w-full justify-center py-4">
+        <Button
+          isLoading={isClientLoading}
+          onPress={handleLoadMore}
+          variant="flat"
+        >
+          Tampilkan Lebih Banyak
+        </Button>
+      </div>
+    );
+  }, [canLoadMore, isClientLoading, handleLoadMore]);
 
   const handleSortChange = (descriptor: SortDescriptor) => {
     setSortDescriptor(descriptor);

@@ -19,6 +19,8 @@ interface BalanceMutationTableTopContentProps {
   onDateChange: (range: RangeValue<DateValue>) => void;
   onResetFilters: () => void;
   totalItems: number;
+  limit: string;
+  onLimitChange: (value: string) => void;
 }
 
 export const BalanceMutationTableTopContent: React.FC<
@@ -31,6 +33,8 @@ export const BalanceMutationTableTopContent: React.FC<
     onDateChange,
     onResetFilters,
     totalItems,
+    limit,
+    onLimitChange,
   } = props;
 
   return (
@@ -46,6 +50,14 @@ export const BalanceMutationTableTopContent: React.FC<
           onValueChange={onSearchChange}
         />
         <div className="flex flex-wrap gap-3 items-end">
+          <Input
+            aria-label="Set Limit Data"
+            placeholder="500"
+            type="number"
+            className="w-28"
+            value={limit}
+            onValueChange={onLimitChange}
+          />
           <Popover placement="bottom-start">
             <PopoverTrigger>
               <Button

@@ -24,6 +24,7 @@ export default function DashboardPage() {
   const user = useUserStore((state) => state.user);
 
   // Prefetch data untuk Top Products Chart agar perpindahan limit terasa instan
+
   useEffect(() => {
     if (user?.kode) {
       const limitsToPrefetch = [3, 5];

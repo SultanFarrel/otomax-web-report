@@ -29,6 +29,8 @@ export default function BalanceMutationPage() {
     resetFilters,
     sortDescriptor,
     setSortDescriptor,
+    limit,
+    onLimitChange,
   } = useBalanceMutation();
 
   const [visibleItemCount, setVisibleItemCount] = useState(ITEMS_PER_LOAD);
@@ -65,7 +67,9 @@ export default function BalanceMutationPage() {
         dateRange={dateRange}
         onDateChange={onDateChange}
         onResetFilters={resetFilters}
-        totalItems={itemsToDisplay.length}
+        totalItems={allFetchedItems.length}
+        limit={limit}
+        onLimitChange={onLimitChange}
       />
     ),
     [
@@ -74,7 +78,9 @@ export default function BalanceMutationPage() {
       dateRange,
       onDateChange,
       resetFilters,
-      itemsToDisplay.length,
+      allFetchedItems.length,
+      limit,
+      onLimitChange,
     ]
   );
 
@@ -116,7 +122,6 @@ export default function BalanceMutationPage() {
           <TableColumn
             key={column.uid}
             align={column.uid === "actions" ? "end" : "start"}
-            allowsSorting={column.sortable}
           >
             {column.name}
           </TableColumn>

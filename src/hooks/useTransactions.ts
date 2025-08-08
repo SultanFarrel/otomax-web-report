@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import { RangeValue } from "@react-types/shared";
-import { useQuery } from "@tanstack/react-query"; // Kembali ke useQuery
+import { useQuery } from "@tanstack/react-query";
 import { TransactionApiResponse } from "@/types";
 import { apiClient } from "@/api/axios";
 import { useUserStore } from "@/store/userStore";
@@ -8,7 +8,6 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { DateValue } from "@heroui/calendar";
 import { SortDescriptor } from "@heroui/table";
 
-// Fungsi fetch tetap sama, tapi tidak lagi butuh pageParam/offset
 const fetchTransactions = async ({
   kode,
   limit,
@@ -27,7 +26,7 @@ const fetchTransactions = async ({
   const endpoint = `/transaksi/reseller/${kode}`;
 
   const params: any = {
-    limit, // Hanya butuh limit
+    limit,
     search: filterValue || undefined,
     status: statusFilter !== "all" ? statusFilter : undefined,
     startDate: dateRange?.start?.toString(),
@@ -44,11 +43,11 @@ const fetchTransactions = async ({
   return data;
 };
 
-// Hook disederhanakan
 export function useTransactions() {
   const user = useUserStore((state) => state.user);
   const [filterValue, setFilterValue] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [limit, setLimit] = useState<string>("500");
   const [dateRange, setDateRange] = useState<RangeValue<DateValue> | null>(
     null
   );
@@ -58,9 +57,8 @@ export function useTransactions() {
   });
 
   const debouncedFilterValue = useDebounce(filterValue, 500);
-  const limit = 500;
+  const debouncedLimit = useDebounce(limit, 800);
 
-  // Gunakan useQuery biasa untuk fetch sekali
   const { data, isLoading, isError } = useQuery<TransactionApiResponse, Error>({
     queryKey: [
       "transactions",
@@ -69,20 +67,29 @@ export function useTransactions() {
       statusFilter,
       sortDescriptor,
       dateRange,
+      debouncedLimit,
     ],
-    queryFn: () =>
-      fetchTransactions({
+    queryFn: () => {
+      const numericLimit = parseInt(limit, 10);
+      const finalLimit =
+        isNaN(numericLimit) || numericLimit <= 0 ? 500 : numericLimit;
+
+      return fetchTransactions({
         kode: user!.kode,
-        limit,
+        limit: finalLimit,
         filterValue: debouncedFilterValue,
         statusFilter,
         sortDescriptor,
         dateRange,
-      }),
+      });
+    },
     enabled: !!user?.kode,
-    // (Opsional) Tambahkan staleTime agar tidak re-fetch terlalu sering
     staleTime: 5 * 60 * 1000, // 5 menit
   });
+
+  const onLimitChange = useCallback((newLimit: string) => {
+    setLimit(newLimit);
+  }, []);
 
   const onSearchChange = useCallback(
     (value?: string) => setFilterValue(value || ""),
@@ -101,10 +108,10 @@ export function useTransactions() {
     setStatusFilter("all");
     setDateRange(null);
     setSortDescriptor({ column: "tgl_entri", direction: "descending" });
+    setLimit("500");
   }, []);
 
   return {
-    // Kembalikan semua data yang sudah di-fetch
     allFetchedItems: data?.data ?? [],
     isLoading,
     isError,
@@ -114,6 +121,8 @@ export function useTransactions() {
     onStatusChange,
     dateRange,
     onDateChange,
+    limit,
+    onLimitChange,
     resetFilters,
     sortDescriptor,
     setSortDescriptor,

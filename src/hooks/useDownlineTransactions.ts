@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import { RangeValue } from "@react-types/shared";
-import { useQuery } from "@tanstack/react-query"; // Ganti ke useQuery
+import { useQuery } from "@tanstack/react-query";
 import { TransactionApiResponse } from "@/types";
 import { apiClient } from "@/api/axios";
 import { useUserStore } from "@/store/userStore";
@@ -8,7 +8,6 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { DateValue } from "@heroui/calendar";
 import { SortDescriptor } from "@heroui/table";
 
-// Fungsi Fetching API disederhanakan
 const fetchDownlineTransactions = async ({
   uplineKode,
   limit,
@@ -27,7 +26,7 @@ const fetchDownlineTransactions = async ({
   const endpoint = `/transaksi/upline/${uplineKode}`;
 
   const params: any = {
-    limit, // Hanya butuh limit
+    limit,
     search: filterValue || undefined,
     status: statusFilter !== "all" ? statusFilter : undefined,
     startDate: dateRange?.start?.toString(),
@@ -44,11 +43,11 @@ const fetchDownlineTransactions = async ({
   return data;
 };
 
-// Hook Kustom disederhanakan
 export function useDownlineTransactions() {
   const user = useUserStore((state) => state.user);
   const [filterValue, setFilterValue] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [limit, setLimit] = useState<string>("500");
   const [dateRange, setDateRange] = useState<RangeValue<DateValue> | null>(
     null
   );
@@ -58,7 +57,7 @@ export function useDownlineTransactions() {
   });
 
   const debouncedFilterValue = useDebounce(filterValue, 500);
-  const limit = 500;
+  const debouncedLimit = useDebounce(limit, 800);
 
   const { data, isLoading, isError } = useQuery<TransactionApiResponse, Error>({
     queryKey: [
@@ -68,19 +67,29 @@ export function useDownlineTransactions() {
       statusFilter,
       sortDescriptor,
       dateRange,
+      debouncedLimit,
     ],
-    queryFn: () =>
-      fetchDownlineTransactions({
+    queryFn: () => {
+      const numericLimit = parseInt(limit, 10);
+      const finalLimit =
+        isNaN(numericLimit) || numericLimit <= 0 ? 500 : numericLimit;
+
+      return fetchDownlineTransactions({
         uplineKode: user!.kode,
-        limit,
+        limit: finalLimit,
         filterValue: debouncedFilterValue,
         statusFilter,
         sortDescriptor,
         dateRange,
-      }),
+      });
+    },
     enabled: !!user?.kode,
     staleTime: 5 * 60 * 1000, // 5 menit
   });
+
+  const onLimitChange = useCallback((newLimit: string) => {
+    setLimit(newLimit);
+  }, []);
 
   const onSearchChange = useCallback(
     (value?: string) => setFilterValue(value || ""),
@@ -99,6 +108,7 @@ export function useDownlineTransactions() {
     setStatusFilter("all");
     setDateRange(null);
     setSortDescriptor({ column: "tgl_entri", direction: "descending" });
+    setLimit("500");
   }, []);
 
   return {
@@ -111,6 +121,8 @@ export function useDownlineTransactions() {
     onStatusChange,
     dateRange,
     onDateChange,
+    limit,
+    onLimitChange,
     resetFilters,
     sortDescriptor,
     setSortDescriptor,

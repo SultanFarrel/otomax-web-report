@@ -34,6 +34,8 @@ interface DownlineTransactionTableTopContentProps {
   onVisibleColumnsChange: (keys: any) => void;
   onResetFilters: () => void;
   totalItems: number;
+  limit: string;
+  onLimitChange: (value: string) => void;
 }
 
 export const DownlineTransactionTableTopContent: React.FC<
@@ -50,6 +52,8 @@ export const DownlineTransactionTableTopContent: React.FC<
     onVisibleColumnsChange,
     onResetFilters,
     totalItems,
+    limit,
+    onLimitChange,
   } = props;
 
   const [isStatusFilterTouched, setIsStatusFilterTouched] =
@@ -78,6 +82,14 @@ export const DownlineTransactionTableTopContent: React.FC<
           onValueChange={onSearchChange}
         />
         <div className="flex flex-wrap gap-3 items-end">
+          <Input
+            aria-label="Set Limit Data"
+            placeholder="500"
+            type="number"
+            className="w-28"
+            value={limit}
+            onValueChange={onLimitChange}
+          />
           <Dropdown>
             <DropdownTrigger>
               <Button

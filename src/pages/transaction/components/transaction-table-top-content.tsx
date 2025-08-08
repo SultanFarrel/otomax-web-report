@@ -36,6 +36,8 @@ interface TransactionTableTopContentProps {
   onVisibleColumnsChange: (keys: any) => void;
   onResetFilters: () => void;
   totalItems: number;
+  limit: string;
+  onLimitChange: (value: string) => void;
 }
 
 export const TransactionTableTopContent: React.FC<
@@ -52,6 +54,8 @@ export const TransactionTableTopContent: React.FC<
     onVisibleColumnsChange,
     onResetFilters,
     totalItems,
+    limit,
+    onLimitChange,
   } = props;
 
   const [isStatusFilterTouched, setIsStatusFilterTouched] =
@@ -73,13 +77,21 @@ export const TransactionTableTopContent: React.FC<
         <Input
           isClearable
           className="w-full sm:max-w-xs"
-          placeholder="Cari tujuan"
+          placeholder="Cari berdasarkan tujuan / kode produk..."
           startContent={<MagnifyingGlassIcon className="h-5 w-5" />}
           value={filterValue}
           onClear={() => onSearchChange("")}
           onValueChange={onSearchChange}
         />
         <div className="flex flex-wrap gap-3 items-end">
+          <Input
+            aria-label="Set Limit Data"
+            placeholder="500"
+            type="number"
+            className="w-28"
+            value={limit}
+            onValueChange={onLimitChange}
+          />
           <Dropdown>
             <DropdownTrigger>
               <Button
@@ -163,7 +175,7 @@ export const TransactionTableTopContent: React.FC<
         </div>
       </div>
       <span className="text-default-400 text-small">
-        Total {totalItems} transaksi.
+        Total {totalItems} transaksi ditemukan.
       </span>
     </div>
   );

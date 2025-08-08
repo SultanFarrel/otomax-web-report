@@ -8,7 +8,6 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { DateValue } from "@heroui/calendar";
 import { SortDescriptor } from "@heroui/table";
 
-// Fungsi fetch hanya butuh limit, bukan offset/pageParam
 const fetchBalanceMutation = async ({
   kode,
   limit,
@@ -41,10 +40,10 @@ const fetchBalanceMutation = async ({
   return data;
 };
 
-// Hook disederhanakan kembali ke useQuery
 export function useBalanceMutation() {
   const user = useUserStore((state) => state.user);
   const [filterValue, setFilterValue] = useState("");
+  const [limit, setLimit] = useState<string>("500");
   const [dateRange, setDateRange] = useState<RangeValue<DateValue> | null>(
     null
   );
@@ -54,7 +53,7 @@ export function useBalanceMutation() {
   });
 
   const debouncedFilterValue = useDebounce(filterValue, 500);
-  const limit = 500;
+  const debouncedLimit = useDebounce(limit, 800);
 
   const { data, isLoading, isError } = useQuery<
     BalanceMutationApiResponse,
@@ -66,18 +65,28 @@ export function useBalanceMutation() {
       debouncedFilterValue,
       sortDescriptor,
       dateRange,
+      debouncedLimit,
     ],
-    queryFn: () =>
-      fetchBalanceMutation({
+    queryFn: () => {
+      const numericLimit = parseInt(limit, 10);
+      const finalLimit =
+        isNaN(numericLimit) || numericLimit <= 0 ? 500 : numericLimit;
+
+      return fetchBalanceMutation({
         kode: user!.kode,
-        limit,
+        limit: finalLimit,
         filterValue: debouncedFilterValue,
         sortDescriptor,
         dateRange,
-      }),
+      });
+    },
     enabled: !!user?.kode,
     staleTime: 5 * 60 * 1000, // 5 menit
   });
+
+  const onLimitChange = useCallback((newLimit: string) => {
+    setLimit(newLimit);
+  }, []);
 
   const onSearchChange = useCallback(
     (value?: string) => setFilterValue(value || ""),
@@ -91,6 +100,7 @@ export function useBalanceMutation() {
     setFilterValue("");
     setDateRange(null);
     setSortDescriptor({ column: "kode", direction: "descending" });
+    setLimit("500");
   }, []);
 
   return {
@@ -101,6 +111,8 @@ export function useBalanceMutation() {
     onSearchChange,
     dateRange,
     onDateChange,
+    limit,
+    onLimitChange,
     resetFilters,
     sortDescriptor,
     setSortDescriptor,
