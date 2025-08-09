@@ -13,12 +13,14 @@ import {
   TopProductsAndResellersData,
 } from "@/hooks/dashboard/useTopProductsAndResellers";
 import { TopResellersList } from "./components/top-resellers-list";
+import { today, getLocalTimeZone } from "@internationalized/date";
 
 export default function DashboardPage() {
   const [limit, setLimit] = useState(5);
-  const [dateRange, setDateRange] = useState<RangeValue<DateValue> | null>(
-    null
-  );
+  const [dateRange, setDateRange] = useState<RangeValue<DateValue>>({
+    start: today(getLocalTimeZone()),
+    end: today(getLocalTimeZone()),
+  });
 
   const queryClient = useQueryClient();
   const user = useUserStore((state) => state.user);
@@ -48,7 +50,12 @@ export default function DashboardPage() {
         <TransactionsByStatusChart
           dateRange={dateRange}
           onDateChange={setDateRange}
-          onResetDateFilter={() => setDateRange(null)}
+          onResetDateFilter={() =>
+            setDateRange({
+              start: today(getLocalTimeZone()),
+              end: today(getLocalTimeZone()),
+            })
+          }
         />
 
         <TransactionsByProductChart limit={limit} onLimitChange={setLimit} />

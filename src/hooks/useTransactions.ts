@@ -7,6 +7,7 @@ import { useUserStore } from "@/store/userStore";
 import { useDebounce } from "@/hooks/useDebounce";
 import { DateValue } from "@heroui/calendar";
 import { SortDescriptor } from "@heroui/table";
+import { today, getLocalTimeZone } from "@internationalized/date";
 
 const fetchTransactions = async ({
   kode,
@@ -48,9 +49,12 @@ export function useTransactions() {
   const [filterValue, setFilterValue] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [limit, setLimit] = useState<string>("500");
-  const [dateRange, setDateRange] = useState<RangeValue<DateValue> | null>(
-    null
-  );
+
+  const [dateRange, setDateRange] = useState<RangeValue<DateValue>>({
+    start: today(getLocalTimeZone()),
+    end: today(getLocalTimeZone()),
+  });
+
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: "tgl_entri",
     direction: "descending",
@@ -106,7 +110,10 @@ export function useTransactions() {
   const resetFilters = useCallback(() => {
     setFilterValue("");
     setStatusFilter("all");
-    setDateRange(null);
+    setDateRange({
+      start: today(getLocalTimeZone()),
+      end: today(getLocalTimeZone()),
+    });
     setSortDescriptor({ column: "tgl_entri", direction: "descending" });
     setLimit("500");
   }, []);

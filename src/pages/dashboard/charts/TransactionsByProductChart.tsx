@@ -175,7 +175,13 @@ export const TransactionsByProductChart: React.FC<ChartProps> = ({
         </Dropdown>
       </CardHeader>
       <CardBody>
-        {sortedData.length > 0 ? chart : <div>Data tidak tersedia</div>}
+        {sortedData.length > 0 ? (
+          chart
+        ) : (
+          <div className="text-center text-default-500 p-4">
+            Data tidak tersedia
+          </div>
+        )}
       </CardBody>
     </Card>
   );

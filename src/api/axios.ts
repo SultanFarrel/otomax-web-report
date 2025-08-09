@@ -24,7 +24,7 @@ apiClient.interceptors.request.use(
       // Atur header Authorization dengan format Bearer Token
       config.headers.Authorization = `Bearer ${token}`;
     }
-    config.headers["X-Client-Host"] = "metropln.report.web.id"; // DELETE THIS FOR PRODUCTION
+    // config.headers["X-Client-Host"] = "otomax.report.web.id"; // DELETE THIS FOR PRODUCTION
     return config;
   },
   (error) => {

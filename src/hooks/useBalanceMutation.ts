@@ -7,6 +7,7 @@ import { useUserStore } from "@/store/userStore";
 import { useDebounce } from "@/hooks/useDebounce";
 import { DateValue } from "@heroui/calendar";
 import { SortDescriptor } from "@heroui/table";
+import { today, getLocalTimeZone } from "@internationalized/date";
 
 const fetchBalanceMutation = async ({
   kode,
@@ -44,9 +45,12 @@ export function useBalanceMutation() {
   const user = useUserStore((state) => state.user);
   const [filterValue, setFilterValue] = useState("");
   const [limit, setLimit] = useState<string>("500");
-  const [dateRange, setDateRange] = useState<RangeValue<DateValue> | null>(
-    null
-  );
+
+  const [dateRange, setDateRange] = useState<RangeValue<DateValue>>({
+    start: today(getLocalTimeZone()),
+    end: today(getLocalTimeZone()),
+  });
+
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: "kode",
     direction: "descending",
@@ -98,7 +102,10 @@ export function useBalanceMutation() {
   );
   const resetFilters = useCallback(() => {
     setFilterValue("");
-    setDateRange(null);
+    setDateRange({
+      start: today(getLocalTimeZone()),
+      end: today(getLocalTimeZone()),
+    });
     setSortDescriptor({ column: "kode", direction: "descending" });
     setLimit("500");
   }, []);

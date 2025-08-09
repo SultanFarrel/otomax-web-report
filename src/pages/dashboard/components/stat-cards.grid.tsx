@@ -29,7 +29,7 @@ export const StatCardsGrid: React.FC = () => {
   return (
     <div className="flex flex-col gap-4">
       {/* Grid 4 Kolom */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <Card>
           <CardBody>
             <p className="text-sm text-default-500">Transaksi Hari Ini</p>
@@ -37,7 +37,7 @@ export const StatCardsGrid: React.FC = () => {
           </CardBody>
         </Card>
 
-        <Card>
+        {/* <Card>
           <CardBody>
             <p className="text-sm text-default-500">Komisi Hari Ini</p>
             <p className="text-xl font-bold text-warning">
@@ -47,7 +47,7 @@ export const StatCardsGrid: React.FC = () => {
               Komisi Keseluruhan: {formatCurrency(stats.total_komisi_all)}
             </p>
           </CardBody>
-        </Card>
+        </Card> */}
 
         <Card>
           <CardBody>
