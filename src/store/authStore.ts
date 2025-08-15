@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { apiClient } from "@/api/axios";
+import { hmacPinWithKode } from "@/utils/crypto";
 
 interface AuthState {
   token: string | null;
@@ -32,9 +33,10 @@ export const useAuthStore = create<AuthState>()(
       login: async (kode, pin) => {
         set({ isLoading: true, error: null });
         try {
+          const hashedPin = hmacPinWithKode(pin, kode);
           const response = await apiClient.post("/auth/login", {
             kode: kode,
-            pin: pin,
+            pin: hashedPin,
           });
           const { token } = response.data;
           localStorage.setItem("authToken", token);
@@ -45,7 +47,7 @@ export const useAuthStore = create<AuthState>()(
           if (err.response) {
             // Atur pesan error spesifik untuk login
             set({
-              error: "Kode reseller atau PIN yang Anda masukkan salah.",
+              error: err.response.data?.error || "Login gagal.",
               isLoading: false,
               token: null,
             });
