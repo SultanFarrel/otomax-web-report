@@ -23,8 +23,9 @@ import {
   ArrowPathIcon,
   UsersIcon,
   DocumentTextIcon,
+  GlobeAltIcon,
 } from "@heroicons/react/24/outline";
-import { Logo, MoreHorizontalIcon, ChevronLeftIcon } from "@/components/icons";
+import { MoreHorizontalIcon, ChevronLeftIcon } from "@/components/icons";
 import { useAuthStore } from "@/store/authStore";
 import { useUserStore } from "@/store/userStore";
 
@@ -61,11 +62,13 @@ export const SidebarContent = ({
       >
         {!isCollapsed && (
           <Link className="flex items-center gap-3" color="foreground" href="/">
-            <Logo />
-            <p className="font-bold text-inherit">OTOMAX</p>
+            <p className="font-bold text-inherit text-2xl">
+              {/* .kode ganti jadi .judul jika sudah ada */}
+              {user?.kode || "Web Report"}
+            </p>
           </Link>
         )}
-        {isCollapsed && <Logo />}
+        {isCollapsed && <GlobeAltIcon className="h-6 w-6" />}
       </div>
 
       {/* Navigation */}

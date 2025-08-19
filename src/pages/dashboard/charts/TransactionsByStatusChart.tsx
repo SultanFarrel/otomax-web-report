@@ -34,7 +34,7 @@ export const TransactionsByStatusChart: React.FC<ChartProps> = ({
   const {
     data: transactionChartData,
     isLoading,
-    isError,
+    error,
   } = useTransactionsByStatusChart(dateRange);
 
   // Tambahkan state untuk mengontrol visibilitas popover
@@ -55,12 +55,12 @@ export const TransactionsByStatusChart: React.FC<ChartProps> = ({
     return <TransactionsByStatusChartSkeleton />;
   }
 
-  if (isError || !transactionChartData) {
+  if (error || !transactionChartData) {
     return (
       <div className="grid grid-cols-1">
         <Card className="bg-danger-50 border-danger-200">
           <CardBody>
-            <p className="text-danger-700">Gagal memuat chart.</p>
+            <p className="text-danger-700">{error?.message}.</p>
           </CardBody>
         </Card>
       </div>

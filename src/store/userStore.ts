@@ -40,13 +40,13 @@ export const useUserStore = create<UserState>()(
           const token = useAuthStore.getState().token;
           if (!token) throw new Error("Tidak ada token otorisasi.");
 
-          const decoded: JwtPayload = jwtDecode(token); // TypeScript sekarang tahu strukturnya
+          // const decoded: JwtPayload = jwtDecode(token);
           const response = await apiClient.get(
-            `/reseller/${decoded.reseller.kode}`
-          ); // Baris ini tidak akan error lagi
+            "/reseller/me" //'/reseller/${decoded.reseller.kode}'
+          );
 
           const userData: UserData = {
-            kode: decoded.reseller.kode,
+            kode: response.data.kode, // decoded.reseller.kode,
             nama: response.data.nama,
             saldo: response.data.saldo,
           };

@@ -2,15 +2,38 @@ import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/api/axios";
 import { useUserStore } from "@/store/userStore";
 import { DashboardData } from "@/types";
+import { AxiosError } from "axios";
 
+interface ApiError {
+  error: string;
+}
 // Tipe data spesifik untuk statistik
 type StatsData = Pick<DashboardData, "stats">["stats"];
 
 // Fungsi untuk mengambil data statistik
 const fetchDashboardStats = async (kodeUpline: string): Promise<StatsData> => {
-  const { data } = await apiClient.get(`/dashboard/summary/${kodeUpline}`);
-  // Pastikan kita mengembalikan object stats atau object yang strukturnya cocok
-  return data.stats || data;
+  try {
+    const { data } = await apiClient.get(`/dashboard/summary/${kodeUpline}`);
+
+    // Cek apakah data yang diterima adalah array
+    if (Array.isArray(data.stats)) {
+      return data.stats || data;
+    }
+
+    // Jika bukan array, mungkin ini adalah objek error dari server.
+    if (data.stats && data.error) {
+      throw new Error(data.error);
+    }
+
+    // Jika bukan array dan bukan objek error, lemparkan error umum.
+    throw new Error("Format respons API tidak valid.");
+  } catch (err) {
+    const error = err as AxiosError<ApiError>;
+    if (error.response && error.response.data && error.response.data.error) {
+      throw new Error(error.response.data.error);
+    }
+    throw new Error("Gagal mengambil data statistik.");
+  }
 };
 
 export function useDashboardStats() {

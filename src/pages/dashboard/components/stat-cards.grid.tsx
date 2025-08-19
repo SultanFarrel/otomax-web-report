@@ -8,18 +8,19 @@ import { useDashboardStats } from "@/hooks/dashboard/useDashboardStats";
 import { StatCardsGridSkeleton } from "./skeleton/stat-cards-grid.skeleton";
 
 export const StatCardsGrid: React.FC = () => {
-  const { data: stats, isLoading, isError } = useDashboardStats();
+  const { data: stats, isLoading, error } = useDashboardStats();
+  console.log("Error:", error);
 
   if (isLoading) {
     return <StatCardsGridSkeleton />;
   }
 
-  if (isError || !stats) {
+  if (error || !stats) {
     return (
       <div className="grid grid-cols-1">
         <Card className="bg-danger-50 border-danger-200">
           <CardBody>
-            <p className="text-danger-700">Gagal memuat data statistik.</p>
+            <p className="text-danger-700">{error?.message}</p>
           </CardBody>
         </Card>
       </div>

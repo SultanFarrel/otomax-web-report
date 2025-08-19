@@ -7,7 +7,7 @@ import { useRecentActivity } from "@/hooks/dashboard/useRecentActivity";
 import { TransactionActivitySkeleton } from "./skeleton/TransactionActivity.skeleton";
 
 export const TransactionActivity: React.FC = () => {
-  const { data: recentActivityData, isLoading, isError } = useRecentActivity();
+  const { data: recentActivityData, isLoading, error } = useRecentActivity();
 
   const [activeTab, setActiveTab] = useState<"transactions" | "mutasi">(
     "transactions"
@@ -17,12 +17,12 @@ export const TransactionActivity: React.FC = () => {
     return <TransactionActivitySkeleton />;
   }
 
-  if (isError || !recentActivityData) {
+  if (error || !recentActivityData) {
     return (
       <div className="grid grid-cols-1">
         <Card className="bg-danger-50 border-danger-200">
           <CardBody>
-            <p className="text-danger-700">Gagal memuat chart.</p>
+            <p className="text-danger-700">{error?.message}</p>
           </CardBody>
         </Card>
       </div>

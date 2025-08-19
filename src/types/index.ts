@@ -4,6 +4,20 @@ export type IconSvgProps = SVGProps<SVGSVGElement> & {
   size?: number;
 };
 
+export interface SiteInfo {
+  kode: string;
+  nama: string;
+  saldo: number;
+  alamat: string;
+  aktif: number;
+  kode_upline: string | null;
+  kode_level: string;
+  tgl_daftar: string;
+  saldo_minimal: number;
+  pengingat_saldo: number;
+  judul: string;
+}
+
 export type Product = {
   kode: string;
   nama: string;
