@@ -25,6 +25,7 @@
     "@heroui/listbox": "^2.3.21",
     "@heroui/navbar": "2.2.20",
     "@heroui/pagination": "^2.2.20",
+    "@heroui/select": "^2.4.25",
     "@heroui/slider": "^2.4.19",
     "@heroui/snippet": "2.2.23",
     "@heroui/spinner": "^2.2.19",

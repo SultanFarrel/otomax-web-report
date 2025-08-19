@@ -1,12 +1,9 @@
 import React from "react";
-
 import { useProducts } from "@/hooks/useProducts";
-
 import { COLUMN_NAMES } from "./constants/product-constants";
 import { ProductTableCell } from "./components/product-table-cell";
 import { ProductTableTopContent } from "./components/product-table-top-content";
 import { ProductTableBottomContent } from "./components/product-table-bottom-content";
-
 import {
   Table,
   TableHeader,
@@ -29,6 +26,10 @@ export default function ProdukPage() {
     onSearchChange,
     statusFilter,
     onStatusChange,
+    providerFilter, // Ambil state dan handler baru
+    onProviderChange,
+    providers,
+    isProvidersLoading,
     resetFilters,
     sortDescriptor,
     setSortDescriptor,
@@ -41,6 +42,10 @@ export default function ProdukPage() {
         onSearchChange={onSearchChange}
         statusFilter={statusFilter}
         onStatusChange={onStatusChange}
+        providerFilter={providerFilter} // Teruskan ke komponen
+        onProviderChange={onProviderChange}
+        providers={providers}
+        isProvidersLoading={isProvidersLoading}
         onResetFilters={resetFilters}
         totalItems={tableData?.totalItems || 0}
       />
@@ -50,6 +55,10 @@ export default function ProdukPage() {
       onSearchChange,
       statusFilter,
       onStatusChange,
+      providerFilter,
+      onProviderChange,
+      providers,
+      isProvidersLoading,
       resetFilters,
       tableData?.totalItems,
     ]
@@ -116,7 +125,11 @@ export default function ProdukPage() {
           <TableRow key={item.kode}>
             {(columnKey) => (
               <TableCell>
-                <ProductTableCell product={item} columnKey={columnKey} />
+                <ProductTableCell
+                  product={item}
+                  columnKey={columnKey}
+                  providers={providers}
+                />
               </TableCell>
             )}
           </TableRow>
