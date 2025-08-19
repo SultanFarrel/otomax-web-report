@@ -18,6 +18,7 @@ import {
 interface ProductTableTopContentProps {
   filterValue: string;
   onSearchChange: (value: string) => void;
+  onSearchSubmit: () => void;
   statusFilter: string;
   onStatusChange: (key: React.Key) => void;
   onResetFilters: () => void;
@@ -27,6 +28,7 @@ interface ProductTableTopContentProps {
 export const ProductTableTopContent: React.FC<ProductTableTopContentProps> = ({
   filterValue,
   onSearchChange,
+  onSearchSubmit,
   statusFilter,
   onStatusChange,
   onResetFilters,
@@ -44,18 +46,29 @@ export const ProductTableTopContent: React.FC<ProductTableTopContentProps> = ({
 
   return (
     <div className="flex flex-col gap-4">
-      {/* --- PERBAIKAN DI SINI --- */}
       <div className="flex flex-wrap justify-between gap-3 items-end">
-        {/* Mengubah max-width agar sama dengan halaman lain */}
-        <Input
-          isClearable
-          className="w-full sm:max-w-xs" // Diubah dari sm:max-w-[44%]
-          placeholder="Cari berdasarkan nama/kode..."
-          startContent={<MagnifyingGlassIcon className="h-5 w-5" />}
-          value={filterValue}
-          onClear={() => onSearchChange("")}
-          onValueChange={onSearchChange}
-        />
+        <form
+          className="flex gap-2 w-full sm:max-w-xs"
+          onSubmit={(e) => {
+            e.preventDefault();
+            onSearchSubmit();
+          }}
+          action=""
+        >
+          <Input
+            isClearable
+            className="w-full sm:max-w-xs"
+            placeholder="Cari berdasarkan nama/kode..."
+            startContent={<MagnifyingGlassIcon className="h-5 w-5" />}
+            value={filterValue}
+            onClear={() => onSearchChange("")}
+            onValueChange={onSearchChange}
+          />
+          <Button color="primary" type="submit">
+            Cari
+          </Button>
+        </form>
+
         <div className="flex gap-3">
           <Dropdown>
             <DropdownTrigger>

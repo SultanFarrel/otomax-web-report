@@ -28,16 +28,17 @@ import {
 interface TransactionTableTopContentProps {
   filterValue: string;
   onSearchChange: (value: string) => void;
-  statusFilter: string;
-  onStatusChange: (key: React.Key) => void;
   dateRange: RangeValue<DateValue> | null;
   onDateChange: (range: RangeValue<DateValue>) => void;
+  limit: string;
+  onLimitChange: (value: string) => void;
+  onSearchSubmit: () => void;
+  statusFilter: string;
+  onStatusChange: (key: React.Key) => void;
   visibleColumns: Set<string>;
   onVisibleColumnsChange: (keys: any) => void;
   onResetFilters: () => void;
   totalItems: number;
-  limit: string;
-  onLimitChange: (value: string) => void;
 }
 
 export const TransactionTableTopContent: React.FC<
@@ -46,16 +47,17 @@ export const TransactionTableTopContent: React.FC<
   const {
     filterValue,
     onSearchChange,
-    statusFilter,
-    onStatusChange,
     dateRange,
     onDateChange,
+    limit,
+    onLimitChange,
+    onSearchSubmit,
+    statusFilter,
+    onStatusChange,
     visibleColumns,
     onVisibleColumnsChange,
     onResetFilters,
     totalItems,
-    limit,
-    onLimitChange,
   } = props;
 
   const [isStatusFilterTouched, setIsStatusFilterTouched] =
@@ -74,15 +76,48 @@ export const TransactionTableTopContent: React.FC<
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap justify-between gap-3 items-end">
-        <Input
-          isClearable
-          className="w-full sm:max-w-xs"
-          placeholder="Cari berdasarkan tujuan / kode produk..."
-          startContent={<MagnifyingGlassIcon className="h-5 w-5" />}
-          value={filterValue}
-          onClear={() => onSearchChange("")}
-          onValueChange={onSearchChange}
-        />
+        {/* Kolom Kiri */}
+        <form
+          className="flex flex-wrap gap-3 items-end w-full sm:w-auto"
+          onSubmit={(e) => {
+            e.preventDefault();
+            onSearchSubmit();
+          }}
+        >
+          <Input
+            isClearable
+            className="w-full sm:w-[250px]"
+            placeholder="Cari tujuan / kode produk..."
+            startContent={<MagnifyingGlassIcon className="h-5 w-5" />}
+            value={filterValue}
+            onClear={() => onSearchChange("")}
+            onValueChange={onSearchChange}
+          />
+          <Popover placement="bottom-start">
+            <PopoverTrigger>
+              <Button
+                variant="flat"
+                startContent={
+                  <CalendarIcon className="h-4 w-4 text-default-500" />
+                }
+              >
+                {formatDateRange(dateRange)}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="p-0">
+              <RangeCalendar
+                aria-label="Date filter"
+                value={dateRange}
+                onChange={onDateChange}
+              />
+            </PopoverContent>
+          </Popover>
+          <Button color="primary" type="submit">
+            Cari
+          </Button>
+        </form>
+
+        {/* Kolom Kanan */}
         <div className="flex flex-wrap gap-3 items-end">
           <Input
             aria-label="Set Limit Data"
@@ -110,6 +145,7 @@ export const TransactionTableTopContent: React.FC<
               onAction={(key) => {
                 onStatusChange(key);
                 setIsStatusFilterTouched(true);
+                onSearchSubmit();
               }}
             >
               {STATUS_OPTIONS.map((status) => (
@@ -139,25 +175,6 @@ export const TransactionTableTopContent: React.FC<
               ))}
             </DropdownMenu>
           </Dropdown>
-          <Popover placement="bottom-start">
-            <PopoverTrigger>
-              <Button
-                variant="flat"
-                startContent={
-                  <CalendarIcon className="h-4 w-4 text-default-500" />
-                }
-              >
-                {formatDateRange(dateRange)}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="p-0">
-              <RangeCalendar
-                aria-label="Date filter"
-                value={dateRange}
-                onChange={onDateChange}
-              />
-            </PopoverContent>
-          </Popover>
           <Tooltip content="Reset Filter" placement="bottom" closeDelay={0}>
             <Button
               isIconOnly

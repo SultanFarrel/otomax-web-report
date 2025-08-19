@@ -22,15 +22,19 @@ export default function BalanceMutationPage() {
     allFetchedItems,
     isLoading,
     isError,
-    filterValue,
+    // State & handler untuk UI
+    inputValue,
     onSearchChange,
-    dateRange,
+    inputLimit,
+    onLimitChange,
+    inputDateRange,
     onDateChange,
+    // Aksi
+    onSearchSubmit,
     resetFilters,
+    // Filter lain
     sortDescriptor,
     setSortDescriptor,
-    limit,
-    onLimitChange,
   } = useBalanceMutation();
 
   const [visibleItemCount, setVisibleItemCount] = useState(ITEMS_PER_LOAD);
@@ -47,10 +51,8 @@ export default function BalanceMutationPage() {
 
   const handleLoadMore = useCallback(() => {
     setIsClientLoading(true);
-    // Simulasi loading agar spinner terlihat
     setTimeout(() => {
       setVisibleItemCount((prev) =>
-        // Pastikan tidak melebihi total item yang ada
         Math.min(prev + ITEMS_PER_LOAD, allFetchedItems.length)
       );
       setIsClientLoading(false);
@@ -62,25 +64,27 @@ export default function BalanceMutationPage() {
   const topContent = useMemo(
     () => (
       <BalanceMutationTableTopContent
-        filterValue={filterValue}
+        filterValue={inputValue}
         onSearchChange={onSearchChange}
-        dateRange={dateRange}
+        dateRange={inputDateRange}
         onDateChange={onDateChange}
+        limit={inputLimit}
+        onLimitChange={onLimitChange}
+        onSearchSubmit={onSearchSubmit}
         onResetFilters={resetFilters}
         totalItems={allFetchedItems.length}
-        limit={limit}
-        onLimitChange={onLimitChange}
       />
     ),
     [
-      filterValue,
+      inputValue,
       onSearchChange,
-      dateRange,
+      inputDateRange,
       onDateChange,
+      inputLimit,
+      onLimitChange,
+      onSearchSubmit,
       resetFilters,
       allFetchedItems.length,
-      limit,
-      onLimitChange,
     ]
   );
 

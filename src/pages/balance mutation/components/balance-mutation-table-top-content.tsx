@@ -17,10 +17,11 @@ interface BalanceMutationTableTopContentProps {
   onSearchChange: (value: string) => void;
   dateRange: RangeValue<DateValue> | null;
   onDateChange: (range: RangeValue<DateValue>) => void;
-  onResetFilters: () => void;
-  totalItems: number;
   limit: string;
   onLimitChange: (value: string) => void;
+  onSearchSubmit: () => void;
+  onResetFilters: () => void;
+  totalItems: number;
 }
 
 export const BalanceMutationTableTopContent: React.FC<
@@ -31,32 +32,32 @@ export const BalanceMutationTableTopContent: React.FC<
     onSearchChange,
     dateRange,
     onDateChange,
-    onResetFilters,
-    totalItems,
     limit,
     onLimitChange,
+    onSearchSubmit,
+    onResetFilters,
+    totalItems,
   } = props;
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap justify-between gap-3 items-end">
-        <Input
-          isClearable
-          className="w-full sm:max-w-xs"
-          placeholder="Cari berdasarkan keterangan..."
-          startContent={<MagnifyingGlassIcon className="h-5 w-5" />}
-          value={filterValue}
-          onClear={() => onSearchChange("")}
-          onValueChange={onSearchChange}
-        />
-        <div className="flex flex-wrap gap-3 items-end">
+        {/* Kolom Kiri */}
+        <form
+          className="flex flex-wrap gap-3 items-end w-full sm:w-auto"
+          onSubmit={(e) => {
+            e.preventDefault();
+            onSearchSubmit();
+          }}
+        >
           <Input
-            aria-label="Set Limit Data"
-            placeholder="500"
-            type="number"
-            className="w-28"
-            value={limit}
-            onValueChange={onLimitChange}
+            isClearable
+            className="w-full sm:w-[250px]"
+            placeholder="Cari keterangan..."
+            startContent={<MagnifyingGlassIcon className="h-5 w-5" />}
+            value={filterValue}
+            onClear={() => onSearchChange("")}
+            onValueChange={onSearchChange}
           />
           <Popover placement="bottom-start">
             <PopoverTrigger>
@@ -77,6 +78,22 @@ export const BalanceMutationTableTopContent: React.FC<
               />
             </PopoverContent>
           </Popover>
+
+          <Button color="primary" type="submit">
+            Cari
+          </Button>
+        </form>
+
+        {/* Kolom Kanan */}
+        <div className="flex flex-wrap gap-3 items-end">
+          <Input
+            aria-label="Set Limit Data"
+            placeholder="500"
+            type="number"
+            className="w-28"
+            value={limit}
+            onValueChange={onLimitChange}
+          />
           <Tooltip content="Reset Filter" placement="bottom" closeDelay={0}>
             <Button
               isIconOnly

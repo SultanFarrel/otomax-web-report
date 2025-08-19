@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import { TransactionApiResponse } from "@/types";
 import { apiClient } from "@/api/axios";
 import { useUserStore } from "@/store/userStore";
-import { useDebounce } from "@/hooks/useDebounce";
 import { DateValue } from "@heroui/calendar";
 import { SortDescriptor } from "@heroui/table";
 import { today, getLocalTimeZone } from "@internationalized/date";
@@ -46,91 +45,100 @@ const fetchDownlineTransactions = async ({
 
 export function useDownlineTransactions() {
   const user = useUserStore((state) => state.user);
-  const [filterValue, setFilterValue] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [limit, setLimit] = useState<string>("500");
 
-  const [dateRange, setDateRange] = useState<RangeValue<DateValue>>({
+  // State untuk nilai di UI
+  const [inputValue, setInputValue] = useState("");
+  const [inputLimit, setInputLimit] = useState<string>("500");
+  const [inputDateRange, setInputDateRange] = useState<RangeValue<DateValue>>({
     start: today(getLocalTimeZone()),
     end: today(getLocalTimeZone()),
   });
 
+  // State untuk nilai yang dikirim ke server
+  const [submittedFilterValue, setSubmittedFilterValue] = useState("");
+  const [submittedLimit, setSubmittedLimit] = useState<string>("500");
+  const [submittedDateRange, setSubmittedDateRange] = useState<
+    RangeValue<DateValue>
+  >({
+    start: today(getLocalTimeZone()),
+    end: today(getLocalTimeZone()),
+  });
+
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: "tgl_entri",
     direction: "descending",
   });
 
-  const debouncedFilterValue = useDebounce(filterValue, 500);
-  const debouncedLimit = useDebounce(limit, 800);
-
   const { data, isLoading, isError } = useQuery<TransactionApiResponse, Error>({
     queryKey: [
       "downlineTransactions",
       user?.kode,
-      debouncedFilterValue,
+      submittedFilterValue,
       statusFilter,
       sortDescriptor,
-      dateRange,
-      debouncedLimit,
+      submittedDateRange,
+      submittedLimit,
     ],
     queryFn: () => {
-      const numericLimit = parseInt(limit, 10);
+      const numericLimit = parseInt(submittedLimit, 10);
       const finalLimit =
         isNaN(numericLimit) || numericLimit <= 0 ? 500 : numericLimit;
 
       return fetchDownlineTransactions({
         uplineKode: user!.kode,
         limit: finalLimit,
-        filterValue: debouncedFilterValue,
+        filterValue: submittedFilterValue,
         statusFilter,
         sortDescriptor,
-        dateRange,
+        dateRange: submittedDateRange,
       });
     },
     enabled: !!user?.kode,
     staleTime: 5 * 60 * 1000, // 5 menit
   });
 
-  const onLimitChange = useCallback((newLimit: string) => {
-    setLimit(newLimit);
-  }, []);
+  // Handler untuk submit
+  const onSearchSubmit = useCallback(() => {
+    setSubmittedFilterValue(inputValue);
+    setSubmittedLimit(inputLimit);
+    setSubmittedDateRange(inputDateRange);
+  }, [inputValue, inputLimit, inputDateRange]);
 
-  const onSearchChange = useCallback(
-    (value?: string) => setFilterValue(value || ""),
-    []
-  );
   const onStatusChange = useCallback(
     (key: React.Key) => setStatusFilter(key as string),
     []
   );
-  const onDateChange = useCallback(
-    (range: RangeValue<DateValue>) => setDateRange(range),
-    []
-  );
+
   const resetFilters = useCallback(() => {
-    setFilterValue("");
-    setStatusFilter("all");
-    setDateRange({
+    const initialDate = {
       start: today(getLocalTimeZone()),
       end: today(getLocalTimeZone()),
-    });
+    };
+    setInputLimit("500");
+    setInputDateRange(initialDate);
+    setInputValue("");
+    setSubmittedFilterValue("");
+    setSubmittedLimit("500");
+    setSubmittedDateRange(initialDate);
+    setStatusFilter("all");
     setSortDescriptor({ column: "tgl_entri", direction: "descending" });
-    setLimit("500");
   }, []);
 
   return {
     allFetchedItems: data?.data ?? [],
     isLoading,
     isError,
-    filterValue,
-    onSearchChange,
+    inputValue,
+    onSearchChange: setInputValue,
+    inputLimit,
+    onLimitChange: setInputLimit,
+    inputDateRange,
+    onDateChange: setInputDateRange,
+    onSearchSubmit,
+    resetFilters,
     statusFilter,
     onStatusChange,
-    dateRange,
-    onDateChange,
-    limit,
-    onLimitChange,
-    resetFilters,
     sortDescriptor,
     setSortDescriptor,
   };

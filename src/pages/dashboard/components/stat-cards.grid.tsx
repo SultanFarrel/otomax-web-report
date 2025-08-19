@@ -20,7 +20,9 @@ export const StatCardsGrid: React.FC = () => {
       <div className="grid grid-cols-1">
         <Card className="bg-danger-50 border-danger-200">
           <CardBody>
-            <p className="text-danger-700">{error?.message}</p>
+            <p className="text-danger-700">
+              {error?.message?.trim ? error.message : "Gagal memuat data"}
+            </p>
           </CardBody>
         </Card>
       </div>

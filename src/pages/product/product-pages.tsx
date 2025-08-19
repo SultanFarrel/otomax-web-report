@@ -25,8 +25,9 @@ export default function ProdukPage() {
     isError: isTableError,
     page,
     setPage,
-    filterValue,
+    inputValue,
     onSearchChange,
+    onSearchSubmit,
     statusFilter,
     onStatusChange,
     resetFilters,
@@ -37,8 +38,9 @@ export default function ProdukPage() {
   const topContent = React.useMemo(
     () => (
       <ProductTableTopContent
-        filterValue={filterValue}
+        filterValue={inputValue}
         onSearchChange={onSearchChange}
+        onSearchSubmit={onSearchSubmit}
         statusFilter={statusFilter}
         onStatusChange={onStatusChange}
         onResetFilters={resetFilters}
@@ -46,8 +48,9 @@ export default function ProdukPage() {
       />
     ),
     [
-      filterValue,
+      inputValue,
       onSearchChange,
+      onSearchSubmit,
       statusFilter,
       onStatusChange,
       resetFilters,

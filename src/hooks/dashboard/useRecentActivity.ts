@@ -22,8 +22,11 @@ const fetchRecentActivity = async (
       `/dashboard/recent-transaction-mutation/${kodeUpline}`
     );
     // Cek apakah data yang diterima adalah array
-    if (Array.isArray(data.stats)) {
-      return data.stats || data;
+    if (
+      Array.isArray(data.recentTransactions) &&
+      Array.isArray(data.recentMutasi)
+    ) {
+      return data;
     }
 
     // Jika bukan array, mungkin ini adalah objek error dari server.

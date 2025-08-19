@@ -61,6 +61,7 @@ const fetchProducts = async (
 // --- Custom Hook useProducts ---
 export function useProducts() {
   const [page, setPage] = React.useState(1);
+  const [inputValue, setInputValue] = React.useState("");
   const [filterValue, setFilterValue] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState<string>("all");
   const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor>({
@@ -93,16 +94,23 @@ export function useProducts() {
 
   // Handler untuk mengubah filter
   const onSearchChange = React.useCallback((value?: string) => {
-    setFilterValue(value || "");
-    setPage(1);
+    setInputValue(value || "");
   }, []);
 
+  const onSearchSubmit = React.useCallback(() => {
+    setFilterValue(inputValue);
+    setPage(1);
+  }, [inputValue]);
+
   const onStatusChange = React.useCallback((key: React.Key) => {
+    setInputValue("");
+    setFilterValue("");
     setStatusFilter(key as string);
     setPage(1);
   }, []);
 
   const resetFilters = React.useCallback(() => {
+    setInputValue("");
     setFilterValue("");
     setStatusFilter("all");
     setSortDescriptor({ column: "kode", direction: "ascending" });
@@ -116,8 +124,9 @@ export function useProducts() {
     isError,
     page,
     setPage,
-    filterValue,
+    inputValue,
     onSearchChange,
+    onSearchSubmit,
     statusFilter,
     onStatusChange,
     resetFilters,

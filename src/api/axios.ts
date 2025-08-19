@@ -43,15 +43,15 @@ apiClient.interceptors.response.use(
         }
       }
 
-      if (typeof error.response.data !== "object") {
-        if (window.location.pathname !== "/error") {
-          window.location.href = "/error";
-        }
-      }
-    } else if (error.request) {
-      if (window.location.pathname !== "/error") {
-        window.location.href = "/error";
-      }
+      //   if (typeof error.response.data !== "object") {
+      //     if (window.location.pathname !== "/error") {
+      //       window.location.href = "/error";
+      //     }
+      //   }
+      // } else if (error.request) {
+      //   if (window.location.pathname !== "/error") {
+      //     window.location.href = "/error";
+      //   }
     }
 
     // Kembalikan error agar bisa ditangani oleh fungsi pemanggil

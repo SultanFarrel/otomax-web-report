@@ -9,9 +9,12 @@ const formatCurrency = (amount: number, options?: Intl.NumberFormatOptions) =>
   }).format(amount);
 
 const DEFAULT_DATE_OPTIONS: Intl.DateTimeFormatOptions = {
-  dateStyle: "medium",
-  timeStyle: "medium",
-  timeZone: "UTC",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
 };
 
 const formatDate = (

@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { Transaction } from "@/types";
-import { useDownlineTransactions } from "@/hooks/useDownlineTransactions"; // Hook Anda yang sudah diupdate
+import { useDownlineTransactions } from "@/hooks/useDownlineTransactions";
 import { TransactionDetailModal } from "@/pages/transaction/components/transaction-detail-modal";
 import { COLUMN_NAMES } from "./constants/downline-transactions-contants";
 import { DownlineTransactionTableTopContent } from "./components/downline-transaction-table-top-content";
@@ -24,17 +24,21 @@ export default function DownlineTransactionPage() {
     allFetchedItems,
     isLoading,
     isError,
-    filterValue,
+    // State & handler UI
+    inputValue,
     onSearchChange,
+    inputLimit,
+    onLimitChange,
+    inputDateRange,
+    onDateChange,
+    // Aksi
+    onSearchSubmit,
+    resetFilters,
+    // Filter lain
     statusFilter,
     onStatusChange,
-    dateRange,
-    onDateChange,
-    resetFilters,
     sortDescriptor,
     setSortDescriptor,
-    limit,
-    onLimitChange,
   } = useDownlineTransactions();
 
   const [visibleItemCount, setVisibleItemCount] = useState(ITEMS_PER_LOAD);
@@ -51,10 +55,8 @@ export default function DownlineTransactionPage() {
 
   const handleLoadMore = useCallback(() => {
     setIsClientLoading(true);
-    // Simulasi loading agar spinner terlihat
     setTimeout(() => {
       setVisibleItemCount((prev) =>
-        // Pastikan tidak melebihi total item yang ada
         Math.min(prev + ITEMS_PER_LOAD, allFetchedItems.length)
       );
       setIsClientLoading(false);
@@ -76,32 +78,34 @@ export default function DownlineTransactionPage() {
   const topContent = useMemo(
     () => (
       <DownlineTransactionTableTopContent
-        filterValue={filterValue}
+        filterValue={inputValue}
         onSearchChange={onSearchChange}
+        dateRange={inputDateRange}
+        onDateChange={onDateChange}
+        limit={inputLimit}
+        onLimitChange={onLimitChange}
+        onSearchSubmit={onSearchSubmit}
         statusFilter={statusFilter}
         onStatusChange={onStatusChange}
-        dateRange={dateRange}
-        onDateChange={onDateChange}
         visibleColumns={visibleColumns}
         onVisibleColumnsChange={setVisibleColumns as any}
         onResetFilters={resetFilters}
         totalItems={allFetchedItems.length}
-        limit={limit}
-        onLimitChange={onLimitChange}
       />
     ),
     [
-      filterValue,
+      inputValue,
       onSearchChange,
+      inputDateRange,
+      onDateChange,
+      inputLimit,
+      onLimitChange,
+      onSearchSubmit,
       statusFilter,
       onStatusChange,
-      dateRange,
-      onDateChange,
       visibleColumns,
       resetFilters,
       allFetchedItems.length,
-      limit,
-      onLimitChange,
     ]
   );
 
