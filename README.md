@@ -18,7 +18,7 @@ This is a template for creating applications using Vite and HeroUI (v2).
 To clone the project, run the following command:
 
 ```bash
-git clone https://github.com/frontio-ai/vite-template.git
+git clone https://github.com/SultanFarrel/otomax-web-report.git
 ```
 
 ### Install dependencies
