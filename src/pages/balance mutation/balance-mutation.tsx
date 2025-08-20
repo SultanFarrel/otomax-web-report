@@ -22,17 +22,14 @@ export default function BalanceMutationPage() {
     allFetchedItems,
     isLoading,
     isError,
-    // State & handler untuk UI
     inputValue,
     onSearchChange,
     inputLimit,
     onLimitChange,
     inputDateRange,
     onDateChange,
-    // Aksi
     onSearchSubmit,
     resetFilters,
-    // Filter lain
     sortDescriptor,
     setSortDescriptor,
   } = useBalanceMutation();

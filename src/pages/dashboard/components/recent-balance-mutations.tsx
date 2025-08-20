@@ -1,5 +1,3 @@
-// src/pages/dashboard/components/recent-mutasi-saldo.tsx
-
 import React from "react";
 import { Card, CardHeader, CardBody, CardFooter } from "@heroui/card";
 import { Button } from "@heroui/button";

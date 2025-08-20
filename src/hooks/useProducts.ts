@@ -8,7 +8,6 @@ import { useDebounce } from "@/hooks/useDebounce";
 
 import { SortDescriptor } from "@heroui/table";
 
-// --- Fetching API ---
 const fetchProducts = async (
   page: number,
   pageSize: number,
@@ -58,7 +57,6 @@ const fetchProducts = async (
   return data;
 };
 
-// --- Custom Hook useProducts ---
 export function useProducts() {
   const [page, setPage] = React.useState(1);
   const [inputValue, setInputValue] = React.useState("");
@@ -92,7 +90,6 @@ export function useProducts() {
     staleTime: 5 * 60 * 1000, // Cache data selama 5 menit
   });
 
-  // Handler untuk mengubah filter
   const onSearchChange = React.useCallback((value?: string) => {
     setInputValue(value || "");
   }, []);
@@ -117,7 +114,6 @@ export function useProducts() {
     setPage(1);
   }, []);
 
-  // Kembalikan semua state dan fungsi yang dibutuhkan oleh UI
   return {
     data,
     isLoading,

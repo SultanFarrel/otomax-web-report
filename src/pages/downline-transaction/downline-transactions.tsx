@@ -24,17 +24,14 @@ export default function DownlineTransactionPage() {
     allFetchedItems,
     isLoading,
     isError,
-    // State & handler UI
     inputValue,
     onSearchChange,
     inputLimit,
     onLimitChange,
     inputDateRange,
     onDateChange,
-    // Aksi
     onSearchSubmit,
     resetFilters,
-    // Filter lain
     statusFilter,
     onStatusChange,
     sortDescriptor,

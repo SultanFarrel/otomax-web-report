@@ -14,7 +14,6 @@ import {
 import { Button } from "@heroui/button";
 import { Chip } from "@heroui/chip";
 
-// Komponen untuk menampilkan satu baris detail
 const DetailRow = ({
   label,
   value,
@@ -28,7 +27,6 @@ const DetailRow = ({
   </div>
 );
 
-// Komponen utama Modal
 interface ModalProps {
   trx: Transaction | null;
   onClose: () => void;

@@ -7,10 +7,8 @@ import { AxiosError } from "axios";
 interface ApiError {
   error: string;
 }
-// Tipe data spesifik untuk statistik
 type StatsData = Pick<DashboardData, "stats">["stats"];
 
-// Fungsi untuk mengambil data statistik
 const fetchDashboardStats = async (kodeUpline: string): Promise<StatsData> => {
   try {
     const { data } = await apiClient.get(`/dashboard/summary/${kodeUpline}`);

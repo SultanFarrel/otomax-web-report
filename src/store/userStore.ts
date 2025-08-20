@@ -1,17 +1,7 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import { jwtDecode } from "jwt-decode";
 import { apiClient } from "@/api/axios";
 import { useAuthStore } from "./authStore";
-
-interface JwtPayload {
-  reseller: {
-    kode: string;
-  };
-  // Tambahkan iat dan exp jika ada di dalam token untuk kelengkapan
-  iat: number;
-  exp: number;
-}
 
 interface UserData {
   kode: string;
@@ -40,13 +30,10 @@ export const useUserStore = create<UserState>()(
           const token = useAuthStore.getState().token;
           if (!token) throw new Error("Tidak ada token otorisasi.");
 
-          // const decoded: JwtPayload = jwtDecode(token);
-          const response = await apiClient.get(
-            "/reseller/me" //'/reseller/${decoded.reseller.kode}'
-          );
+          const response = await apiClient.get("/reseller/me");
 
           const userData: UserData = {
-            kode: response.data.kode, // decoded.reseller.kode,
+            kode: response.data.kode,
             nama: response.data.nama,
             saldo: response.data.saldo,
           };
@@ -54,8 +41,6 @@ export const useUserStore = create<UserState>()(
         } catch (error) {
           console.error("Gagal mengambil data pengguna:", error);
           set({ isLoading: false });
-          // Anda bisa menambahkan logika logout jika fetch gagal di sini
-          // useAuthStore.getState().logout();
         }
       },
     }),

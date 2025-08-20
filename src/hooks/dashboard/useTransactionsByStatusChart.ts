@@ -14,7 +14,6 @@ interface ApiError {
   error: string;
 }
 
-// Fungsi untuk mengambil data chart status transaksi
 const fetchTransactionsByStatusChart = async (
   kodeUpline: string,
   dateRange: RangeValue<DateValue> | null

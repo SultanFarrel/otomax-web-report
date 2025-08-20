@@ -1,5 +1,3 @@
-// src/pages/dashboard/components/stat-cards-grid.tsx
-
 import React from "react";
 import { Card, CardBody } from "@heroui/card";
 import { formatCurrency } from "@/utils/formatters";
@@ -31,7 +29,6 @@ export const StatCardsGrid: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Grid 4 Kolom */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <Card>
           <CardBody>

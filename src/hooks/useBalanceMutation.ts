@@ -90,7 +90,7 @@ export function useBalanceMutation() {
       });
     },
     enabled: !!user?.kode,
-    staleTime: 5 * 60 * 1000, // 5 menit
+    staleTime: 5 * 60 * 1000, // cache 5 menit
   });
 
   const onSearchSubmit = useCallback(() => {
@@ -104,15 +104,12 @@ export function useBalanceMutation() {
       start: today(getLocalTimeZone()),
       end: today(getLocalTimeZone()),
     };
-    // Reset state input
     setInputValue("");
     setInputLimit("500");
     setInputDateRange(initialDate);
-    // Reset state submitted
     setSubmittedFilterValue("");
     setSubmittedLimit("500");
     setSubmittedDateRange(initialDate);
-    // Reset filter lainnya
     setSortDescriptor({ column: "kode", direction: "descending" });
   }, []);
 

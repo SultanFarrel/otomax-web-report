@@ -6,14 +6,12 @@ export const TransactionActivitySkeleton: React.FC = () => {
     <Card className="animate-pulse">
       <CardHeader>
         <div className="flex border-b border-default-200 w-full">
-          {/* Skeleton untuk Tab */}
           <div className="h-10 bg-gray-200 dark:bg-gray-700 w-1/4 rounded-t-md mr-2"></div>
           <div className="h-10 bg-gray-200 dark:bg-gray-700 w-1/4 rounded-t-md"></div>
         </div>
       </CardHeader>
       <CardBody>
         <div className="space-y-4 px-2">
-          {/* Skeleton untuk Item Daftar */}
           {[...Array(4)].map((_, index) => (
             <div key={index} className="flex items-center space-x-3">
               <div className="h-8 w-8 bg-gray-300 dark:bg-gray-600 rounded-full"></div>

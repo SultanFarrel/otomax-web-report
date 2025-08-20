@@ -8,13 +8,11 @@ import { Chip, type ChipProps } from "@heroui/chip";
 import { ChevronRightIcon } from "@heroicons/react/24/solid";
 import cn from "clsx";
 
-// Fungsi untuk mengambil anak dari sebuah downline
 const fetchChildren = async (uplineKode: string): Promise<Downline[]> => {
   const { data } = await apiClient.get(`/reseller/upline/${uplineKode}`);
   return data.data;
 };
 
-// Helper untuk status
 const statusColorMap: Record<string, ChipProps["color"]> = {
   Aktif: "success",
   Nonaktif: "default",
@@ -46,7 +44,6 @@ export const DownlineNode: React.FC<DownlineNodeProps> = ({
 
   const hasChildren = downline.total_downline > 0;
 
-  // Fungsi untuk menangani klik
   const handleToggleExpand = () => {
     if (hasChildren) {
       setIsExpanded(!isExpanded);
@@ -55,7 +52,6 @@ export const DownlineNode: React.FC<DownlineNodeProps> = ({
 
   return (
     <div style={{ marginLeft: `${level * 20}px` }} className="my-2">
-      {/* 1. Tambahkan onClick dan styling cursor ke Card */}
       <Card
         isPressable={hasChildren}
         onPress={handleToggleExpand}
@@ -66,7 +62,6 @@ export const DownlineNode: React.FC<DownlineNodeProps> = ({
       >
         <CardBody>
           <div className="flex items-center gap-4">
-            {/* Ikon panah sekarang hanya sebagai indikator visual */}
             <div className="w-6">
               {hasChildren && (
                 <ChevronRightIcon
@@ -80,7 +75,6 @@ export const DownlineNode: React.FC<DownlineNodeProps> = ({
               )}
             </div>
 
-            {/* Info Utama */}
             <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
               <div>
                 <p className="font-bold">{downline.nama}</p>
@@ -108,7 +102,6 @@ export const DownlineNode: React.FC<DownlineNodeProps> = ({
         </CardBody>
       </Card>
 
-      {/* Bagian untuk merender anak-anak (rekursif) */}
       {isExpanded && (
         <div className="pl-6 border-l-2 border-default-200">
           {isLoading && <Spinner className="ml-4 my-2" size="sm" />}

@@ -28,17 +28,14 @@ export default function TransactionPage() {
     allFetchedItems,
     isLoading,
     isError,
-    // State & handler untuk UI
     inputValue,
     onSearchChange,
     inputLimit,
     onLimitChange,
     inputDateRange,
     onDateChange,
-    // Aksi
     onSearchSubmit,
     resetFilters,
-    // Filter lain
     statusFilter,
     onStatusChange,
     sortDescriptor,

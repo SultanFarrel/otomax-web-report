@@ -5,14 +5,11 @@ export const TransactionsByStatusChartSkeleton: React.FC = () => {
   return (
     <Card className="p-4 animate-pulse">
       <CardHeader className="flex items-center justify-between">
-        {/* Skeleton untuk Judul */}
         <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3"></div>
 
-        {/* Skeleton untuk Tombol Filter */}
         <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
       </CardHeader>
       <CardBody>
-        {/* Skeleton untuk Area Chart */}
         <div className="h-[300px] bg-gray-200 dark:bg-gray-700 rounded-md"></div>
       </CardBody>
     </Card>

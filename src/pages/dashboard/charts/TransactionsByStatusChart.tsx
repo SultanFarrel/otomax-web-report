@@ -1,4 +1,4 @@
-import React, { useState } from "react"; // Impor useState
+import React, { useState } from "react";
 import {
   BarChart,
   Bar,
@@ -37,15 +37,11 @@ export const TransactionsByStatusChart: React.FC<ChartProps> = ({
     error,
   } = useTransactionsByStatusChart(dateRange);
 
-  // Tambahkan state untuk mengontrol visibilitas popover
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
-  // Buat handler baru
   const handleDateChangeAndClose = (range: RangeValue<DateValue>) => {
-    // Jalankan fungsi update dari parent
     onDateChange(range);
 
-    // Jika tanggal awal dan akhir sudah terpilih, tutup popover
     if (range.start && range.end) {
       setIsCalendarOpen(false);
     }
@@ -96,7 +92,7 @@ export const TransactionsByStatusChart: React.FC<ChartProps> = ({
               <RangeCalendar
                 aria-label="Filter tanggal dashboard"
                 value={dateRange}
-                onChange={handleDateChangeAndClose} // Gunakan handler baru
+                onChange={handleDateChangeAndClose}
               />
             </PopoverContent>
           </Popover>

@@ -95,10 +95,9 @@ export function useDownlineTransactions() {
       });
     },
     enabled: !!user?.kode,
-    staleTime: 5 * 60 * 1000, // 5 menit
+    staleTime: 5 * 60 * 1000, // cache 5 menit
   });
 
-  // Handler untuk submit
   const onSearchSubmit = useCallback(() => {
     setSubmittedFilterValue(inputValue);
     setSubmittedLimit(inputLimit);

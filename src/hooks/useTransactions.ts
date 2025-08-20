@@ -93,7 +93,7 @@ export function useTransactions() {
       });
     },
     enabled: !!user?.kode,
-    staleTime: 5 * 60 * 1000, // 5 menit
+    staleTime: 5 * 60 * 1000, // cache 5 menit
   });
 
   const onSearchSubmit = useCallback(() => {
@@ -129,16 +129,13 @@ export function useTransactions() {
     allFetchedItems: data?.data ?? [],
     isLoading,
     isError,
-    // Nilai dan handler untuk UI
     inputValue,
     onSearchChange: setInputValue,
     inputLimit,
     onLimitChange: setInputLimit,
     inputDateRange,
     onDateChange: setInputDateRange,
-    // Handler submit
     onSearchSubmit,
-    // Filter lainnya
     statusFilter,
     onStatusChange,
     resetFilters,

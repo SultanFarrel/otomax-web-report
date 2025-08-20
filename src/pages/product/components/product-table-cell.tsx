@@ -7,7 +7,6 @@ import { STATUS_COLORS } from "../constants/product-constants";
 
 import { Chip } from "@heroui/chip";
 
-// Helper untuk menentukan status produk
 const getProductStatus = (product: Product): string => {
   if (product.gangguan) return "Gangguan";
   if (product.kosong) return "Kosong";

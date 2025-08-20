@@ -13,7 +13,6 @@ export type RecentActivityData = Pick<
   "recentTransactions" | "recentMutasi"
 >;
 
-// Fungsi untuk mengambil data dari endpoint
 const fetchRecentActivity = async (
   kodeUpline: string
 ): Promise<RecentActivityData> => {

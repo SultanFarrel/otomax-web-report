@@ -61,6 +61,8 @@ export const DownlineTransactionTableTopContent: React.FC<
   const [isStatusFilterTouched, setIsStatusFilterTouched] =
     React.useState(false);
 
+  const [isCalendarOpen, setIsCalendarOpen] = React.useState(false);
+
   const statusButtonText = React.useMemo(() => {
     if (!isStatusFilterTouched || statusFilter === "all") {
       return "Status";
@@ -70,6 +72,14 @@ export const DownlineTransactionTableTopContent: React.FC<
       "Status"
     );
   }, [isStatusFilterTouched, statusFilter]);
+
+  const handleDateChangeAndClose = (range: RangeValue<DateValue>) => {
+    onDateChange(range);
+
+    if (range.start && range.end) {
+      setIsCalendarOpen(false);
+    }
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -91,7 +101,11 @@ export const DownlineTransactionTableTopContent: React.FC<
             onClear={() => onSearchChange("")}
             onValueChange={onSearchChange}
           />
-          <Popover placement="bottom-start">
+          <Popover
+            placement="bottom-start"
+            isOpen={isCalendarOpen}
+            onOpenChange={setIsCalendarOpen}
+          >
             <PopoverTrigger>
               <Button
                 variant="flat"
@@ -106,7 +120,7 @@ export const DownlineTransactionTableTopContent: React.FC<
               <RangeCalendar
                 aria-label="Date filter"
                 value={dateRange}
-                onChange={onDateChange}
+                onChange={handleDateChangeAndClose}
               />
             </PopoverContent>
           </Popover>

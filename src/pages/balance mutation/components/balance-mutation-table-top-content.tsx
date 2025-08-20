@@ -39,6 +39,16 @@ export const BalanceMutationTableTopContent: React.FC<
     totalItems,
   } = props;
 
+  const [isCalendarOpen, setIsCalendarOpen] = React.useState(false);
+
+  const handleDateChangeAndClose = (range: RangeValue<DateValue>) => {
+    onDateChange(range);
+
+    if (range.start && range.end) {
+      setIsCalendarOpen(false);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap justify-between gap-3 items-end">
@@ -59,7 +69,11 @@ export const BalanceMutationTableTopContent: React.FC<
             onClear={() => onSearchChange("")}
             onValueChange={onSearchChange}
           />
-          <Popover placement="bottom-start">
+          <Popover
+            placement="bottom-start"
+            isOpen={isCalendarOpen}
+            onOpenChange={setIsCalendarOpen}
+          >
             <PopoverTrigger>
               <Button
                 variant="flat"
@@ -74,7 +88,7 @@ export const BalanceMutationTableTopContent: React.FC<
               <RangeCalendar
                 aria-label="Date filter"
                 value={dateRange}
-                onChange={onDateChange}
+                onChange={handleDateChangeAndClose}
               />
             </PopoverContent>
           </Popover>

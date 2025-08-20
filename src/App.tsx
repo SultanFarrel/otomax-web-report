@@ -9,7 +9,7 @@ import SettingsPage from "@/pages/settings";
 import ProdukPage from "@/pages/product/product-pages";
 import TransactionPage from "@/pages/transaction/transaction-pages";
 import MutasiSaldoPage from "@/pages/balance mutation/balance-mutation";
-import DownlinePage from "@/pages/downline";
+import DownlinePage from "@/pages/downline/downline";
 import TransaksiDownlinePage from "@/pages/downline-transaction/downline-transactions";
 import SessionExpiredPage from "./pages/errors/session-expired";
 import { useUserStore } from "./store/userStore";

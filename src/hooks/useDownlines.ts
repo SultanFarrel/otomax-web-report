@@ -4,7 +4,6 @@ import { useUserStore } from "@/store/userStore";
 import { apiClient } from "@/api/axios";
 import { DownlineApiResponse } from "@/types";
 
-// Fungsi helper untuk debounce
 const useDebounce = (value: string, delay: number) => {
   const [debouncedValue, setDebouncedValue] = useState(value);
 
@@ -21,7 +20,6 @@ const useDebounce = (value: string, delay: number) => {
   return debouncedValue;
 };
 
-// Fungsi untuk mengambil data downline dari API
 const fetchDownlines = async (
   uplineKode: string,
   page: number,
@@ -39,12 +37,11 @@ const fetchDownlines = async (
   return data;
 };
 
-// Hook kustom untuk halaman downline
 export function useDownlines() {
   const user = useUserStore((state) => state.user);
   const [page, setPage] = useState(1);
   const [filterValue, setFilterValue] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all"); // State untuk filter status
+  const [statusFilter, setStatusFilter] = useState("all");
   const debouncedFilterValue = useDebounce(filterValue, 500);
 
   // Gabungkan filter: jika status dipilih, gunakan itu. Jika tidak, gunakan pencarian teks.
@@ -52,7 +49,6 @@ export function useDownlines() {
     statusFilter !== "all" ? statusFilter : debouncedFilterValue;
 
   const query = useQuery<DownlineApiResponse, Error>({
-    // queryKey sekarang menyertakan kedua filter
     queryKey: ["downlines", user?.kode, page, finalSearchTerm],
     queryFn: () => fetchDownlines(user!.kode, page, finalSearchTerm),
     enabled: !!user?.kode,
@@ -61,13 +57,13 @@ export function useDownlines() {
 
   const onSearchChange = (value?: string) => {
     setFilterValue(value || "");
-    setStatusFilter("all"); // Reset filter status saat mengetik
+    setStatusFilter("all");
     setPage(1);
   };
 
   const onStatusChange = (key: React.Key) => {
     setStatusFilter(key as string);
-    setFilterValue(""); // Reset pencarian teks saat memilih status
+    setFilterValue("");
     setPage(1);
   };
 

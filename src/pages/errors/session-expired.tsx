@@ -5,28 +5,24 @@ import { useAuthStore } from "@/store/authStore";
 
 export default function SessionExpiredPage() {
   const navigate = useNavigate();
-  const [countdown, setCountdown] = useState(5); // Timer mundur 5 detik
+  const [countdown, setCountdown] = useState(5);
 
   useEffect(() => {
-    // Pastikan sisa-sisa state/token bersih saat halaman dimuat
     const { token } = useAuthStore.getState();
     if (token) {
       localStorage.removeItem("authToken");
       useAuthStore.setState({ token: null });
     }
 
-    // Interval untuk mengurangi countdown setiap detik
     const interval = setInterval(() => {
       setCountdown((prev) => prev - 1);
     }, 1000);
 
-    // Redirect ketika countdown mencapai 0
     if (countdown === 0) {
       clearInterval(interval);
       navigate("/login");
     }
 
-    // Cleanup interval jika komponen unmount
     return () => clearInterval(interval);
   }, [countdown, navigate]);
 
@@ -36,17 +32,12 @@ export default function SessionExpiredPage() {
 
   React.useEffect(() => {
     const root = document.documentElement;
-    // Simpan kelas tema asli sebelum diubah
     const originalClassName = root.className;
 
-    // Paksa tema gelap dengan menambahkan kelas 'dark'
     root.classList.add("dark");
-    // Hapus kelas light jika ada untuk menghindari konflik
     root.classList.remove("light");
 
-    // Fungsi cleanup yang akan dijalankan saat komponen ditinggalkan
     return () => {
-      // Kembalikan kelas ke kondisi semula
       root.className = originalClassName;
     };
   }, []);
