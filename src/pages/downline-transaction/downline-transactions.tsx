@@ -1,10 +1,13 @@
-import { useState, useMemo, useEffect, useCallback } from "react";
+// src/pages/downline-transaction/downline-transactions.tsx
+
+import { useState, useMemo } from "react";
 import { Transaction } from "@/types";
 import { useDownlineTransactions } from "@/hooks/useDownlineTransactions";
 import { TransactionDetailModal } from "@/pages/transaction/components/transaction-detail-modal";
 import { COLUMN_NAMES } from "./constants/downline-transactions-contants";
 import { DownlineTransactionTableTopContent } from "./components/downline-transaction-table-top-content";
 import { DownlineTransactionTableCellComponent } from "./components/downline-transaction-table-cell";
+import { DownlineTransactionTableBottomContent } from "./components/downline-transaction-table-bottom-content";
 import {
   Table,
   TableHeader,
@@ -14,121 +17,72 @@ import {
   TableCell,
 } from "@heroui/table";
 import { Spinner } from "@heroui/spinner";
-import { Button } from "@heroui/button";
 import { SortDescriptor } from "@heroui/table";
-
-const ITEMS_PER_LOAD = 20;
 
 export default function DownlineTransactionPage() {
   const {
-    allFetchedItems,
+    data,
+    transactionSummary,
     isLoading,
     isError,
-    inputValue,
-    onSearchChange,
-    inputLimit,
-    onLimitChange,
-    inputDateRange,
-    onDateChange,
+    page,
+    setPage,
+    pageSize,
+    handlePageSizeChange,
+    inputFilters,
+    handleFilterChange,
     onSearchSubmit,
     resetFilters,
-    statusFilter,
-    onStatusChange,
     sortDescriptor,
     setSortDescriptor,
   } = useDownlineTransactions();
 
-  const [visibleItemCount, setVisibleItemCount] = useState(ITEMS_PER_LOAD);
-  const [isClientLoading, setIsClientLoading] = useState(false);
-
-  useEffect(() => {
-    setVisibleItemCount(ITEMS_PER_LOAD);
-  }, [allFetchedItems]);
-
-  const itemsToDisplay = useMemo(
-    () => allFetchedItems.slice(0, visibleItemCount),
-    [allFetchedItems, visibleItemCount]
-  );
-
-  const handleLoadMore = useCallback(() => {
-    setIsClientLoading(true);
-    setTimeout(() => {
-      setVisibleItemCount((prev) =>
-        Math.min(prev + ITEMS_PER_LOAD, allFetchedItems.length)
-      );
-      setIsClientLoading(false);
-    }, 300);
-  }, [allFetchedItems.length]);
-
-  const canLoadMore = visibleItemCount < allFetchedItems.length;
-
   const [selectedTrx, setSelectedTrx] = useState<Transaction | null>(null);
-
-  const [visibleColumns, setVisibleColumns] = useState<Set<string>>(
-    new Set(COLUMN_NAMES.map((c) => c.uid))
-  );
-
-  const headerColumns = useMemo(() => {
-    return COLUMN_NAMES.filter((column) => visibleColumns.has(column.uid));
-  }, [visibleColumns]);
 
   const topContent = useMemo(
     () => (
       <DownlineTransactionTableTopContent
-        filterValue={inputValue}
-        onSearchChange={onSearchChange}
-        dateRange={inputDateRange}
-        onDateChange={onDateChange}
-        limit={inputLimit}
-        onLimitChange={onLimitChange}
+        filters={inputFilters}
+        onFilterChange={handleFilterChange}
         onSearchSubmit={onSearchSubmit}
-        statusFilter={statusFilter}
-        onStatusChange={onStatusChange}
-        visibleColumns={visibleColumns}
-        onVisibleColumnsChange={setVisibleColumns as any}
         onResetFilters={resetFilters}
-        totalItems={allFetchedItems.length}
+        totalItems={data?.totalItems || 0}
+        summary={transactionSummary}
       />
     ),
     [
-      inputValue,
-      onSearchChange,
-      inputDateRange,
-      onDateChange,
-      inputLimit,
-      onLimitChange,
+      inputFilters,
+      handleFilterChange,
       onSearchSubmit,
-      statusFilter,
-      onStatusChange,
-      visibleColumns,
       resetFilters,
-      allFetchedItems.length,
+      data?.totalItems,
+      transactionSummary,
     ]
   );
 
   const bottomContent = useMemo(() => {
-    if (!canLoadMore) return null;
+    if (!data) return null;
 
     return (
-      <div className="flex w-full justify-center py-4">
-        <Button
-          isLoading={isClientLoading}
-          onPress={handleLoadMore}
-          variant="flat"
-        >
-          Tampilkan Lebih Banyak
-        </Button>
-      </div>
+      <DownlineTransactionTableBottomContent
+        page={page}
+        totalPages={data.totalPages}
+        onPageChange={setPage}
+        pageSize={pageSize}
+        onPageSizeChange={handlePageSizeChange}
+      />
     );
-  }, [canLoadMore, isClientLoading, handleLoadMore]);
+  }, [page, data.totalPages, setPage, pageSize, handlePageSizeChange]);
 
   const handleSortChange = (descriptor: SortDescriptor) => {
     setSortDescriptor(descriptor);
+    setPage(1);
   };
 
   return (
     <>
       <Table
+        isStriped
         isHeaderSticky
         bottomContent={bottomContent}
         bottomContentPlacement="outside"
@@ -141,19 +95,18 @@ export default function DownlineTransactionPage() {
           wrapper: "max-h-[600px] p-0 ps-2 overflow-y-auto stable-scrollbar",
         }}
       >
-        <TableHeader columns={headerColumns}>
+        <TableHeader columns={COLUMN_NAMES}>
           {(column) => (
             <TableColumn
               key={column.uid}
               align={column.uid === "actions" ? "end" : "start"}
-              allowsSorting={column.sortable}
             >
               {column.name}
             </TableColumn>
           )}
         </TableHeader>
         <TableBody
-          items={itemsToDisplay}
+          items={data?.data ?? []}
           isLoading={isLoading}
           loadingContent={<Spinner label="Memuat data..." />}
           emptyContent={

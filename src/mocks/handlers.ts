@@ -138,6 +138,32 @@ const mockTransactions = Array.from({ length: 200 }, (_, i) => {
 
 // ------------------------------------
 
+// --- DATA MOCK BARU UNTUK TRANSAKSI DOWNLINE---
+const downlineResellers = ["DL-A", "DL-B", "DL-C", "DL-D"];
+const mockDownlineTransactions = Array.from({ length: 150 }, (_, i) => {
+  const harga = Math.floor(Math.random() * 50000) + 5000;
+  const harga_beli = harga - Math.floor(Math.random() * 800) + 200;
+  const saldo_awal = Math.floor(Math.random() * 700000) + 100000;
+  return {
+    kode: 2000 + i,
+    refid: 2000 + i,
+    tgl_entri: randomDate(),
+    kode_produk: productCodes[i % productCodes.length],
+    tujuan: `085${String(Math.floor(Math.random() * 900000000) + 100000000)}`,
+    kode_reseller: downlineResellers[i % downlineResellers.length],
+    pengirim: "SMS",
+    harga: harga,
+    status: statuses[i % statuses.length],
+    harga_beli: harga_beli,
+    saldo_awal: saldo_awal,
+    sn: `DSN${Date.now()}${i}`,
+    laba: harga - harga_beli,
+    saldo_akhir: saldo_awal - harga_beli,
+    komisi: Math.floor(Math.random() * 200) + 25,
+    tgl_status: randomDate(),
+  };
+});
+
 export const handlers = [
   // Handles a POST /auth/login request
   http.post(`${baseURL}/auth/login`, () => {
@@ -324,6 +350,74 @@ export const handlers = [
     if (sn) {
       filteredData = filteredData.filter(
         (trx) => trx.sn && trx.sn.toLowerCase().includes(sn.toLowerCase())
+      );
+    }
+    if (status) {
+      filteredData = filteredData.filter(
+        (trx) => trx.status === parseInt(status)
+      );
+    }
+
+    return HttpResponse.json({
+      data: filteredData,
+    });
+  }),
+
+  // --- HANDLER BARU UNTUK TRANSAKSI DOWNLINE ---
+  http.get(`${baseURL}/transaksi/upline/:kode`, ({ request }) => {
+    const url = new URL(request.url);
+
+    const trxId = url.searchParams.get("trxId");
+    const refId = url.searchParams.get("refId");
+    const kodeProduk = url.searchParams.get("kodeProduk");
+    const tujuan = url.searchParams.get("tujuan");
+    const sn = url.searchParams.get("sn");
+    const kodeReseller = url.searchParams.get("kodeReseller");
+    const status = url.searchParams.get("status");
+    const startDate = url.searchParams.get("startDate");
+    const endDate = url.searchParams.get("endDate");
+
+    let filteredData = mockDownlineTransactions;
+
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      start.setHours(0, 0, 0, 0);
+
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+
+      filteredData = filteredData.filter((trx) => {
+        const trxDate = new Date(trx.tgl_entri);
+        return trxDate >= start && trxDate <= end;
+      });
+    }
+
+    if (trxId) {
+      filteredData = filteredData.filter((trx) =>
+        String(trx.kode).includes(trxId)
+      );
+    }
+    if (refId) {
+      filteredData = filteredData.filter((trx) =>
+        String(trx.kode).includes(refId)
+      );
+    }
+    if (kodeProduk) {
+      filteredData = filteredData.filter((trx) =>
+        trx.kode_produk.toLowerCase().includes(kodeProduk.toLowerCase())
+      );
+    }
+    if (tujuan) {
+      filteredData = filteredData.filter((trx) => trx.tujuan.includes(tujuan));
+    }
+    if (sn) {
+      filteredData = filteredData.filter(
+        (trx) => trx.sn && trx.sn.toLowerCase().includes(sn.toLowerCase())
+      );
+    }
+    if (kodeReseller) {
+      filteredData = filteredData.filter((trx) =>
+        trx.kode_reseller.toLowerCase().includes(kodeReseller.toLowerCase())
       );
     }
     if (status) {

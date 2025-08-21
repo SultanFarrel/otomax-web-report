@@ -2,16 +2,17 @@ import { ChipProps } from "@heroui/chip";
 
 // LIST TABLE COLUMNS
 const COLUMN_NAMES = [
-  { name: "TRX ID", uid: "kode", sortable: true },
-  { name: "TGL ENTRI", uid: "tgl_entri", sortable: true },
+  { name: "TRX ID", uid: "kode" },
+  { name: "REFF ID", uid: "refid" },
+  { name: "TGL TRX", uid: "tgl_entri" },
   { name: "RESELLER", uid: "kode_reseller" },
   { name: "PRODUK", uid: "kode_produk" },
   { name: "TUJUAN", uid: "tujuan" },
-  { name: "PENGIRIM", uid: "pengirim" },
-  { name: "STATUS", uid: "status" },
   { name: "HARGA", uid: "harga" },
-  { name: "KOMISI", uid: "komisi" },
+  { name: "STATUS", uid: "status" },
   { name: "SN", uid: "sn" },
+  { name: "PENGIRIM", uid: "pengirim" },
+  { name: "TGL STATUS", uid: "tgl_status" },
   { name: "ACTIONS", uid: "actions" },
 ];
 
@@ -20,7 +21,7 @@ const STATUS_COLORS: Record<
   string,
   { color: ChipProps["color"]; text: string }
 > = {
-  "1": { color: "warning", text: "Proses" },
+  "1": { color: "primary", text: "Proses" },
   "20": { color: "success", text: "Sukses" },
   "201": { color: "danger", text: "Dialihkan" },
   "64": { color: "danger", text: "Diabaikan" },
