@@ -1,5 +1,3 @@
-// src/pages/downline-transaction/components/downline-transaction-table-top-content.tsx
-
 import React from "react";
 import { RangeValue } from "@react-types/shared";
 import { formatCurrency, formatDateRange } from "@/utils/formatters";

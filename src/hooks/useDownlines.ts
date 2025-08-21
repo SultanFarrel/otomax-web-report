@@ -1,5 +1,3 @@
-// src/hooks/useDownlines.ts
-
 import { useState, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useUserStore } from "@/store/userStore";
@@ -17,7 +15,7 @@ const fetchDownlines = async (
 ): Promise<DownlineApiResponse> => {
   const params: any = {
     page,
-    pageSize: 10, // Jumlah item per halaman
+    pageSize: 10,
     search: search || undefined,
     status: status !== "all" ? status : undefined,
     sortBy: sortDescriptor.column as string,

@@ -1,5 +1,3 @@
-// src/hooks/useTransactions.ts
-
 import { useCallback, useMemo, useState } from "react";
 import { RangeValue } from "@react-types/shared";
 import { useQuery } from "@tanstack/react-query";
@@ -10,7 +8,6 @@ import { DateValue } from "@heroui/calendar";
 import { SortDescriptor } from "@heroui/table";
 import { today, getLocalTimeZone } from "@internationalized/date";
 
-// Definisikan tipe untuk semua filter
 export interface TransactionFilters {
   trxId: string;
   refId: string;
@@ -141,7 +138,7 @@ export function useTransactions() {
 
   const handlePageSizeChange = (size: number) => {
     setPageSize(size);
-    setPage(1); // Kembali ke halaman pertama saat ukuran halaman berubah
+    setPage(1);
   };
 
   const onSearchSubmit = useCallback(() => {

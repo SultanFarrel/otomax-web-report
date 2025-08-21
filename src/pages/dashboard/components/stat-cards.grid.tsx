@@ -1,5 +1,3 @@
-// src/pages/dashboard/components/stat-cards.grid.tsx
-
 import React from "react";
 import { Card, CardBody } from "@heroui/card";
 import { Chip } from "@heroui/chip";

@@ -1,5 +1,3 @@
-// src/pages/downline-transaction/downline-transactions.tsx
-
 import { useState, useMemo } from "react";
 import { Transaction } from "@/types";
 import { useDownlineTransactions } from "@/hooks/useDownlineTransactions";

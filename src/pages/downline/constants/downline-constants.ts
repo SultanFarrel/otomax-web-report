@@ -1,5 +1,3 @@
-// src/pages/downline/constants/downline-constants.ts
-
 import { ChipProps } from "@heroui/chip";
 
 export const COLUMN_NAMES = [

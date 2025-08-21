@@ -1,5 +1,3 @@
-// src/pages/downline/components/downline-table-bottom-content.tsx
-
 import React from "react";
 import { Pagination } from "@heroui/pagination";
 

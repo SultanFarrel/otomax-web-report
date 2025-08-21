@@ -1,5 +1,3 @@
-// src/pages/transaction/transaction-pages.tsx
-
 import { useState, useMemo } from "react";
 
 import { Transaction } from "@/types";
@@ -43,10 +41,6 @@ export default function TransactionPage() {
 
   const [selectedTrx, setSelectedTrx] = useState<Transaction | null>(null);
   const [trxToPrint, setTrxToPrint] = useState<Transaction | null>(null);
-
-  // State untuk visibilitas kolom tidak lagi diperlukan di sini karena sudah dikelola di top-content
-  // Namun, jika Anda ingin menyimpannya, pastikan untuk meneruskannya dengan benar.
-  // Untuk saat ini, kita akan menyederhanakannya.
 
   const handlePrint = (trx: Transaction) => {
     setTrxToPrint(trx);

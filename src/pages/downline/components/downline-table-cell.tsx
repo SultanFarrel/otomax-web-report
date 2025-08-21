@@ -1,8 +1,5 @@
-// src/pages/downline/components/downline-table-cell.tsx
-
 import React from "react";
 import { Downline } from "@/types";
-// Impor fungsi baru dan hapus formatDate jika tidak digunakan di sini
 import { formatCurrency, formatDateTimeCustom } from "@/utils/formatters";
 import { STATUS_COLORS } from "../constants/downline-constants";
 import { Chip } from "@heroui/chip";
@@ -39,7 +36,6 @@ export const DownlineTableCell: React.FC<DownlineTableCellProps> = ({
 
     case "tgl_daftar":
     case "tgl_aktivitas":
-      // Panggil fungsi baru langsung dari sini
       return (
         <p className="text-sm">{formatDateTimeCustom(cellValue as string)}</p>
       );

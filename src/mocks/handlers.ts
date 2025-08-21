@@ -1,4 +1,3 @@
-// src/mocks/handlers.ts
 import { http, HttpResponse } from "msw";
 
 // Replikasi logika baseURL dari src/api/axios.ts
@@ -42,7 +41,6 @@ const createDownline = (details: {
   };
 };
 
-// Definisikan semua downline sesuai struktur
 const downlineH = createDownline({
   kode: "DL-H",
   nama: "Downline H",
@@ -100,7 +98,6 @@ const downlineA = createDownline({
   level: "AGEN",
 });
 
-// Susun hierarki dalam satu objek
 const allDownlines = {
   RES001: [downlineA, downlineB, downlineC],
   "DL-A": [downlineD, downlineE],
@@ -268,7 +265,6 @@ export const handlers = [
     const search = url.searchParams.get("search") || "";
     const status = url.searchParams.get("status") || "all";
 
-    // Untuk tabel, kita hanya tampilkan downline level 1
     let filteredData = allDownlines["RES001"];
 
     if (search) {
@@ -304,7 +300,6 @@ export const handlers = [
   http.get(`${baseURL}/transaksi/reseller/:kode`, ({ request }) => {
     const url = new URL(request.url);
 
-    // Ambil semua parameter filter
     const trxId = url.searchParams.get("trxId");
     const refId = url.searchParams.get("refId");
     const kodeProduk = url.searchParams.get("kodeProduk");

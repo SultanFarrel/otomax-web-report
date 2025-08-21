@@ -74,7 +74,7 @@ export interface Downline {
   // Properti opsional untuk struktur pohon
   level?: number;
   children?: Downline[];
-  hasChildren?: boolean; // Untuk menandakan apakah perlu menampilkan tombol expand
+  hasChildren?: boolean;
 }
 
 export type BalanceMutation = {

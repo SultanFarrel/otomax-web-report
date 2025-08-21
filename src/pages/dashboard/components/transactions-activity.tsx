@@ -1,5 +1,3 @@
-// src/pages/dashboard/components/transactions-activity.tsx
-
 import React, { useState } from "react";
 import { Card, CardHeader, CardBody } from "@heroui/card";
 import { Button } from "@heroui/button";

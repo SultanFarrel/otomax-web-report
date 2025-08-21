@@ -1,5 +1,3 @@
-// src/pages/downline/downline.tsx
-
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useUserStore } from "@/store/userStore";
@@ -23,7 +21,6 @@ import { DownlineTableCell } from "./components/downline-table-cell";
 import { DownlineTableTopContent } from "./components/downline-table-top-content";
 import { DownlineTableBottomContent } from "./components/downline-table-bottom-content";
 
-// Fungsi untuk mengambil data pohon jaringan (tidak berubah)
 const fetchTopLevelDownlines = async (
   uplineKode: string
 ): Promise<Downline[]> => {
@@ -34,7 +31,6 @@ const fetchTopLevelDownlines = async (
 export default function DownlinePage() {
   const user = useUserStore((state) => state.user);
 
-  // Hook untuk data tabel
   const {
     data: tableData,
     isLoading: isTableLoading,
@@ -49,7 +45,6 @@ export default function DownlinePage() {
     setSortDescriptor,
   } = useDownlines();
 
-  // Hook untuk data pohon jaringan
   const {
     data: treeData,
     isLoading: isTreeLoading,

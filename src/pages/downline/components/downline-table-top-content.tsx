@@ -1,5 +1,3 @@
-// src/pages/downline/components/downline-table-top-content.tsx
-
 import React from "react";
 import { STATUS_OPTIONS } from "../constants/downline-constants";
 import {
