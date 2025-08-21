@@ -25,8 +25,10 @@ const TransactionTableCellComponent: React.FC<TransactionTableCellProps> = ({
 
   switch (columnKey) {
     case "kode":
+    case "refid":
       return <p className="text-sm font-mono">{cellValue}</p>;
     case "tgl_entri":
+    case "tgl_status":
       return (
         <p className="text-sm">
           {formatDate(cellValue as string, {

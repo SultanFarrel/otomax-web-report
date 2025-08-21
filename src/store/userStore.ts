@@ -7,6 +7,9 @@ interface UserData {
   kode: string;
   nama: string;
   saldo: number;
+  // Tambahan properti komisi dan poin
+  komisi: number;
+  poin: number;
 }
 
 interface UserState {
@@ -36,6 +39,9 @@ export const useUserStore = create<UserState>()(
             kode: response.data.kode,
             nama: response.data.nama,
             saldo: response.data.saldo,
+            // Ambil data komisi dan poin dari response
+            komisi: response.data.komisi,
+            poin: response.data.poin,
           };
           set({ user: userData, isLoading: false });
         } catch (error) {

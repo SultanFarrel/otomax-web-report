@@ -1,4 +1,6 @@
-import { useCallback, useState } from "react";
+// src/hooks/useTransactions.ts
+
+import { useCallback, useMemo, useState } from "react";
 import { RangeValue } from "@react-types/shared";
 import { useQuery } from "@tanstack/react-query";
 import { TransactionApiResponse } from "@/types";
@@ -8,29 +10,37 @@ import { DateValue } from "@heroui/calendar";
 import { SortDescriptor } from "@heroui/table";
 import { today, getLocalTimeZone } from "@internationalized/date";
 
+// Definisikan tipe untuk semua filter
+export interface TransactionFilters {
+  trxId: string;
+  refId: string;
+  kodeProduk: string;
+  tujuan: string;
+  sn: string;
+  status: string;
+  dateRange: RangeValue<DateValue> | null;
+}
+
 const fetchTransactions = async ({
   kode,
-  limit,
-  filterValue,
-  statusFilter,
+  filters,
   sortDescriptor,
-  dateRange,
 }: {
   kode: string;
-  limit: number;
-  filterValue: string;
-  statusFilter: string;
+  filters: TransactionFilters;
   sortDescriptor: SortDescriptor;
-  dateRange: RangeValue<DateValue> | null;
 }): Promise<TransactionApiResponse> => {
   const endpoint = `/transaksi/reseller/${kode}`;
 
   const params: any = {
-    limit,
-    search: filterValue || undefined,
-    status: statusFilter !== "all" ? statusFilter : undefined,
-    startDate: dateRange?.start?.toString(),
-    endDate: dateRange?.end?.toString(),
+    trxId: filters.trxId || undefined,
+    refId: filters.refId || undefined,
+    kodeProduk: filters.kodeProduk || undefined,
+    tujuan: filters.tujuan || undefined,
+    sn: filters.sn || undefined,
+    status: filters.status !== "all" ? filters.status : undefined,
+    startDate: filters.dateRange?.start?.toString(),
+    endDate: filters.dateRange?.end?.toString(),
     sortBy: sortDescriptor.column as string,
     sortDirection: sortDescriptor.direction,
   };
@@ -45,99 +55,130 @@ const fetchTransactions = async ({
 
 export function useTransactions() {
   const user = useUserStore((state) => state.user);
+  const [pageSize, setPageSize] = useState(30);
 
-  const [inputValue, setInputValue] = useState("");
-  const [inputLimit, setInputLimit] = useState<string>("500");
-  const [inputDateRange, setInputDateRange] = useState<RangeValue<DateValue>>({
-    start: today(getLocalTimeZone()),
-    end: today(getLocalTimeZone()),
-  });
+  const initialFilters: TransactionFilters = {
+    trxId: "",
+    refId: "",
+    kodeProduk: "",
+    tujuan: "",
+    sn: "",
+    status: "all",
+    dateRange: {
+      start: today(getLocalTimeZone()),
+      end: today(getLocalTimeZone()),
+    },
+  };
 
-  const [submittedFilterValue, setSubmittedFilterValue] = useState("");
-  const [submittedLimit, setSubmittedLimit] = useState<string>("500");
-  const [submittedDateRange, setSubmittedDateRange] = useState<
-    RangeValue<DateValue>
-  >({
-    start: today(getLocalTimeZone()),
-    end: today(getLocalTimeZone()),
-  });
-
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [page, setPage] = useState(1);
+  const [inputFilters, setInputFilters] =
+    useState<TransactionFilters>(initialFilters);
+  const [submittedFilters, setSubmittedFilters] =
+    useState<TransactionFilters>(initialFilters);
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: "tgl_entri",
     direction: "descending",
   });
 
-  const { data, isLoading, isError } = useQuery<TransactionApiResponse, Error>({
-    queryKey: [
-      "transactions",
-      user?.kode,
-      submittedFilterValue,
-      statusFilter,
-      sortDescriptor,
-      submittedDateRange,
-      submittedLimit,
-    ],
-    queryFn: () => {
-      const numericLimit = parseInt(submittedLimit, 10);
-      const finalLimit =
-        isNaN(numericLimit) || numericLimit <= 0 ? 500 : numericLimit;
-
-      return fetchTransactions({
-        kode: user!.kode,
-        limit: finalLimit,
-        filterValue: submittedFilterValue,
-        statusFilter,
-        sortDescriptor,
-        dateRange: submittedDateRange,
-      });
-    },
-    enabled: !!user?.kode,
-    staleTime: 5 * 60 * 1000, // cache 5 menit
-  });
-
-  const onSearchSubmit = useCallback(() => {
-    setSubmittedFilterValue(inputValue);
-    setSubmittedLimit(inputLimit);
-    setSubmittedDateRange(inputDateRange);
-  }, [inputValue, inputLimit, inputDateRange]);
-
-  const onStatusChange = useCallback(
-    (key: React.Key) => setStatusFilter(key as string),
-    []
-  );
-
-  const resetFilters = useCallback(() => {
-    const initialDate = {
-      start: today(getLocalTimeZone()),
-      end: today(getLocalTimeZone()),
-    };
-    // Reset state input
-    setInputValue("");
-    setInputLimit("500");
-    setInputDateRange(initialDate);
-    // Reset state submitted
-    setSubmittedFilterValue("");
-    setSubmittedLimit("500");
-    setSubmittedDateRange(initialDate);
-    // Reset filter lainnya
-    setStatusFilter("all");
-    setSortDescriptor({ column: "tgl_entri", direction: "descending" });
-  }, []);
-
-  return {
-    allFetchedItems: data?.data ?? [],
+  const {
+    data: response,
     isLoading,
     isError,
-    inputValue,
-    onSearchChange: setInputValue,
-    inputLimit,
-    onLimitChange: setInputLimit,
-    inputDateRange,
-    onDateChange: setInputDateRange,
+  } = useQuery<TransactionApiResponse, Error>({
+    queryKey: ["transactions", user?.kode, submittedFilters, sortDescriptor],
+    queryFn: () =>
+      fetchTransactions({
+        kode: user!.kode,
+        filters: submittedFilters,
+        sortDescriptor,
+      }),
+    enabled: !!user?.kode,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // --- LOGIKA UNTUK MENGHITUNG TOTAL ---
+  const transactionSummary = useMemo(() => {
+    const allItems = response?.data || [];
+    const summary = {
+      success: { amount: 0, count: 0 },
+      pending: { amount: 0, count: 0 },
+      failed: { amount: 0, count: 0 },
+    };
+
+    allItems.forEach((trx) => {
+      if (trx.status === 20) {
+        // Sukses
+        summary.success.amount += trx.harga;
+        summary.success.count++;
+      } else if (trx.status === 1 || trx.status === 2) {
+        // Pending (Proses atau Menunggu Jawaban)
+        summary.pending.amount += trx.harga;
+        summary.pending.count++;
+      } else if (trx.status !== 20 && trx.status !== 1 && trx.status !== 2) {
+        // Gagal
+        summary.failed.amount += trx.harga;
+        summary.failed.count++;
+      }
+    });
+
+    return summary;
+  }, [response?.data]);
+
+  // LOGIKA PAGINASI DI SISI KLIEN DENGAN useMemo
+  const paginatedData = useMemo(() => {
+    const allItems = response?.data || [];
+    const start = (page - 1) * pageSize;
+    const end = start + pageSize;
+    return allItems.slice(start, end);
+  }, [page, pageSize, response?.data]);
+
+  const totalItems = response?.data?.length || 0;
+  const totalPages = Math.ceil(totalItems / pageSize);
+
+  const handleFilterChange = (field: keyof TransactionFilters, value: any) => {
+    setInputFilters((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handlePageSizeChange = (size: number) => {
+    setPageSize(size);
+    setPage(1); // Kembali ke halaman pertama saat ukuran halaman berubah
+  };
+
+  const onSearchSubmit = useCallback(() => {
+    setSubmittedFilters(inputFilters);
+    setPage(1);
+  }, [inputFilters]);
+
+  const resetFilters = useCallback(() => {
+    setInputFilters(initialFilters);
+    setSubmittedFilters(initialFilters);
+    setSortDescriptor({ column: "tgl_entri", direction: "descending" });
+    setPageSize(30);
+    setPage(1);
+  }, []);
+
+  const dataForComponent = useMemo(
+    () => ({
+      data: paginatedData,
+      totalItems,
+      totalPages,
+      currentPage: page,
+    }),
+    [paginatedData, totalItems, totalPages, page]
+  );
+
+  return {
+    data: dataForComponent,
+    transactionSummary,
+    isLoading,
+    isError,
+    page,
+    setPage,
+    pageSize,
+    handlePageSizeChange,
+    inputFilters,
+    handleFilterChange,
     onSearchSubmit,
-    statusFilter,
-    onStatusChange,
     resetFilters,
     sortDescriptor,
     setSortDescriptor,

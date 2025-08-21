@@ -1,34 +1,27 @@
-import { useState, useEffect } from "react";
+// src/hooks/useDownlines.ts
+
+import { useState, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useUserStore } from "@/store/userStore";
 import { apiClient } from "@/api/axios";
 import { DownlineApiResponse } from "@/types";
-
-const useDebounce = (value: string, delay: number) => {
-  const [debouncedValue, setDebouncedValue] = useState(value);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
-
-  return debouncedValue;
-};
+import { useDebounce } from "@/hooks/useDebounce";
+import { SortDescriptor } from "@heroui/table";
 
 const fetchDownlines = async (
   uplineKode: string,
   page: number,
-  search: string
+  search: string,
+  status: string,
+  sortDescriptor: SortDescriptor
 ): Promise<DownlineApiResponse> => {
-  const params = {
+  const params: any = {
     page,
-    pageSize: 10,
+    pageSize: 10, // Jumlah item per halaman
     search: search || undefined,
+    status: status !== "all" ? status : undefined,
+    sortBy: sortDescriptor.column as string,
+    sortDirection: sortDescriptor.direction,
   };
 
   const { data } = await apiClient.get(`/reseller/upline/${uplineKode}`, {
@@ -42,30 +35,43 @@ export function useDownlines() {
   const [page, setPage] = useState(1);
   const [filterValue, setFilterValue] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
+    column: "kode",
+    direction: "ascending",
+  });
+
   const debouncedFilterValue = useDebounce(filterValue, 500);
 
-  // Gabungkan filter: jika status dipilih, gunakan itu. Jika tidak, gunakan pencarian teks.
-  const finalSearchTerm =
-    statusFilter !== "all" ? statusFilter : debouncedFilterValue;
-
   const query = useQuery<DownlineApiResponse, Error>({
-    queryKey: ["downlines", user?.kode, page, finalSearchTerm],
-    queryFn: () => fetchDownlines(user!.kode, page, finalSearchTerm),
+    queryKey: [
+      "downlines",
+      user?.kode,
+      page,
+      debouncedFilterValue,
+      statusFilter,
+      sortDescriptor,
+    ],
+    queryFn: () =>
+      fetchDownlines(
+        user!.kode,
+        page,
+        debouncedFilterValue,
+        statusFilter,
+        sortDescriptor
+      ),
     enabled: !!user?.kode,
     placeholderData: (previousData) => previousData,
   });
 
-  const onSearchChange = (value?: string) => {
+  const onSearchChange = useCallback((value?: string) => {
     setFilterValue(value || "");
-    setStatusFilter("all");
     setPage(1);
-  };
+  }, []);
 
-  const onStatusChange = (key: React.Key) => {
+  const onStatusChange = useCallback((key: React.Key) => {
     setStatusFilter(key as string);
-    setFilterValue("");
     setPage(1);
-  };
+  }, []);
 
   return {
     ...query,
@@ -75,5 +81,7 @@ export function useDownlines() {
     onSearchChange,
     statusFilter,
     onStatusChange,
+    sortDescriptor,
+    setSortDescriptor,
   };
 }

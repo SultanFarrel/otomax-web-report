@@ -13,24 +13,22 @@ const fetchDashboardStats = async (kodeUpline: string): Promise<StatsData> => {
   try {
     const { data } = await apiClient.get(`/dashboard/summary/${kodeUpline}`);
 
-    // Cek apakah data yang diterima adalah array
-    if (Array.isArray(data.stats)) {
-      return data.stats || data;
+    // FIX: Periksa apakah 'data.stats' adalah objek yang valid
+    if (data && typeof data.stats === "object" && data.stats !== null) {
+      return data.stats;
     }
 
-    // Jika bukan array, mungkin ini adalah objek error dari server.
-    if (data.stats && data.error) {
-      throw new Error(data.error);
-    }
-
-    // Jika bukan array dan bukan objek error, lemparkan error umum.
+    // Jika struktur data tidak sesuai, lempar error.
     throw new Error("Format respons API tidak valid.");
   } catch (err) {
     const error = err as AxiosError<ApiError>;
     if (error.response && error.response.data && error.response.data.error) {
       throw new Error(error.response.data.error);
     }
-    throw new Error("Gagal mengambil data statistik.");
+    // Gunakan pesan error dari blok try jika ada, atau pesan generik.
+    throw new Error(
+      err instanceof Error ? err.message : "Gagal mengambil data statistik."
+    );
   }
 };
 

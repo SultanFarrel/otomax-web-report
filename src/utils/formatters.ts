@@ -17,6 +17,23 @@ const DEFAULT_DATE_OPTIONS: Intl.DateTimeFormatOptions = {
   hour12: false,
 };
 
+const formatDateTimeCustom = (dateString: string) => {
+  if (!dateString) return "-";
+
+  const formattedDateTime = new Intl.DateTimeFormat("id-ID", {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+    timeZone: "UTC",
+  }).format(new Date(dateString));
+
+  return formattedDateTime;
+};
+
 const formatDate = (
   dateString: string,
   options?: Intl.DateTimeFormatOptions
@@ -45,4 +62,4 @@ const formatDateRange = (range: RangeValue<DateValue> | null) => {
   return `${start} - ${end}`;
 };
 
-export { formatCurrency, formatDate, formatDateRange };
+export { formatCurrency, formatDate, formatDateRange, formatDateTimeCustom };

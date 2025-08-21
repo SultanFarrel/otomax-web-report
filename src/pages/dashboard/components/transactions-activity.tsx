@@ -1,13 +1,23 @@
+// src/pages/dashboard/components/transactions-activity.tsx
+
 import React, { useState } from "react";
 import { Card, CardHeader, CardBody } from "@heroui/card";
 import { Button } from "@heroui/button";
+import { Tooltip } from "@heroui/tooltip";
+import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { RecentTransactions } from "./recent-transactions";
 import { RecentBalanceMutations } from "./recent-balance-mutations";
 import { useRecentActivity } from "@/hooks/dashboard/useRecentActivity";
 import { TransactionActivitySkeleton } from "./skeleton/TransactionActivity.skeleton";
 
 export const TransactionActivity: React.FC = () => {
-  const { data: recentActivityData, isLoading, error } = useRecentActivity();
+  const {
+    data: recentActivityData,
+    isLoading,
+    error,
+    refetch,
+    isFetching,
+  } = useRecentActivity();
 
   const [activeTab, setActiveTab] = useState<"transactions" | "mutasi">(
     "transactions"
@@ -34,30 +44,48 @@ export const TransactionActivity: React.FC = () => {
   return (
     <Card>
       <CardHeader>
-        <div className="flex border-b border-default-200">
-          <Button
-            variant="light"
-            className={`rounded-b-none px-4 py-2 font-semibold ${
-              activeTab === "transactions"
-                ? "border-b-2 border-primary text-primary bg-default-100"
-                : "text-default-500"
-            }`}
-            onPress={() => setActiveTab("transactions")}
-          >
-            Aktivitas Transaksi
-          </Button>
+        <div className="flex w-full items-center justify-between border-b border-default-200">
+          {/* Tabs */}
+          <div className="flex">
+            <Button
+              variant="light"
+              className={`rounded-b-none px-4 py-2 font-semibold ${
+                activeTab === "transactions"
+                  ? "border-b-2 border-primary text-primary bg-default-100"
+                  : "text-default-500"
+              }`}
+              onPress={() => setActiveTab("transactions")}
+            >
+              Aktivitas Transaksi
+            </Button>
 
-          <Button
-            variant="light"
-            className={`rounded-b-none px-4 py-2 font-semibold ${
-              activeTab === "mutasi"
-                ? "border-b-2 border-primary text-primary bg-default-100"
-                : "text-default-500"
-            }`}
-            onPress={() => setActiveTab("mutasi")}
-          >
-            Aktivitas Saldo
-          </Button>
+            <Button
+              variant="light"
+              className={`rounded-b-none px-4 py-2 font-semibold ${
+                activeTab === "mutasi"
+                  ? "border-b-2 border-primary text-primary bg-default-100"
+                  : "text-default-500"
+              }`}
+              onPress={() => setActiveTab("mutasi")}
+            >
+              Aktivitas Saldo
+            </Button>
+          </div>
+
+          {/* Refresh Button */}
+          <Tooltip content="Refresh Aktivitas" closeDelay={0}>
+            <Button
+              isIconOnly
+              size="sm"
+              variant="light"
+              className="me-2"
+              onPress={() => refetch()}
+              isLoading={isFetching}
+              aria-label="Refresh Aktivitas"
+            >
+              <ArrowPathIcon className="h-5 w-5 text-default-500" />
+            </Button>
+          </Tooltip>
         </div>
       </CardHeader>
       <CardBody>

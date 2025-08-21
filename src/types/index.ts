@@ -93,9 +93,9 @@ export type ApiResponse = {
 };
 
 export type TransactionApiResponse = {
-  totalItems: number;
-  totalPages: number;
-  currentPage: number;
+  totalItems?: number;
+  totalPages?: number;
+  currentPage?: number;
   data: Transaction[];
 };
 
@@ -115,12 +115,12 @@ export type BalanceMutationApiResponse = {
 
 // Tipe data untuk ringkasan statistik
 interface DashboardStats {
-  total_trx_today: number;
-  total_laba_today: number;
-  total_mutasi_in_today: number;
-  total_mutasi_out_today: number;
-  total_komisi_today: number;
-  total_komisi_all: number;
+  total_sukses_today: number;
+  total_proses: number;
+  total_gagal_today: number;
+  harga_sukses_today: number;
+  harga_proses: number;
+  harga_gagal_today: number;
 }
 
 // Tipe data untuk tren transaksi

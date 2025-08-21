@@ -14,10 +14,28 @@ interface RecentTransactionsProps {
 export const RecentTransactions: React.FC<RecentTransactionsProps> = ({
   data,
 }) => {
+  const totalAmount = React.useMemo(() => {
+    if (!data) {
+      return 0;
+    }
+
+    return data.reduce((acc, trx) => {
+      if (trx.status === 20 || trx.status === 1 || trx.status === 2) {
+        acc += trx.harga;
+      }
+      return acc;
+    }, 0);
+  }, [data]);
+
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-lg font-semibold">10 Transaksi Terakhir</h3>
+        <div className="flex items-center gap-2 text-sm font-medium">
+          <p>
+            Total Harga: <span>{formatCurrency(totalAmount)}</span>
+          </p>
+        </div>
       </CardHeader>
       <CardBody className="p-0">
         <div className="divide-y divide-default-100">
