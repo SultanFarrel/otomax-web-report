@@ -71,7 +71,7 @@ export function useTransactionsByStatusChart(
   return useQuery<ChartData, Error>({
     queryKey: ["transactionsByStatusChart", user?.kode, dateRange],
     queryFn: () => fetchTransactionsByStatusChart(user!.kode, dateRange),
-    enabled: !!user?.kode,
-    staleTime: 5 * 60 * 1000, // Cache data selama 5 menit
+    enabled: !!user?.kode && !!dateRange,
+    staleTime: Infinity, // Tanpa cache
   });
 }

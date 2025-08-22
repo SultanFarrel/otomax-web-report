@@ -79,6 +79,7 @@ export function useTransactions() {
 
   const {
     data: response,
+    refetch,
     isLoading,
     isError,
   } = useQuery<TransactionApiResponse, Error>({
@@ -90,7 +91,7 @@ export function useTransactions() {
         sortDescriptor,
       }),
     enabled: !!user?.kode,
-    staleTime: 5 * 60 * 1000,
+    staleTime: Infinity, // Tanpa cache
   });
 
   // --- LOGIKA UNTUK MENGHITUNG TOTAL ---
@@ -121,7 +122,7 @@ export function useTransactions() {
     return summary;
   }, [response?.data]);
 
-  // LOGIKA PAGINASI DI SISI KLIEN DENGAN useMemo
+  // LOGIKA PAGINASI DI SISI KLIEN
   const paginatedData = useMemo(() => {
     const allItems = response?.data || [];
     const start = (page - 1) * pageSize;
@@ -144,6 +145,7 @@ export function useTransactions() {
   const onSearchSubmit = useCallback(() => {
     setSubmittedFilters(inputFilters);
     setPage(1);
+    refetch();
   }, [inputFilters]);
 
   const resetFilters = useCallback(() => {
@@ -152,6 +154,7 @@ export function useTransactions() {
     setSortDescriptor({ column: "tgl_entri", direction: "descending" });
     setPageSize(30);
     setPage(1);
+    refetch();
   }, []);
 
   const dataForComponent = useMemo(

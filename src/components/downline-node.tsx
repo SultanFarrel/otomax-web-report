@@ -39,7 +39,7 @@ export const DownlineNode: React.FC<DownlineNodeProps> = ({
     queryKey: ["downlineChildren", downline.kode],
     queryFn: () => fetchChildren(downline.kode),
     enabled: isExpanded,
-    staleTime: 5 * 60 * 1000,
+    staleTime: Infinity, // Tanpa cache
   });
 
   const hasChildren = downline.total_downline > 0;

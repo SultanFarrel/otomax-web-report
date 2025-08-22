@@ -82,6 +82,7 @@ export function useDownlineTransactions() {
 
   const {
     data: response,
+    refetch,
     isLoading,
     isError,
   } = useQuery<TransactionApiResponse, Error>({
@@ -98,7 +99,7 @@ export function useDownlineTransactions() {
         sortDescriptor,
       }),
     enabled: !!user?.kode,
-    staleTime: 5 * 60 * 1000,
+    staleTime: Infinity, // Tanpa cache
   });
 
   const transactionSummary = useMemo(() => {
@@ -125,6 +126,7 @@ export function useDownlineTransactions() {
     return summary;
   }, [response?.data]);
 
+  // LOGIKA PAGINASI DI SISI KLIEN
   const paginatedData = useMemo(() => {
     const allItems = response?.data || [];
     const start = (page - 1) * pageSize;
@@ -150,6 +152,7 @@ export function useDownlineTransactions() {
   const onSearchSubmit = useCallback(() => {
     setSubmittedFilters(inputFilters);
     setPage(1);
+    refetch();
   }, [inputFilters]);
 
   const resetFilters = useCallback(() => {
@@ -158,6 +161,7 @@ export function useDownlineTransactions() {
     setSortDescriptor({ column: "tgl_entri", direction: "descending" });
     setPageSize(30);
     setPage(1);
+    refetch();
   }, []);
 
   const dataForComponent = useMemo(

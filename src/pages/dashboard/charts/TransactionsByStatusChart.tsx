@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -19,23 +19,30 @@ import { formatDateRange } from "@/utils/formatters";
 import { Tooltip as TooltipComponent } from "@heroui/tooltip";
 import { useTransactionsByStatusChart } from "@/hooks/dashboard/useTransactionsByStatusChart";
 import { TransactionsByStatusChartSkeleton } from "../components/skeleton/TransactionsByStatusChart.skeleton";
+import { today, getLocalTimeZone } from "@internationalized/date";
 
-interface ChartProps {
-  dateRange: RangeValue<DateValue> | null;
-  onDateChange: (range: RangeValue<DateValue>) => void;
-  onResetDateFilter: () => void;
-}
+export const TransactionsByStatusChart = ({}) => {
+  const [dateRange, setDateRange] = useState<RangeValue<DateValue>>({
+    start: today(getLocalTimeZone()),
+    end: today(getLocalTimeZone()),
+  });
 
-export const TransactionsByStatusChart: React.FC<ChartProps> = ({
-  dateRange,
-  onDateChange,
-  onResetDateFilter,
-}) => {
+  const onDateChange = (range: RangeValue<DateValue>) => {
+    setDateRange(range);
+  };
+
   const {
     data: transactionChartData,
+    refetch,
     isLoading,
     error,
   } = useTransactionsByStatusChart(dateRange);
+
+  useEffect(() => {
+    if (dateRange?.start && dateRange?.end) {
+      refetch();
+    }
+  }, [dateRange, refetch]);
 
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
@@ -47,17 +54,25 @@ export const TransactionsByStatusChart: React.FC<ChartProps> = ({
     }
   };
 
+  const handleResetDateFilter = () => {
+    setDateRange({
+      start: today(getLocalTimeZone()),
+      end: today(getLocalTimeZone()),
+    });
+    setIsCalendarOpen(false);
+  };
+
   if (isLoading) {
     return <TransactionsByStatusChartSkeleton />;
   }
 
-  if (error || !transactionChartData) {
+  if (error) {
     return (
       <div className="grid grid-cols-1">
         <Card className="bg-danger-50 border-danger-200">
           <CardBody>
             <p className="text-danger-700">
-              {error?.message?.trim ? error.message : "Gagal memuat data"}
+              {error?.message?.trim() ? error.message : "Gagal memuat data"}
             </p>
           </CardBody>
         </Card>
@@ -98,14 +113,14 @@ export const TransactionsByStatusChart: React.FC<ChartProps> = ({
           </Popover>
           {dateRange && (
             <TooltipComponent
-              content="Reset Filter"
+              content="Refresh Chart"
               placement="bottom"
               closeDelay={0}
             >
               <Button
                 isIconOnly
                 variant="light"
-                onPress={onResetDateFilter}
+                onPress={handleResetDateFilter}
                 aria-label="Reset filter tanggal"
                 className="ml-2"
               >

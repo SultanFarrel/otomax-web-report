@@ -90,7 +90,7 @@ export function useBalanceMutation() {
       });
     },
     enabled: !!user?.kode,
-    staleTime: 5 * 60 * 1000, // cache 5 menit
+    staleTime: Infinity, // Tanpa cache
   });
 
   const onSearchSubmit = useCallback(() => {

@@ -87,7 +87,7 @@ export function useProducts() {
         sortDescriptor
       ),
     placeholderData: (previousData) => previousData,
-    staleTime: 5 * 60 * 1000, // Cache data selama 5 menit
+    staleTime: Infinity, // Tanpa cache
   });
 
   const onSearchChange = React.useCallback((value?: string) => {

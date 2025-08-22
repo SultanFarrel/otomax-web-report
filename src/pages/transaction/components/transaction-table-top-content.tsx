@@ -172,7 +172,7 @@ export const TransactionTableTopContent: React.FC<
           >
             Cari
           </Button>
-          <Tooltip content="Reset Filter" closeDelay={0}>
+          <Tooltip content="Refresh" closeDelay={0}>
             <Button isIconOnly variant="light" onPress={onResetFilters}>
               <ArrowPathIcon className="h-5 w-5" />
             </Button>

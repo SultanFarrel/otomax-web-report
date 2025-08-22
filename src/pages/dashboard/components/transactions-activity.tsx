@@ -25,13 +25,13 @@ export const TransactionActivity: React.FC = () => {
     return <TransactionActivitySkeleton />;
   }
 
-  if (error || !recentActivityData) {
+  if (error) {
     return (
       <div className="grid grid-cols-1">
         <Card className="bg-danger-50 border-danger-200">
           <CardBody>
             <p className="text-danger-700">
-              {error?.message?.trim ? error.message : "Gagal memuat data"}
+              {error?.message?.trim() ? error.message : "Gagal memuat data"}
             </p>
           </CardBody>
         </Card>
@@ -89,9 +89,13 @@ export const TransactionActivity: React.FC = () => {
       <CardBody>
         <div className="max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-default-300 scrollbar-track-transparent px-2 transition-all duration-300 ease-in-out">
           {activeTab === "transactions" ? (
-            <RecentTransactions data={recentActivityData?.recentTransactions} />
+            <RecentTransactions
+              data={recentActivityData?.recentTransactions ?? []}
+            />
           ) : (
-            <RecentBalanceMutations data={recentActivityData?.recentMutasi} />
+            <RecentBalanceMutations
+              data={recentActivityData?.recentMutasi ?? []}
+            />
           )}
         </div>
       </CardBody>

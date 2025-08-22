@@ -37,7 +37,7 @@ export const StatCardsGrid: React.FC = () => {
     return <StatCardsGridSkeleton />;
   }
 
-  if (error || !stats || !user) {
+  if (error) {
     return (
       <div className="grid grid-cols-1">
         <Card className="bg-danger-50 border-danger-200">
@@ -77,14 +77,16 @@ export const StatCardsGrid: React.FC = () => {
                 <CreditCardIcon className="h-6 w-6 text-default-400" />
               </div>
             </div>
-            <p className="text-2xl font-bold">{formatCurrency(user.saldo)}</p>
+            <p className="text-2xl font-bold">
+              {user ? formatCurrency(user.saldo) : "0"}
+            </p>
           </div>
           <div className="flex gap-2 mt-2">
             <Chip size="sm" variant="flat">
-              Komisi: {formatCurrency(user.komisi)}
+              Komisi: {user ? formatCurrency(user.komisi) : "0"}
             </Chip>
             <Chip size="sm" variant="flat">
-              Poin: {user.poin}
+              Poin: {user ? user.poin : "0"}
             </Chip>
           </div>
         </CardBody>
@@ -100,10 +102,10 @@ export const StatCardsGrid: React.FC = () => {
             <CheckCircleIcon className="h-6 w-6 text-success" />
           </div>
           <p className="text-2xl font-bold text-success">
-            {formatCurrency(stats.harga_sukses_today)}
+            {formatCurrency(stats ? stats.harga_sukses_today : 0)}
           </p>
           <p className="text-sm text-default-500">
-            {stats.total_sukses_today} TRX
+            {stats ? stats.total_sukses_today : 0} TRX
           </p>
         </CardBody>
       </Card>
@@ -118,9 +120,11 @@ export const StatCardsGrid: React.FC = () => {
             <ClockIcon className="h-6 w-6 text-primary" />
           </div>
           <p className="text-2xl font-bold text-primary">
-            {formatCurrency(stats.harga_proses)}
+            {formatCurrency(stats ? stats.harga_proses : 0)}
           </p>
-          <p className="text-sm text-default-500">{stats.total_proses} TRX</p>
+          <p className="text-sm text-default-500">
+            {stats ? stats.total_proses : 0} TRX
+          </p>
         </CardBody>
       </Card>
 
@@ -134,10 +138,10 @@ export const StatCardsGrid: React.FC = () => {
             <XCircleIcon className="h-6 w-6 text-danger" />
           </div>
           <p className="text-2xl font-bold text-danger">
-            {formatCurrency(stats.harga_gagal_today)}
+            {formatCurrency(stats ? stats.harga_gagal_today : 0)}
           </p>
           <p className="text-sm text-default-500">
-            {stats.total_gagal_today} TRX
+            {stats ? stats.total_gagal_today : 0} TRX
           </p>
         </CardBody>
       </Card>
