@@ -30,85 +30,56 @@ const createDownline = (details: {
   return {
     ...details,
     saldo: Math.floor(Math.random() * 500000),
-    komisi: Math.floor(Math.random() * 5000),
-    poin: Math.floor(Math.random() * 100),
+    alamat: null,
     aktif: status === 0 ? 1 : 0,
-    suspend: status === 2 ? 1 : 0,
-    markup: `${Math.floor(Math.random() * 10) * 25}`,
+    kode_level: details.level,
+    keterangan: null,
     tgl_daftar: randomDate(),
+    saldo_minimal: 0,
     tgl_aktivitas: randomDate(),
-    RowNum: details.kode,
+    pengingat_saldo: 20000,
+    suspend: status === 2 ? 1 : null,
+
+    // Mohon tambahkan properti 'komisi' di dalam respons.
+    // Tipe data: number.
+    // Contoh: 15000
+    komisi: Math.floor(Math.random() * 20000),
+
+    // Mohon tambahkan properti 'poin' di dalam respons.
+    // Tipe data: number.
+    // Contoh: 100
+    poin: Math.floor(Math.random() * 500),
+
+    // Mohon tambahkan properti 'markup' di dalam respons.
+    // Tipe data: number.
+    // Contoh: 25 atau 50
+    markup: `${Math.floor(Math.random() * 5) * 25}`,
   };
 };
 
 const allDownlines = [
   createDownline({
-    kode: "DL-A",
-    nama: "Downline A",
-    kode_upline: "RES001",
-    total_downline: 2,
-    level: "AGEN",
-  }),
-  createDownline({
-    kode: "DL-B",
-    nama: "Downline B",
-    kode_upline: "RES001",
-    total_downline: 2,
-    level: "AGEN",
-  }),
-  createDownline({
-    kode: "DL-C",
-    nama: "Downline C",
+    kode: "AZ0002",
+    nama: "INKA CELL",
     kode_upline: "RES001",
     total_downline: 0,
-    level: "AGEN",
+    level: "M",
   }),
   createDownline({
-    kode: "DL-D",
-    nama: "Downline D",
-    kode_upline: "DL-A",
-    total_downline: 1,
-    level: "RESELLER",
+    kode: "AZ0003",
+    nama: "KHAZNA CELL",
+    kode_upline: "RES001",
+    total_downline: 7,
+    level: "M",
   }),
-  createDownline({
-    kode: "DL-E",
-    nama: "Downline E",
-    kode_upline: "DL-A",
-    total_downline: 0,
-    level: "RESELLER",
-  }),
-  createDownline({
-    kode: "DL-F",
-    nama: "Downline F",
-    kode_upline: "DL-B",
-    total_downline: 0,
-    level: "RESELLER",
-  }),
-  createDownline({
-    kode: "DL-G",
-    nama: "Downline G",
-    kode_upline: "DL-B",
-    total_downline: 0,
-    level: "RESELLER",
-  }),
-  createDownline({
-    kode: "DL-H",
-    nama: "Downline H",
-    kode_upline: "DL-D",
-    total_downline: 0,
-    level: "RETAIL",
-  }),
-  // Menambahkan lebih banyak data downline
+  // Menambahkan lebih banyak data
   ...Array.from({ length: 50 }, (_, i) =>
     createDownline({
-      kode: `AZ${String(i + 1).padStart(4, "0")}`,
-      nama: `CELL ${i + 1}`,
-      kode_upline:
-        i % 5 === 0
-          ? "RES001"
-          : `AZ${String(Math.floor(i / 5) * 5).padStart(4, "0")}`,
-      total_downline: i % 10 === 0 ? 2 : 0,
-      level: i % 3 === 0 ? "M" : "R",
+      kode: `AZ${String(i + 4).padStart(4, "0")}`,
+      nama: `AGEN CELL ${i + 1}`,
+      kode_upline: i % 7 === 0 ? `AZ0003` : "RES001",
+      total_downline: i % 5 === 0 ? 3 : 0,
+      level: i % 2 === 0 ? "M" : "R",
     })
   ),
 ];
@@ -349,12 +320,15 @@ export const handlers = [
   }),
 
   // Handles a GET /reseller/upline/:uplineKode request
-  http.get(`${baseURL}/reseller/upline/:uplineKode`, ({ request }) => {
+  http.get(`${baseURL}/reseller/upline/:uplineKode`, ({ params, request }) => {
+    const { uplineKode } = params;
     const url = new URL(request.url);
     const search = url.searchParams.get("search") || "";
     const status = url.searchParams.get("status") || "all";
 
-    let filteredData = allDownlines;
+    let filteredData = allDownlines.filter(
+      (dl) => dl.kode_upline === uplineKode
+    );
 
     if (search) {
       filteredData = filteredData.filter(
@@ -366,18 +340,15 @@ export const handlers = [
 
     if (status !== "all") {
       filteredData = filteredData.filter((dl) => {
-        if (status === "aktif") return dl.aktif === 1 && dl.suspend === 0;
-        if (status === "nonaktif") return dl.aktif === 0 && dl.suspend === 0;
-        if (status === "suspend") return dl.suspend === 1;
+        if (status === "aktif") return dl.aktif === 1 && dl.suspend === null;
+        if (status === "nonaktif") return dl.aktif === 0 && dl.suspend === null;
+        if (status === "suspend") return dl.suspend !== null;
         return false;
       });
     }
 
-    // Mengirim semua data yang sudah difilter, tanpa paginasi server-side
+    // Mengembalikan data dengan format { data: [...] }
     return HttpResponse.json({
-      totalItems: filteredData.length,
-      totalPages: 1, // Hanya satu halaman karena semua data dikirim
-      currentPage: 1,
       data: filteredData,
     });
   }),

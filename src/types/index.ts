@@ -58,9 +58,8 @@ export interface Downline {
   kode: string;
   nama: string;
   saldo: number;
-  alamat: string;
+  alamat: string | null;
   aktif: number;
-  suspend: number | null;
   kode_upline: string;
   kode_level: string;
   keterangan: string | null;
@@ -68,16 +67,13 @@ export interface Downline {
   saldo_minimal: number;
   tgl_aktivitas: string | null;
   pengingat_saldo: number;
-  RowNum: string;
+  suspend: number | null;
   total_downline: number;
-  komisi: number;
-  poin: number;
-  markup: string;
 
-  // Properti opsional untuk struktur pohon
-  level?: number;
-  children?: Downline[];
-  hasChildren?: boolean;
+  // Properti baru untuk frontend
+  komisi?: number;
+  poin?: number;
+  markup?: string;
 }
 
 export type BalanceMutation = {
@@ -103,10 +99,11 @@ export type TransactionApiResponse = {
 };
 
 export interface DownlineApiResponse {
-  totalItems: number;
-  totalPages: number;
-  currentPage: number;
   data: Downline[];
+  // Menghapus properti paginasi karena tidak ada di respons asli
+  totalItems?: number;
+  totalPages?: number;
+  currentPage?: number;
 }
 
 export type BalanceMutationApiResponse = {
