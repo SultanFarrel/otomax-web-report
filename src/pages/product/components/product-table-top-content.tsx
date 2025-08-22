@@ -1,3 +1,4 @@
+// sultanfarrel/otomax-web-report/otomax-web-report-new-api/src/pages/product/components/product-table-top-content.tsx
 import React from "react";
 import { STATUS_OPTIONS } from "../constants/product-constants";
 import {
@@ -14,23 +15,20 @@ import {
   MagnifyingGlassIcon,
   ArrowPathIcon,
 } from "@heroicons/react/24/outline";
+import { ProductFilters } from "@/hooks/useProducts"; // Impor tipe ProductFilters
 
 interface ProductTableTopContentProps {
-  filterValue: string;
-  onSearchChange: (value: string) => void;
+  filters: ProductFilters;
+  onFilterChange: (field: keyof ProductFilters, value: any) => void;
   onSearchSubmit: () => void;
-  statusFilter: string;
-  onStatusChange: (key: React.Key) => void;
   onResetFilters: () => void;
   totalItems: number;
 }
 
 export const ProductTableTopContent: React.FC<ProductTableTopContentProps> = ({
-  filterValue,
-  onSearchChange,
+  filters,
+  onFilterChange,
   onSearchSubmit,
-  statusFilter,
-  onStatusChange,
   onResetFilters,
   totalItems,
 }) => {
@@ -38,43 +36,38 @@ export const ProductTableTopContent: React.FC<ProductTableTopContentProps> = ({
     React.useState(false);
 
   const statusButtonText = React.useMemo(() => {
-    if (!isStatusFilterTouched || statusFilter === "all") {
+    if (!isStatusFilterTouched || filters.status === "all") {
       return "Status";
     }
-    return STATUS_OPTIONS.find((status) => status.uid === statusFilter)?.name;
-  }, [isStatusFilterTouched, statusFilter]);
+    return STATUS_OPTIONS.find((status) => status.uid === filters.status)?.name;
+  }, [isStatusFilterTouched, filters.status]);
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap justify-between gap-3 items-end">
-        <form
-          className="flex gap-2 w-full sm:max-w-xs"
-          onSubmit={(e) => {
-            e.preventDefault();
-            onSearchSubmit();
-          }}
-          action=""
-        >
+      <form
+        className="flex flex-wrap justify-between gap-3 items-end"
+        onSubmit={(e) => {
+          e.preventDefault();
+          onSearchSubmit();
+        }}
+      >
+        {/* Grup Kiri: Search dan Status */}
+        <div className="flex gap-3 w-full sm:w-auto">
           <Input
             isClearable
             className="w-full sm:max-w-xs"
-            placeholder="Cari berdasarkan nama/kode..."
+            placeholder="Cari nama/kode..."
             startContent={<MagnifyingGlassIcon className="h-5 w-5" />}
-            value={filterValue}
-            onClear={() => onSearchChange("")}
-            onValueChange={onSearchChange}
+            value={filters.search}
+            onClear={() => onFilterChange("search", "")}
+            onValueChange={(value) => onFilterChange("search", value)}
           />
-          <Button color="primary" type="submit">
-            Cari
-          </Button>
-        </form>
-
-        <div className="flex gap-3">
           <Dropdown>
             <DropdownTrigger>
               <Button
                 endContent={<ChevronDownIcon className="h-4 w-4" />}
                 variant="flat"
+                className="min-w-[120px] justify-between"
               >
                 {statusButtonText}
               </Button>
@@ -83,10 +76,10 @@ export const ProductTableTopContent: React.FC<ProductTableTopContentProps> = ({
               disallowEmptySelection
               aria-label="Filter by status"
               closeOnSelect
-              selectedKeys={new Set([statusFilter])}
+              selectedKeys={new Set([filters.status])}
               selectionMode="single"
               onAction={(key) => {
-                onStatusChange(key);
+                onFilterChange("status", key);
                 setIsStatusFilterTouched(true);
               }}
             >
@@ -97,7 +90,14 @@ export const ProductTableTopContent: React.FC<ProductTableTopContentProps> = ({
               ))}
             </DropdownMenu>
           </Dropdown>
-          <Tooltip content="Reset Filter" placement="bottom" closeDelay={0}>
+        </div>
+
+        {/* Grup Kanan: Tombol Aksi */}
+        <div className="flex gap-3">
+          <Button color="primary" type="submit">
+            Cari
+          </Button>
+          <Tooltip content="Refresh" placement="bottom" closeDelay={0}>
             <Button
               isIconOnly
               variant="light"
@@ -112,7 +112,7 @@ export const ProductTableTopContent: React.FC<ProductTableTopContentProps> = ({
             </Button>
           </Tooltip>
         </div>
-      </div>
+      </form>
       <span className="text-default-400 text-small">
         Total {totalItems} produk
       </span>

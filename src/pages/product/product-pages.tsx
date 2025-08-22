@@ -1,3 +1,4 @@
+// sultanfarrel/otomax-web-report/otomax-web-report-new-api/src/pages/product/product-pages.tsx
 import React from "react";
 
 import { useProducts } from "@/hooks/useProducts";
@@ -25,11 +26,11 @@ export default function ProdukPage() {
     isError: isTableError,
     page,
     setPage,
-    inputValue,
-    onSearchChange,
+    pageSize,
+    handlePageSizeChange,
+    inputFilters,
+    handleFilterChange,
     onSearchSubmit,
-    statusFilter,
-    onStatusChange,
     resetFilters,
     sortDescriptor,
     setSortDescriptor,
@@ -38,21 +39,17 @@ export default function ProdukPage() {
   const topContent = React.useMemo(
     () => (
       <ProductTableTopContent
-        filterValue={inputValue}
-        onSearchChange={onSearchChange}
+        filters={inputFilters}
+        onFilterChange={handleFilterChange}
         onSearchSubmit={onSearchSubmit}
-        statusFilter={statusFilter}
-        onStatusChange={onStatusChange}
         onResetFilters={resetFilters}
         totalItems={tableData?.totalItems || 0}
       />
     ),
     [
-      inputValue,
-      onSearchChange,
+      inputFilters,
+      handleFilterChange,
       onSearchSubmit,
-      statusFilter,
-      onStatusChange,
       resetFilters,
       tableData?.totalItems,
     ]
@@ -62,19 +59,13 @@ export default function ProdukPage() {
     return (
       <ProductTableBottomContent
         page={page}
-        totalItems={tableData?.totalItems || 0}
-        currentPage={tableData?.currentPage || 1}
         totalPages={tableData?.totalPages || 1}
         onPageChange={setPage}
+        pageSize={pageSize}
+        onPageSizeChange={handlePageSizeChange}
       />
     );
-  }, [
-    page,
-    tableData?.totalItems,
-    tableData?.currentPage,
-    tableData?.totalPages,
-    setPage,
-  ]);
+  }, [page, tableData?.totalPages, setPage, pageSize, handlePageSizeChange]);
 
   const handleSortChange = (descriptor: SortDescriptor) => {
     setSortDescriptor(descriptor);
@@ -91,14 +82,13 @@ export default function ProdukPage() {
       topContentPlacement="outside"
       sortDescriptor={sortDescriptor}
       onSortChange={handleSortChange}
+      classNames={{
+        wrapper: "max-h-[600px] p-0 ps-2 overflow-y-auto stable-scrollbar",
+      }}
     >
       <TableHeader columns={COLUMN_NAMES}>
         {(column) => (
-          <TableColumn
-            key={column.uid}
-            align="start"
-            allowsSorting={column.sortable}
-          >
+          <TableColumn key={column.uid} align="start">
             {column.name}
           </TableColumn>
         )}

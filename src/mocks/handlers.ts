@@ -161,6 +161,29 @@ const mockDownlineTransactions = Array.from({ length: 150 }, (_, i) => {
   };
 });
 
+// --- DATA MOCK BARU UNTUK PRODUK ---
+const operatorCodes = ["TSEL", "ISAT", "XL", "AXIS", "SMART"];
+const productTypes = ["Pulsa", "Data", "Token PLN", "Voucher Game", "e-Money"];
+
+const mockProducts = Array.from({ length: 150 }, (_, i) => {
+  const harga_beli = Math.floor(Math.random() * 50000) + 5000;
+  const harga_jual = harga_beli + Math.floor(Math.random() * 1000) + 250;
+  const status = Math.floor(Math.random() * 4); // 0: Aktif, 1: Tidak Aktif, 2: Kosong, 3: Gangguan
+
+  return {
+    kode: `P${1000 + i}`,
+    nama: `${productTypes[i % productTypes.length]} ${Math.floor(Math.random() * 100)}K`,
+    harga_jual: harga_jual,
+    harga_beli: harga_beli,
+    harga_jual_final: harga_jual,
+    aktif: status === 0 ? 1 : 0,
+    kosong: status === 2 ? 1 : 0,
+    gangguan: status === 3 ? 1 : 0,
+    kode_operator: operatorCodes[i % operatorCodes.length],
+    RowNum: String(i + 1),
+  };
+});
+
 export const handlers = [
   // Handles a POST /auth/login request
   http.post(`${baseURL}/auth/login`, () => {
@@ -423,6 +446,40 @@ export const handlers = [
 
     return HttpResponse.json({
       data: filteredData,
+    });
+  }),
+
+  // --- HANDLER BARU UNTUK PRODUK ---
+  http.get(`${baseURL}/produk`, ({ request }) => {
+    const url = new URL(request.url);
+    const search = url.searchParams.get("search") || "";
+    const status = url.searchParams.get("status") || "all";
+
+    let filteredData = mockProducts;
+
+    if (search) {
+      filteredData = filteredData.filter(
+        (p) =>
+          p.nama.toLowerCase().includes(search.toLowerCase()) ||
+          p.kode.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+
+    if (status !== "all") {
+      filteredData = filteredData.filter((p) => {
+        if (status === "aktif")
+          return p.aktif === 1 && p.gangguan === 0 && p.kosong === 0;
+        if (status === "nonaktif") return p.aktif === 0;
+        if (status === "kosong") return p.kosong === 1;
+        if (status === "gangguan") return p.gangguan === 1;
+        return false;
+      });
+    }
+
+    // Tidak melakukan paginasi di sini, kirim semua data yang sudah difilter
+    return HttpResponse.json({
+      data: filteredData,
+      totalItems: filteredData.length, // totalItems sekarang berdasarkan data yang difilter
     });
   }),
 ];
