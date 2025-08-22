@@ -60,7 +60,7 @@ export interface Downline {
   saldo: number;
   alamat: string;
   aktif: number;
-  suspend: number;
+  suspend: number | null;
   kode_upline: string;
   kode_level: string;
   keterangan: string | null;
@@ -70,6 +70,9 @@ export interface Downline {
   pengingat_saldo: number;
   RowNum: string;
   total_downline: number;
+  komisi: number;
+  poin: number;
+  markup: string;
 
   // Properti opsional untuk struktur pohon
   level?: number;

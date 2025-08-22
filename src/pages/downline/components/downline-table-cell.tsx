@@ -26,7 +26,6 @@ export const DownlineTableCell: React.FC<DownlineTableCellProps> = ({
       return (
         <div>
           <p className="font-bold text-sm">{cellValue as string}</p>
-          <p className="text-xs text-default-500">{downline.kode}</p>
         </div>
       );
 

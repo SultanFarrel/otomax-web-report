@@ -22,7 +22,7 @@ const randomDate = (
 const createDownline = (details: {
   kode: string;
   nama: string;
-  uplineKode: string;
+  kode_upline: string;
   total_downline: number;
   level: string;
 }) => {
@@ -41,70 +41,77 @@ const createDownline = (details: {
   };
 };
 
-const downlineH = createDownline({
-  kode: "DL-H",
-  nama: "Downline H",
-  uplineKode: "DL-D",
-  total_downline: 0,
-  level: "RETAIL",
-});
-const downlineG = createDownline({
-  kode: "DL-G",
-  nama: "Downline G",
-  uplineKode: "DL-B",
-  total_downline: 0,
-  level: "RESELLER",
-});
-const downlineF = createDownline({
-  kode: "DL-F",
-  nama: "Downline F",
-  uplineKode: "DL-B",
-  total_downline: 0,
-  level: "RESELLER",
-});
-const downlineE = createDownline({
-  kode: "DL-E",
-  nama: "Downline E",
-  uplineKode: "DL-A",
-  total_downline: 0,
-  level: "RESELLER",
-});
-const downlineD = createDownline({
-  kode: "DL-D",
-  nama: "Downline D",
-  uplineKode: "DL-A",
-  total_downline: 1,
-  level: "RESELLER",
-});
-const downlineC = createDownline({
-  kode: "DL-C",
-  nama: "Downline C",
-  uplineKode: "RES001",
-  total_downline: 0,
-  level: "AGEN",
-});
-const downlineB = createDownline({
-  kode: "DL-B",
-  nama: "Downline B",
-  uplineKode: "RES001",
-  total_downline: 2,
-  level: "AGEN",
-});
-const downlineA = createDownline({
-  kode: "DL-A",
-  nama: "Downline A",
-  uplineKode: "RES001",
-  total_downline: 2,
-  level: "AGEN",
-});
-
-const allDownlines = {
-  RES001: [downlineA, downlineB, downlineC],
-  "DL-A": [downlineD, downlineE],
-  "DL-B": [downlineF, downlineG],
-  "DL-D": [downlineH],
-  // Downline C, E, F, G, H tidak memiliki sub-downline, jadi tidak perlu ada entry untuk mereka
-};
+const allDownlines = [
+  createDownline({
+    kode: "DL-A",
+    nama: "Downline A",
+    kode_upline: "RES001",
+    total_downline: 2,
+    level: "AGEN",
+  }),
+  createDownline({
+    kode: "DL-B",
+    nama: "Downline B",
+    kode_upline: "RES001",
+    total_downline: 2,
+    level: "AGEN",
+  }),
+  createDownline({
+    kode: "DL-C",
+    nama: "Downline C",
+    kode_upline: "RES001",
+    total_downline: 0,
+    level: "AGEN",
+  }),
+  createDownline({
+    kode: "DL-D",
+    nama: "Downline D",
+    kode_upline: "DL-A",
+    total_downline: 1,
+    level: "RESELLER",
+  }),
+  createDownline({
+    kode: "DL-E",
+    nama: "Downline E",
+    kode_upline: "DL-A",
+    total_downline: 0,
+    level: "RESELLER",
+  }),
+  createDownline({
+    kode: "DL-F",
+    nama: "Downline F",
+    kode_upline: "DL-B",
+    total_downline: 0,
+    level: "RESELLER",
+  }),
+  createDownline({
+    kode: "DL-G",
+    nama: "Downline G",
+    kode_upline: "DL-B",
+    total_downline: 0,
+    level: "RESELLER",
+  }),
+  createDownline({
+    kode: "DL-H",
+    nama: "Downline H",
+    kode_upline: "DL-D",
+    total_downline: 0,
+    level: "RETAIL",
+  }),
+  // Menambahkan lebih banyak data downline
+  ...Array.from({ length: 50 }, (_, i) =>
+    createDownline({
+      kode: `AZ${String(i + 1).padStart(4, "0")}`,
+      nama: `CELL ${i + 1}`,
+      kode_upline:
+        i % 5 === 0
+          ? "RES001"
+          : `AZ${String(Math.floor(i / 5) * 5).padStart(4, "0")}`,
+      total_downline: i % 10 === 0 ? 2 : 0,
+      level: i % 3 === 0 ? "M" : "R",
+    })
+  ),
+];
 
 // --- DATA MOCK BARU UNTUK TRANSAKSI ---
 const productCodes = ["PULSA10", "PLN20K", "DATA5GB", "GAME100", "GOPAY50K"];
@@ -344,12 +351,10 @@ export const handlers = [
   // Handles a GET /reseller/upline/:uplineKode request
   http.get(`${baseURL}/reseller/upline/:uplineKode`, ({ request }) => {
     const url = new URL(request.url);
-    const page = parseInt(url.searchParams.get("page") || "1");
-    const pageSize = parseInt(url.searchParams.get("pageSize") || "10");
     const search = url.searchParams.get("search") || "";
     const status = url.searchParams.get("status") || "all";
 
-    let filteredData = allDownlines["RES001"];
+    let filteredData = allDownlines;
 
     if (search) {
       filteredData = filteredData.filter(
@@ -368,15 +373,12 @@ export const handlers = [
       });
     }
 
-    const totalItems = filteredData.length;
-    const totalPages = Math.ceil(totalItems / pageSize);
-    const data = filteredData.slice((page - 1) * pageSize, page * pageSize);
-
+    // Mengirim semua data yang sudah difilter, tanpa paginasi server-side
     return HttpResponse.json({
-      totalItems,
-      totalPages,
-      currentPage: page,
-      data,
+      totalItems: filteredData.length,
+      totalPages: 1, // Hanya satu halaman karena semua data dikirim
+      currentPage: 1,
+      data: filteredData,
     });
   }),
 
