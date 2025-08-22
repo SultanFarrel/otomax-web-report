@@ -1,8 +1,11 @@
-import { useState, useMemo, useEffect, useCallback } from "react";
+// sultanfarrel/otomax-web-report/otomax-web-report-new-api/src/pages/balance mutation/balance-mutation.tsx
+
+import { useState, useMemo, useCallback } from "react";
 import { useBalanceMutation } from "@/hooks/useBalanceMutation";
 import { COLUMN_NAMES } from "./constants/balance-mutation-constants";
 import { BalanceMutationTableTopContent } from "./components/balance-mutation-table-top-content";
 import { BalanceMutationTableCellComponent } from "./components/balance-mutation-table-cell";
+import { BalanceMutationTableBottomContent } from "./components/balance-mutation-table-bottom-content";
 import {
   Table,
   TableHeader,
@@ -12,93 +15,71 @@ import {
   TableCell,
 } from "@heroui/table";
 import { Spinner } from "@heroui/spinner";
-import { Button } from "@heroui/button";
 import { SortDescriptor } from "@heroui/table";
-
-const ITEMS_PER_LOAD = 20;
 
 export default function BalanceMutationPage() {
   const {
     allFetchedItems,
+    mutationSummary,
     isLoading,
     isError,
-    inputValue,
-    onSearchChange,
-    inputLimit,
-    onLimitChange,
-    inputDateRange,
-    onDateChange,
+    inputFilters,
+    handleFilterChange,
     onSearchSubmit,
     resetFilters,
     sortDescriptor,
     setSortDescriptor,
   } = useBalanceMutation();
 
-  const [visibleItemCount, setVisibleItemCount] = useState(ITEMS_PER_LOAD);
-  const [isClientLoading, setIsClientLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
 
-  useEffect(() => {
-    setVisibleItemCount(ITEMS_PER_LOAD);
-  }, [allFetchedItems]);
+  const pages = Math.ceil(allFetchedItems.length / pageSize);
 
-  const itemsToDisplay = useMemo(
-    () => allFetchedItems.slice(0, visibleItemCount),
-    [allFetchedItems, visibleItemCount]
-  );
+  const itemsToDisplay = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    const end = start + pageSize;
 
-  const handleLoadMore = useCallback(() => {
-    setIsClientLoading(true);
-    setTimeout(() => {
-      setVisibleItemCount((prev) =>
-        Math.min(prev + ITEMS_PER_LOAD, allFetchedItems.length)
-      );
-      setIsClientLoading(false);
-    }, 300);
-  }, [allFetchedItems.length]);
+    return allFetchedItems.slice(start, end);
+  }, [page, pageSize, allFetchedItems]);
 
-  const canLoadMore = visibleItemCount < allFetchedItems.length;
+  const handlePageSizeChange = useCallback((size: number) => {
+    setPageSize(size);
+    setPage(1);
+  }, []);
 
   const topContent = useMemo(
     () => (
       <BalanceMutationTableTopContent
-        filterValue={inputValue}
-        onSearchChange={onSearchChange}
-        dateRange={inputDateRange}
-        onDateChange={onDateChange}
-        limit={inputLimit}
-        onLimitChange={onLimitChange}
+        filters={inputFilters}
+        onFilterChange={handleFilterChange}
         onSearchSubmit={onSearchSubmit}
         onResetFilters={resetFilters}
         totalItems={allFetchedItems.length}
+        summary={mutationSummary}
       />
     ),
     [
-      inputValue,
-      onSearchChange,
-      inputDateRange,
-      onDateChange,
-      inputLimit,
-      onLimitChange,
+      inputFilters,
+      handleFilterChange,
       onSearchSubmit,
       resetFilters,
       allFetchedItems.length,
+      mutationSummary,
     ]
   );
 
   const bottomContent = useMemo(() => {
-    if (!canLoadMore) return null;
     return (
-      <div className="flex w-full justify-center py-4">
-        <Button
-          isLoading={isClientLoading}
-          onPress={handleLoadMore}
-          variant="flat"
-        >
-          Tampilkan Lebih Banyak
-        </Button>
-      </div>
+      <BalanceMutationTableBottomContent
+        page={page}
+        totalPages={pages}
+        onPageChange={setPage}
+        pageSize={pageSize}
+        onPageSizeChange={handlePageSizeChange}
+      />
     );
-  }, [canLoadMore, isClientLoading, handleLoadMore]);
+  }, [page, pages, pageSize, handlePageSizeChange]);
 
   const handleSortChange = (descriptor: SortDescriptor) => {
     setSortDescriptor(descriptor);

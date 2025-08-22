@@ -1,3 +1,5 @@
+// sultanfarrel/otomax-web-report/otomax-web-report-new-api/src/pages/dashboard/charts/TransactionsByStatusChart.tsx
+
 import { useEffect, useState } from "react";
 import {
   BarChart,
@@ -45,6 +47,12 @@ export const TransactionsByStatusChart = ({}) => {
   }, [dateRange, refetch]);
 
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+
+  // --- LOGIKA UNTUK MEMBATASI TANGGAL ---
+  const now = today(getLocalTimeZone());
+  const minValue = now.subtract({ days: 7 });
+  const maxValue = now;
+  // -----------------------------------------
 
   const handleDateChangeAndClose = (range: RangeValue<DateValue>) => {
     onDateChange(range);
@@ -108,6 +116,8 @@ export const TransactionsByStatusChart = ({}) => {
                 aria-label="Filter tanggal dashboard"
                 value={dateRange}
                 onChange={handleDateChangeAndClose}
+                minValue={minValue}
+                maxValue={maxValue}
               />
             </PopoverContent>
           </Popover>

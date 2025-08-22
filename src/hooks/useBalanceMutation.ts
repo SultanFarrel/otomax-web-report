@@ -1,4 +1,6 @@
-import { useCallback, useState } from "react";
+// sultanfarrel/otomax-web-report/otomax-web-report-new-api/src/hooks/useBalanceMutation.ts
+
+import { useCallback, useState, useMemo } from "react";
 import { RangeValue } from "@react-types/shared";
 import { useQuery } from "@tanstack/react-query";
 import { BalanceMutationApiResponse } from "@/types";
@@ -8,28 +10,44 @@ import { DateValue } from "@heroui/calendar";
 import { SortDescriptor } from "@heroui/table";
 import { today, getLocalTimeZone } from "@internationalized/date";
 
+export interface BalanceMutationFilters {
+  search: string;
+  dateRange: RangeValue<DateValue> | null;
+  mutationTypes: string[];
+}
+
+const mutationTypeMap: Record<string, string[]> = {
+  Manual: [" "],
+  Transaksi: ["T"],
+  Refund: ["G"],
+  Komisi: ["K"],
+  "Transfer Saldo": ["1", "2"],
+  Tiket: ["B"],
+};
+
 const fetchBalanceMutation = async ({
   kode,
-  limit,
-  filterValue,
+  filters,
   sortDescriptor,
-  dateRange,
 }: {
   kode: string;
-  limit: number;
-  filterValue: string;
+  filters: BalanceMutationFilters;
   sortDescriptor: SortDescriptor;
-  dateRange: RangeValue<DateValue> | null;
 }): Promise<BalanceMutationApiResponse> => {
   const endpoint = `/mutasi/reseller/${kode}`;
 
+  // Flatten the mutation types from the map
+  const mutationTypeChars = filters.mutationTypes
+    .flatMap((type) => mutationTypeMap[type] || [])
+    .join(",");
+
   const params: any = {
-    limit,
-    search: filterValue || undefined,
-    startDate: dateRange?.start?.toString(),
-    endDate: dateRange?.end?.toString(),
+    search: filters.search || undefined,
+    startDate: filters.dateRange?.start?.toString(),
+    endDate: filters.dateRange?.end?.toString(),
     sortBy: sortDescriptor.column as string,
     sortDirection: sortDescriptor.direction,
+    mutationTypes: mutationTypeChars,
   };
 
   Object.keys(params).forEach((key) => {
@@ -43,86 +61,93 @@ const fetchBalanceMutation = async ({
 export function useBalanceMutation() {
   const user = useUserStore((state) => state.user);
 
-  const [inputValue, setInputValue] = useState("");
-  const [inputLimit, setInputLimit] = useState<string>("500");
-  const [inputDateRange, setInputDateRange] = useState<RangeValue<DateValue>>({
-    start: today(getLocalTimeZone()),
-    end: today(getLocalTimeZone()),
-  });
+  const initialFilters: BalanceMutationFilters = {
+    search: "",
+    dateRange: {
+      start: today(getLocalTimeZone()),
+      end: today(getLocalTimeZone()),
+    },
+    mutationTypes: [
+      "Manual",
+      "Transaksi",
+      "Refund",
+      "Komisi",
+      "Transfer Saldo",
+      "Tiket",
+    ],
+  };
 
-  const [submittedFilterValue, setSubmittedFilterValue] = useState("");
-  const [submittedLimit, setSubmittedLimit] = useState<string>("500");
-  const [submittedDateRange, setSubmittedDateRange] = useState<
-    RangeValue<DateValue>
-  >({
-    start: today(getLocalTimeZone()),
-    end: today(getLocalTimeZone()),
-  });
-
+  const [inputFilters, setInputFilters] =
+    useState<BalanceMutationFilters>(initialFilters);
+  const [submittedFilters, setSubmittedFilters] =
+    useState<BalanceMutationFilters>(initialFilters);
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
-    column: "kode",
+    column: "tanggal",
     direction: "descending",
   });
 
-  const { data, isLoading, isError } = useQuery<
+  const { data, isLoading, isError, refetch } = useQuery<
     BalanceMutationApiResponse,
     Error
   >({
-    queryKey: [
-      "balanceMutation",
-      user?.kode,
-      submittedFilterValue,
-      sortDescriptor,
-      submittedDateRange,
-      submittedLimit,
-    ],
-    queryFn: () => {
-      const numericLimit = parseInt(submittedLimit, 10);
-      const finalLimit =
-        isNaN(numericLimit) || numericLimit <= 0 ? 500 : numericLimit;
-
-      return fetchBalanceMutation({
+    queryKey: ["balanceMutation", user?.kode, submittedFilters, sortDescriptor],
+    queryFn: () =>
+      fetchBalanceMutation({
         kode: user!.kode,
-        limit: finalLimit,
-        filterValue: submittedFilterValue,
+        filters: submittedFilters,
         sortDescriptor,
-        dateRange: submittedDateRange,
-      });
-    },
+      }),
     enabled: !!user?.kode,
     staleTime: Infinity, // Tanpa cache
   });
 
+  const mutationSummary = useMemo(() => {
+    const allItems = data?.data || [];
+    const summary = {
+      credit: 0,
+      debit: 0,
+      total: 0,
+    };
+
+    allItems.forEach((mutation) => {
+      if (mutation.jumlah > 0) {
+        summary.credit += mutation.jumlah;
+      } else {
+        summary.debit += mutation.jumlah;
+      }
+    });
+
+    summary.total = summary.credit + summary.debit;
+
+    return summary;
+  }, [data?.data]);
+
+  const handleFilterChange = (
+    field: keyof BalanceMutationFilters,
+    value: any
+  ) => {
+    setInputFilters((prev) => ({ ...prev, [field]: value }));
+  };
+
   const onSearchSubmit = useCallback(() => {
-    setSubmittedFilterValue(inputValue);
-    setSubmittedLimit(inputLimit);
-    setSubmittedDateRange(inputDateRange);
-  }, [inputValue, inputLimit, inputDateRange]);
+    setSubmittedFilters(inputFilters);
+    refetch();
+  }, [inputFilters, refetch]);
 
   const resetFilters = useCallback(() => {
-    const initialDate = {
-      start: today(getLocalTimeZone()),
-      end: today(getLocalTimeZone()),
-    };
-    setInputValue("");
-    setInputLimit("500");
-    setInputDateRange(initialDate);
-    setSubmittedFilterValue("");
-    setSubmittedLimit("500");
-    setSubmittedDateRange(initialDate);
-    setSortDescriptor({ column: "kode", direction: "descending" });
-  }, []);
+    setInputFilters(initialFilters);
+    setSubmittedFilters(initialFilters);
+    setSortDescriptor({ column: "tanggal", direction: "descending" });
+    refetch();
+  }, [refetch]);
 
   return {
     allFetchedItems: data?.data ?? [],
+    mutationSummary,
     isLoading,
     isError,
-    inputValue,
-    onSearchChange: setInputValue,
-    inputLimit,
-    onLimitChange: setInputLimit,
-    inputDateRange,
-    onDateChange: setInputDateRange,
+    inputFilters,
+    handleFilterChange,
     onSearchSubmit,
     resetFilters,
     sortDescriptor,
