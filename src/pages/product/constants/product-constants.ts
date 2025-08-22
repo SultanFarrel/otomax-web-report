@@ -1,10 +1,10 @@
 import { ChipProps } from "@heroui/chip";
 
 const COLUMN_NAMES = [
-  { name: "KODE", uid: "kode" },
-  { name: "NAMA", uid: "nama" },
-  { name: "HARGA BELI", uid: "harga_beli" },
-  { name: "HARGA JUAL", uid: "harga_jual" },
+  { name: "KODE", uid: "kode", sortable: true },
+  { name: "NAMA", uid: "nama", sortable: true },
+  { name: "HARGA BELI", uid: "harga_beli", sortable: true },
+  { name: "HARGA JUAL", uid: "harga_jual", sortable: true },
   { name: "STATUS", uid: "status" },
 ];
 

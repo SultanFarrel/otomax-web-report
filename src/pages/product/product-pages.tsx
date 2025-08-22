@@ -88,7 +88,11 @@ export default function ProdukPage() {
     >
       <TableHeader columns={COLUMN_NAMES}>
         {(column) => (
-          <TableColumn key={column.uid} align="start">
+          <TableColumn
+            key={column.uid}
+            align="start"
+            allowsSorting={column.sortable}
+          >
             {column.name}
           </TableColumn>
         )}
