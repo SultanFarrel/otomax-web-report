@@ -5,7 +5,7 @@ export const siteConfig = {
   description: "Web Report Otomax.",
   navItems: [
     {
-      label: "Dashboard",
+      label: "Home",
       href: "/",
     },
     {
@@ -17,11 +17,11 @@ export const siteConfig = {
       href: "/transaksi",
     },
     {
-      label: "Mutasi Saldo",
+      label: "Mutasi",
       href: "/mutasi-saldo",
     },
     {
-      label: "Downline",
+      label: "List Downline",
       href: "/downline",
     },
     {

@@ -122,7 +122,7 @@ export const DownlineTransactionTableTopContent: React.FC<
           />
           <Input
             className="max-w-[120px]"
-            placeholder="Kode Reseller"
+            placeholder="Kode Agen"
             value={filters.kodeReseller}
             onValueChange={(v) => onFilterChange("kodeReseller", v)}
           />

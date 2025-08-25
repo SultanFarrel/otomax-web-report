@@ -34,6 +34,7 @@ interface BalanceMutationTableTopContentProps {
 }
 
 const mutationTypeOptions = [
+  { value: "Semua", label: "Semua" },
   { value: "Manual", label: "Manual" },
   { value: "Transaksi", label: "Transaksi" },
   { value: "Refund", label: "Refund" },
@@ -87,15 +88,6 @@ export const BalanceMutationTableTopContent: React.FC<
         {/* Baris 1: Filter utama dan tombol aksi */}
         <div className="flex flex-wrap justify-between gap-3 items-end">
           <div className="flex flex-wrap gap-3 items-end w-full sm:w-auto">
-            <Input
-              isClearable
-              className="w-full sm:w-[250px]"
-              placeholder="Cari keterangan..."
-              startContent={<MagnifyingGlassIcon className="h-5 w-5" />}
-              value={filters.search}
-              onClear={() => onFilterChange("search", "")}
-              onValueChange={(value) => onFilterChange("search", value)}
-            />
             <Popover
               placement="bottom-start"
               isOpen={isCalendarOpen}
@@ -121,6 +113,15 @@ export const BalanceMutationTableTopContent: React.FC<
                 />
               </PopoverContent>
             </Popover>
+            <Input
+              isClearable
+              className="w-full sm:w-[250px]"
+              placeholder="Cari keterangan..."
+              startContent={<MagnifyingGlassIcon className="h-5 w-5" />}
+              value={filters.search}
+              onClear={() => onFilterChange("search", "")}
+              onValueChange={(value) => onFilterChange("search", value)}
+            />
           </div>
           <div className="flex flex-wrap gap-3 items-end">
             <Button color="primary" type="submit">

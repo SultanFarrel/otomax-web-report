@@ -76,6 +76,7 @@ export default function DownlinePage() {
   return (
     <div className="flex flex-col gap-8">
       <Table
+        isStriped
         isHeaderSticky
         aria-label="Tabel Data Downline"
         bottomContent={bottomContent}
@@ -85,7 +86,7 @@ export default function DownlinePage() {
         sortDescriptor={sortDescriptor}
         onSortChange={handleSortChange}
         classNames={{
-          wrapper: "max-h-[600px] p-0 ps-2 overflow-y-auto stable-scrollbar",
+          wrapper: "max-h-[565px] p-0 ps-2 overflow-y-auto stable-scrollbar",
         }}
       >
         <TableHeader columns={COLUMN_NAMES}>

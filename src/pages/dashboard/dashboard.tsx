@@ -1,6 +1,6 @@
 import { StatCardsGrid } from "./components/stat-cards.grid";
-import { TransactionActivity } from "./components/transactions-activity";
-import { TransactionsByStatusChart } from "./charts/TransactionsByStatusChart";
+import { TransactionRecent } from "./components/transactions-activity";
+import { MutationRecent } from "./components/mutations-recent";
 
 export default function DashboardPage() {
   return (
@@ -8,9 +8,10 @@ export default function DashboardPage() {
       <StatCardsGrid />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <TransactionsByStatusChart />
+        {/* <TransactionsByStatusChart /> */}
 
-        <TransactionActivity />
+        <MutationRecent />
+        <TransactionRecent />
       </div>
     </div>
   );

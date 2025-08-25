@@ -3,18 +3,18 @@ import { Card, CardHeader, CardBody } from "@heroui/card";
 import { Button } from "@heroui/button";
 import { Tooltip } from "@heroui/tooltip";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
-import { RecentTransactions } from "./recent-transactions";
-import { useRecentTransactions } from "@/hooks/dashboard/useRecentActivity";
+import { RecentBalanceMutations } from "./recent-balance-mutations";
 import { TransactionActivitySkeleton } from "./skeleton/TransactionActivity.skeleton";
+import { useRecentMutations } from "@/hooks/dashboard/useRecentMutations";
 
-export const TransactionRecent: React.FC = () => {
+export const MutationRecent: React.FC = () => {
   const {
     data: recentActivityData,
     isLoading,
     error,
     refetch,
     isFetching,
-  } = useRecentTransactions();
+  } = useRecentMutations();
 
   if (isLoading) {
     return <TransactionActivitySkeleton />;
@@ -38,7 +38,7 @@ export const TransactionRecent: React.FC = () => {
     <Card>
       <CardHeader>
         <div className="flex w-full items-center justify-between border-b border-default-200">
-          <p>Transaksi Terakhir</p>
+          <p>Aktivitas Saldo</p>
           {/* Refresh Button */}
           <Tooltip content="Refresh Aktivitas" closeDelay={0}>
             <Button
@@ -57,8 +57,8 @@ export const TransactionRecent: React.FC = () => {
       </CardHeader>
       <CardBody>
         <div className="max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-default-300 scrollbar-track-transparent px-2 transition-all duration-300 ease-in-out">
-          <RecentTransactions
-            data={recentActivityData?.recentTransactions ?? []}
+          <RecentBalanceMutations
+            data={recentActivityData?.recentMutasi ?? []}
           />
         </div>
       </CardBody>

@@ -87,6 +87,7 @@ export default function BalanceMutationPage() {
 
   return (
     <Table
+      isStriped
       isHeaderSticky
       bottomContent={bottomContent}
       bottomContentPlacement="outside"
@@ -96,7 +97,7 @@ export default function BalanceMutationPage() {
       sortDescriptor={sortDescriptor}
       onSortChange={handleSortChange}
       classNames={{
-        wrapper: "max-h-[600px] overflow-y-auto p-0",
+        wrapper: "max-h-[565px] overflow-y-auto p-0",
       }}
     >
       <TableHeader columns={COLUMN_NAMES}>

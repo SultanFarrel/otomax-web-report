@@ -83,7 +83,7 @@ export default function ProdukPage() {
       sortDescriptor={sortDescriptor}
       onSortChange={handleSortChange}
       classNames={{
-        wrapper: "max-h-[600px] p-0 ps-2 overflow-y-auto stable-scrollbar",
+        wrapper: "max-h-[565px] p-0 ps-2 overflow-y-auto stable-scrollbar",
       }}
     >
       <TableHeader columns={COLUMN_NAMES}>

@@ -8,17 +8,17 @@ interface ApiError {
   error: string;
 }
 
-export type RecentTransactionsData = Pick<DashboardData, "recentTransactions">;
+export type RecentMutationsData = Pick<DashboardData, "recentMutasi">;
 
-const fetchRecentTransactions = async (
+const fetchRecentMutations = async (
   kodeUpline: string
-): Promise<RecentTransactionsData> => {
+): Promise<RecentMutationsData> => {
   try {
     const { data } = await apiClient.get(
       `/dashboard/recent-transaction-mutation/${kodeUpline}`
     );
     // Cek apakah data yang diterima adalah array
-    if (Array.isArray(data.recentTransactions)) {
+    if (Array.isArray(data.recentMutasi)) {
       return data;
     }
 
@@ -38,12 +38,12 @@ const fetchRecentTransactions = async (
   }
 };
 
-export function useRecentTransactions() {
+export function useRecentMutations() {
   const user = useUserStore((state) => state.user);
 
   return useQuery({
-    queryKey: ["recentTransactions", user?.kode],
-    queryFn: () => fetchRecentTransactions(user!.kode),
+    queryKey: ["recentMutations", user?.kode],
+    queryFn: () => fetchRecentMutations(user!.kode),
     enabled: !!user?.kode,
     staleTime: Infinity, // Tanpa cache
   });
