@@ -56,7 +56,7 @@ export function useProducts() {
   } = useQuery<ApiResponse, Error>({
     queryKey: ["products", submittedFilters],
     queryFn: () => fetchProducts({ filters: submittedFilters }),
-    staleTime: Infinity, // Tanpa cache
+    staleTime: 0, // Tanpa cache
   });
 
   // Logika sorting di sisi klien

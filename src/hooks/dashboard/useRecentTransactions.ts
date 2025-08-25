@@ -41,6 +41,6 @@ export function useRecentTransactions() {
     queryKey: ["recentTransactions", user?.kode],
     queryFn: () => fetchRecentTransactions(),
     enabled: !!user?.kode,
-    staleTime: Infinity, // Tanpa cache
+    staleTime: 0, // Tanpa cache
   });
 }

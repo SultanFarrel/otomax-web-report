@@ -36,6 +36,6 @@ export function useDashboardStats() {
     queryKey: ["dashboardStats", user?.kode],
     queryFn: () => fetchDashboardStats(user!.kode),
     enabled: !!user?.kode,
-    staleTime: Infinity, // Tanpa cache
+    staleTime: 0, // Tanpa cache
   });
 }

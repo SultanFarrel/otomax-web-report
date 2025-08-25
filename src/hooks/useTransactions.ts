@@ -102,7 +102,7 @@ export function useTransactions() {
         sortDescriptor,
       }),
     enabled: !!user?.kode,
-    staleTime: Infinity, // Tanpa cache
+    staleTime: 0, // Tanpa cache
   });
 
   // --- LOGIKA BARU UNTUK MENGHITUNG TOTAL ---

@@ -41,6 +41,6 @@ export function useRecentMutations() {
     queryKey: ["recentMutations", user?.kode],
     queryFn: () => fetchRecentMutations(),
     enabled: !!user?.kode,
-    staleTime: Infinity, // Tanpa cache
+    staleTime: 0, // Tanpa cache
   });
 }

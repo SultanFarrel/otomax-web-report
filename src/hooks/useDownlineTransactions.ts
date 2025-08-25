@@ -110,7 +110,7 @@ export function useDownlineTransactions() {
         sortDescriptor,
       }),
     enabled: !!user?.kode,
-    staleTime: Infinity, // Tanpa cache
+    staleTime: 0, // Tanpa cache
   });
 
   const transactionSummary = useMemo(() => {
