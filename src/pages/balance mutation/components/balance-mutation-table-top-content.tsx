@@ -34,13 +34,13 @@ interface BalanceMutationTableTopContentProps {
 }
 
 const mutationTypeOptions = [
-  { value: "Semua", label: "Semua" },
-  { value: "Manual", label: "Manual" },
-  { value: "Transaksi", label: "Transaksi" },
-  { value: "Refund", label: "Refund" },
-  { value: "Komisi", label: "Komisi" },
-  { value: "Transfer Saldo", label: "Transfer Saldo" },
-  { value: "Tiket", label: "Tiket" },
+  "Semua",
+  "Manual",
+  "Transaksi",
+  "Refund",
+  "Komisi",
+  "Transfer Saldo",
+  "Tiket",
 ];
 
 export const BalanceMutationTableTopContent: React.FC<
@@ -57,17 +57,34 @@ export const BalanceMutationTableTopContent: React.FC<
 
   const [isCalendarOpen, setIsCalendarOpen] = React.useState(false);
 
-  // --- LOGIKA UNTUK MEMBATASI TANGGAL ---
   const now = today(getLocalTimeZone());
   const minValue = now.subtract({ days: 7 });
   const maxValue = now;
-  // -----------------------------------------
 
   const handleDateChangeAndClose = (range: RangeValue<DateValue>) => {
     onFilterChange("dateRange", range);
 
     if (range.start && range.end) {
       setIsCalendarOpen(false);
+    }
+  };
+
+  const handleMutationTypeChange = (selectedTypes: string[]) => {
+    const newSelection = [...selectedTypes];
+    const justSelected = newSelection[newSelection.length - 1];
+    const wasSemuaSelected = filters.mutationTypes.includes("Semua");
+
+    if (justSelected === "Semua" || newSelection.length === 0) {
+      onFilterChange("mutationTypes", ["Semua"]);
+    } else {
+      if (wasSemuaSelected) {
+        onFilterChange(
+          "mutationTypes",
+          newSelection.filter((t) => t !== "Semua")
+        );
+      } else {
+        onFilterChange("mutationTypes", newSelection);
+      }
     }
   };
 
@@ -85,7 +102,6 @@ export const BalanceMutationTableTopContent: React.FC<
           onSearchSubmit();
         }}
       >
-        {/* Baris 1: Filter utama dan tombol aksi */}
         <div className="flex flex-wrap justify-between gap-3 items-end">
           <div className="flex flex-wrap gap-3 items-end w-full sm:w-auto">
             <Popover
@@ -141,24 +157,22 @@ export const BalanceMutationTableTopContent: React.FC<
           </div>
         </div>
 
-        {/* Baris 2: Checkbox Group */}
         <div className="mt-3">
           <CheckboxGroup
             label="Jenis Mutasi"
             orientation="horizontal"
             value={filters.mutationTypes}
-            onValueChange={(value) => onFilterChange("mutationTypes", value)}
+            onValueChange={handleMutationTypeChange}
           >
             {mutationTypeOptions.map((option) => (
-              <Checkbox key={option.value} value={option.value}>
-                {option.label}
+              <Checkbox key={option} value={option}>
+                {option}
               </Checkbox>
             ))}
           </CheckboxGroup>
         </div>
       </form>
 
-      {/* Baris 3: Informasi Total */}
       <div className="flex flex-wrap justify-between items-center gap-4">
         <span className="text-default-400 text-small">
           Total {totalItems} mutasi ditemukan.

@@ -28,7 +28,7 @@ const formatDateTimeCustom = (dateString: string) => {
     minute: "2-digit",
     second: "2-digit",
     hour12: false,
-    timeZone: "UTC",
+    // timeZone: "UTC",
   }).format(new Date(dateString));
 
   return formattedDateTime;
@@ -38,9 +38,7 @@ const formatDate = (
   dateString: string,
   options?: Intl.DateTimeFormatOptions
 ) => {
-  const formatOptions = options
-    ? { timeZone: "UTC", ...options }
-    : DEFAULT_DATE_OPTIONS;
+  const formatOptions = options || DEFAULT_DATE_OPTIONS;
   return new Intl.DateTimeFormat("id-ID", formatOptions).format(
     new Date(dateString)
   );

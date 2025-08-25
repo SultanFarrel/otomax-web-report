@@ -10,13 +10,9 @@ interface ApiError {
 
 export type RecentTransactionsData = Pick<DashboardData, "recentTransactions">;
 
-const fetchRecentTransactions = async (
-  kodeUpline: string
-): Promise<RecentTransactionsData> => {
+const fetchRecentTransactions = async (): Promise<RecentTransactionsData> => {
   try {
-    const { data } = await apiClient.get(
-      `/dashboard/recent-transaction-mutation/${kodeUpline}`
-    );
+    const { data } = await apiClient.get(`/transaksi/recent`);
     // Cek apakah data yang diterima adalah array
     if (Array.isArray(data.recentTransactions)) {
       return data;
@@ -43,7 +39,7 @@ export function useRecentTransactions() {
 
   return useQuery({
     queryKey: ["recentTransactions", user?.kode],
-    queryFn: () => fetchRecentTransactions(user!.kode),
+    queryFn: () => fetchRecentTransactions(),
     enabled: !!user?.kode,
     staleTime: Infinity, // Tanpa cache
   });

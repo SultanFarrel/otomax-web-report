@@ -38,7 +38,9 @@ export const MutationRecent: React.FC = () => {
     <Card>
       <CardHeader>
         <div className="flex w-full items-center justify-between border-b border-default-200">
-          <p>Aktivitas Saldo</p>
+          <p className="text-sm text-default-500 uppercase font-semibold">
+            Aktivitas Saldo
+          </p>
           {/* Refresh Button */}
           <Tooltip content="Refresh Aktivitas" closeDelay={0}>
             <Button

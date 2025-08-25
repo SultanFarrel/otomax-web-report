@@ -4,7 +4,7 @@ import { Button } from "@heroui/button";
 import { Tooltip } from "@heroui/tooltip";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { RecentTransactions } from "./recent-transactions";
-import { useRecentTransactions } from "@/hooks/dashboard/useRecentActivity";
+import { useRecentTransactions } from "@/hooks/dashboard/useRecentTransactions";
 import { TransactionActivitySkeleton } from "./skeleton/TransactionActivity.skeleton";
 
 export const TransactionRecent: React.FC = () => {
@@ -38,7 +38,9 @@ export const TransactionRecent: React.FC = () => {
     <Card>
       <CardHeader>
         <div className="flex w-full items-center justify-between border-b border-default-200">
-          <p>Transaksi Terakhir</p>
+          <p className="text-sm text-default-500 uppercase font-semibold">
+            Aktivitas Transaksi
+          </p>
           {/* Refresh Button */}
           <Tooltip content="Refresh Aktivitas" closeDelay={0}>
             <Button

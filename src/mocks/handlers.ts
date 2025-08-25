@@ -256,93 +256,101 @@ export const handlers = [
     });
   }),
 
-  // Handles a GET /dashboard/recent-transaction-mutation/:kodeUpline request
-  http.get(
-    `${baseURL}/dashboard/recent-transaction-mutation/:kodeUpline`,
-    () => {
-      return HttpResponse.json({
-        recentTransactions: [
-          {
-            kode: 1,
-            tgl_entri: new Date().toISOString(),
-            kode_produk: "PULSA10",
-            tujuan: "081234567890",
-            harga: 10500,
-            status: 20,
-            RowNum: "1",
-          },
-          {
-            kode: 2,
-            tgl_entri: new Date().toISOString(),
-            kode_produk: "PLN20",
-            tujuan: "123456789",
-            harga: 20000,
-            status: 40,
-            RowNum: "2",
-          },
-          {
-            kode: 3,
-            tgl_entri: new Date().toISOString(),
-            kode_produk: "PLN500",
-            tujuan: "123456789",
-            harga: 500000,
-            status: 1,
-            RowNum: "3",
-          },
-        ],
-        recentMutasi: [
-          {
-            kode: 1,
-            tanggal: new Date().toISOString(),
-            keterangan: "Deposit Saldo",
-            jumlah: 500000,
-            saldo_akhir: 1500000,
-          },
-          {
-            kode: 2,
-            tanggal: new Date().toISOString(),
-            keterangan: "Pembelian PULSA10",
-            jumlah: -10500,
-            saldo_akhir: 1489500,
-          },
-        ],
-      });
-    }
-  ),
+  // HANDLER BARU UNTUK /mutasi/recent
+  http.get(`${baseURL}/mutasi/recent`, () => {
+    return HttpResponse.json({
+      recentMutasi: [
+        {
+          kode: 1,
+          tanggal: new Date().toISOString(),
+          keterangan: "Deposit Saldo",
+          jumlah: 500000,
+          saldo_akhir: 1500000,
+        },
+        {
+          kode: 2,
+          tanggal: new Date().toISOString(),
+          keterangan: "Pembelian PULSA10",
+          jumlah: -10500,
+          saldo_akhir: 1489500,
+        },
+        {
+          kode: 3,
+          tanggal: new Date().toISOString(),
+          keterangan: "Komisi",
+          jumlah: 25000,
+          saldo_akhir: 1514500,
+        },
+      ],
+    });
+  }),
 
-  // Handles a GET /dashboard/status-chart/:kodeUpline request
-  http.get(`${baseURL}/dashboard/status-chart/:kodeUpline`, () => {
-    return HttpResponse.json([
-      { status: "Sukses", jumlah: 1200 },
-      { status: "Proses", jumlah: 500 },
-      { status: "Gagal", jumlah: 1200 },
-    ]);
+  // HANDLER BARU UNTUK /transaksi/recent
+  http.get(`${baseURL}/transaksi/recent`, () => {
+    return HttpResponse.json({
+      recentTransactions: [
+        {
+          kode: 1,
+          tgl_entri: new Date().toISOString(),
+          kode_produk: "PULSA10",
+          tujuan: "081234567890",
+          harga: 10500,
+          status: 20,
+          RowNum: "1",
+        },
+        {
+          kode: 2,
+          tgl_entri: new Date().toISOString(),
+          kode_produk: "PLN20",
+          tujuan: "123456789",
+          harga: 20000,
+          status: 40,
+          RowNum: "2",
+        },
+        {
+          kode: 3,
+          tgl_entri: new Date().toISOString(),
+          kode_produk: "PLN500",
+          tujuan: "123456789",
+          harga: 500000,
+          status: 1,
+          RowNum: "3",
+        },
+      ],
+    });
   }),
 
   // Handles a GET /reseller/upline/:uplineKode request
-  http.get(`${baseURL}/reseller/upline/:uplineKode`, ({ params, request }) => {
-    const { uplineKode } = params;
+  http.get(`${baseURL}/reseller/upline/:uplineKode`, ({ request }) => {
     const url = new URL(request.url);
-    const search = url.searchParams.get("search") || "";
+    const kode = url.searchParams.get("kode") || "";
+    const nama = url.searchParams.get("nama") || "";
+    const kode_upline = url.searchParams.get("kode_upline") || "";
     const status = url.searchParams.get("status") || "all";
 
-    let filteredData = allDownlines.filter(
-      (dl) => dl.kode_upline === uplineKode
-    );
+    let filteredData = allDownlines;
 
-    if (search) {
-      filteredData = filteredData.filter(
-        (dl) =>
-          dl.nama.toLowerCase().includes(search.toLowerCase()) ||
-          dl.kode.toLowerCase().includes(search.toLowerCase())
+    if (kode) {
+      filteredData = filteredData.filter((dl) =>
+        dl.kode.toLowerCase().includes(kode.toLowerCase())
+      );
+    }
+    if (nama) {
+      filteredData = filteredData.filter((dl) =>
+        dl.nama.toLowerCase().includes(nama.toLowerCase())
+      );
+    }
+    if (kode_upline) {
+      filteredData = filteredData.filter((dl) =>
+        dl.kode_upline.toLowerCase().includes(kode_upline.toLowerCase())
       );
     }
 
     if (status !== "all") {
       filteredData = filteredData.filter((dl) => {
-        if (status === "aktif") return dl.aktif === 1 && dl.suspend === null;
-        if (status === "nonaktif") return dl.aktif === 0 && dl.suspend === null;
-        if (status === "suspend") return dl.suspend !== null;
+        if (status === "aktif") return dl.aktif === 1 && !dl.suspend;
+        if (status === "nonaktif") return dl.aktif === 0 && !dl.suspend;
+        if (status === "suspend") return !!dl.suspend;
         return false;
       });
     }
@@ -363,6 +371,7 @@ export const handlers = [
     const tujuan = url.searchParams.get("tujuan");
     const sn = url.searchParams.get("sn");
     const status = url.searchParams.get("status");
+    const status_lt = url.searchParams.get("status_lt");
     const startDate = url.searchParams.get("startDate");
     const endDate = url.searchParams.get("endDate");
 
@@ -409,6 +418,17 @@ export const handlers = [
         (trx) => trx.status === parseInt(status)
       );
     }
+    if (status_lt) {
+      // Logika filter untuk status < 20
+      filteredData = filteredData.filter(
+        (trx) => trx.status < parseInt(status_lt)
+      );
+    } else if (status) {
+      // Logika filter lainnya
+      filteredData = filteredData.filter(
+        (trx) => trx.status === parseInt(status)
+      );
+    }
 
     return HttpResponse.json({
       data: filteredData,
@@ -426,6 +446,7 @@ export const handlers = [
     const sn = url.searchParams.get("sn");
     const kodeReseller = url.searchParams.get("kodeReseller");
     const status = url.searchParams.get("status");
+    const status_lt = url.searchParams.get("status_lt");
     const startDate = url.searchParams.get("startDate");
     const endDate = url.searchParams.get("endDate");
 
@@ -473,6 +494,17 @@ export const handlers = [
       );
     }
     if (status) {
+      filteredData = filteredData.filter(
+        (trx) => trx.status === parseInt(status)
+      );
+    }
+    if (status_lt) {
+      // Logika filter untuk status < 20
+      filteredData = filteredData.filter(
+        (trx) => trx.status < parseInt(status_lt)
+      );
+    } else if (status) {
+      // Logika filter lainnya
       filteredData = filteredData.filter(
         (trx) => trx.status === parseInt(status)
       );
@@ -543,11 +575,9 @@ export const handlers = [
     }
 
     if (startDate && endDate) {
+      // Logika baru untuk menangani ISO string
       const start = new Date(startDate);
-      start.setHours(0, 0, 0, 0);
-
       const end = new Date(endDate);
-      end.setHours(23, 59, 59, 999);
 
       filteredData = filteredData.filter((mutation) => {
         const mutationDate = new Date(mutation.tanggal);

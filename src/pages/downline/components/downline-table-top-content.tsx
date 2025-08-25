@@ -15,26 +15,23 @@ import {
   MagnifyingGlassIcon,
   ArrowPathIcon,
 } from "@heroicons/react/24/outline";
+import { DownlineFilters } from "@/hooks/useDownlines";
 
 interface DownlineTableTopContentProps {
-  filterValue: string;
-  onSearchChange: (value: string) => void;
+  filters: DownlineFilters;
+  onFilterChange: (field: keyof DownlineFilters, value: any) => void;
   onSearchSubmit: () => void;
   onResetFilters: () => void;
-  statusFilter: string;
-  onStatusChange: (key: React.Key) => void;
   totalItems: number;
 }
 
 export const DownlineTableTopContent: React.FC<
   DownlineTableTopContentProps
 > = ({
-  filterValue,
-  onSearchChange,
+  filters,
+  onFilterChange,
   onSearchSubmit,
   onResetFilters,
-  statusFilter,
-  onStatusChange,
   totalItems,
 }) => {
   return (
@@ -46,16 +43,25 @@ export const DownlineTableTopContent: React.FC<
       className="flex flex-col gap-4"
     >
       <div className="flex flex-wrap justify-between gap-3 items-end">
-        {/* Grup Kiri: Search dan Status */}
-        <div className="flex gap-3 w-full sm:w-auto">
+        {/* Grup Kiri: Semua filter */}
+        <div className="flex flex-wrap gap-3 items-end">
           <Input
-            isClearable
-            className="w-full sm:max-w-xs"
-            placeholder="Cari nama/kode..."
-            startContent={<MagnifyingGlassIcon className="h-5 w-5" />}
-            value={filterValue}
-            onClear={() => onSearchChange("")}
-            onValueChange={onSearchChange}
+            className="w-full sm:max-w-[150px]"
+            placeholder="Kode Agen..."
+            value={filters.kode}
+            onValueChange={(v) => onFilterChange("kode", v)}
+          />
+          <Input
+            className="w-full sm:max-w-[150px]"
+            placeholder="Nama Agen..."
+            value={filters.nama}
+            onValueChange={(v) => onFilterChange("nama", v)}
+          />
+          <Input
+            className="w-full sm:max-w-[150px]"
+            placeholder="Kode Upline..."
+            value={filters.kode_upline}
+            onValueChange={(v) => onFilterChange("kode_upline", v)}
           />
           <Dropdown>
             <DropdownTrigger>
@@ -64,7 +70,7 @@ export const DownlineTableTopContent: React.FC<
                 variant="flat"
                 className="min-w-[120px] justify-between"
               >
-                {STATUS_OPTIONS.find((s) => s.uid === statusFilter)?.name ||
+                {STATUS_OPTIONS.find((s) => s.uid === filters.status)?.name ||
                   "Status"}
               </Button>
             </DropdownTrigger>
@@ -72,9 +78,9 @@ export const DownlineTableTopContent: React.FC<
               disallowEmptySelection
               aria-label="Filter by status"
               closeOnSelect
-              selectedKeys={new Set([statusFilter])}
+              selectedKeys={new Set([filters.status])}
               selectionMode="single"
-              onAction={(key) => onStatusChange(key)}
+              onAction={(key) => onFilterChange("status", key)}
             >
               {STATUS_OPTIONS.map((status) => (
                 <DropdownItem key={status.uid} className="capitalize">
@@ -87,7 +93,11 @@ export const DownlineTableTopContent: React.FC<
 
         {/* Grup Kanan: Tombol Aksi */}
         <div className="flex gap-3">
-          <Button color="primary" type="submit">
+          <Button
+            color="primary"
+            type="submit"
+            startContent={<MagnifyingGlassIcon className="h-5 w-5" />}
+          >
             Cari
           </Button>
           <Tooltip content="Refresh" placement="bottom" closeDelay={0}>

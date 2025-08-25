@@ -10,13 +10,9 @@ interface ApiError {
 
 export type RecentMutationsData = Pick<DashboardData, "recentMutasi">;
 
-const fetchRecentMutations = async (
-  kodeUpline: string
-): Promise<RecentMutationsData> => {
+const fetchRecentMutations = async (): Promise<RecentMutationsData> => {
   try {
-    const { data } = await apiClient.get(
-      `/dashboard/recent-transaction-mutation/${kodeUpline}`
-    );
+    const { data } = await apiClient.get("/mutasi/recent");
     // Cek apakah data yang diterima adalah array
     if (Array.isArray(data.recentMutasi)) {
       return data;
@@ -43,7 +39,7 @@ export function useRecentMutations() {
 
   return useQuery({
     queryKey: ["recentMutations", user?.kode],
-    queryFn: () => fetchRecentMutations(user!.kode),
+    queryFn: () => fetchRecentMutations(),
     enabled: !!user?.kode,
     staleTime: Infinity, // Tanpa cache
   });

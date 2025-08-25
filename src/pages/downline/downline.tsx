@@ -37,12 +37,10 @@ export default function DownlinePage() {
   const topContent = React.useMemo(
     () => (
       <DownlineTableTopContent
-        filterValue={inputFilters.search}
-        onSearchChange={(value) => handleFilterChange("search", value)}
+        filters={inputFilters}
+        onFilterChange={handleFilterChange}
         onSearchSubmit={onSearchSubmit}
         onResetFilters={onResetFilters}
-        statusFilter={inputFilters.status}
-        onStatusChange={(value) => handleFilterChange("status", value)}
         totalItems={tableData?.totalItems || 0}
       />
     ),

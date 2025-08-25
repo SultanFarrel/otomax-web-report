@@ -43,12 +43,22 @@ const fetchBalanceMutation = async ({
 
   const params: any = {
     search: filters.search || undefined,
-    startDate: filters.dateRange?.start?.toString(),
-    endDate: filters.dateRange?.end?.toString(),
     sortBy: sortDescriptor.column as string,
     sortDirection: sortDescriptor.direction,
     mutationTypes: mutationTypeChars,
   };
+
+  // --- LOGIKA BARU UNTUK PENANGANAN ZONA WAKTU ---
+  if (filters.dateRange?.start && filters.dateRange?.end) {
+    const startDate = filters.dateRange.start.toDate(getLocalTimeZone());
+    startDate.setHours(0, 0, 0, 0);
+    params.startDate = startDate.toISOString();
+
+    const endDate = filters.dateRange.end.toDate(getLocalTimeZone());
+    endDate.setHours(23, 59, 59, 999);
+    params.endDate = endDate.toISOString();
+  }
+  // ---------------------------------------------
 
   Object.keys(params).forEach((key) => {
     if (params[key] === undefined || params[key] === "") delete params[key];
@@ -67,14 +77,7 @@ export function useBalanceMutation() {
       start: today(getLocalTimeZone()),
       end: today(getLocalTimeZone()),
     },
-    mutationTypes: [
-      "Manual",
-      "Transaksi",
-      "Refund",
-      "Komisi",
-      "Transfer Saldo",
-      "Tiket",
-    ],
+    mutationTypes: ["Semua"],
   };
 
   const [inputFilters, setInputFilters] =

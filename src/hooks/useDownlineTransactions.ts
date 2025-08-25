@@ -1,3 +1,4 @@
+// sultanfarrel/otomax-web-report/otomax-web-report-new-api/src/hooks/useDownlineTransactions.ts
 import { useCallback, useMemo, useState } from "react";
 import { RangeValue } from "@react-types/shared";
 import { useQuery } from "@tanstack/react-query";
@@ -37,12 +38,22 @@ const fetchDownlineTransactions = async ({
     tujuan: filters.tujuan || undefined,
     sn: filters.sn || undefined,
     kodeReseller: filters.kodeReseller || undefined,
-    status: filters.status !== "all" ? filters.status : undefined,
     startDate: filters.dateRange?.start?.toString(),
     endDate: filters.dateRange?.end?.toString(),
     sortBy: sortDescriptor.column as string,
     sortDirection: sortDescriptor.direction,
   };
+
+  // --- LOGIKA BARU UNTUK FILTER STATUS ---
+  if (filters.status && filters.status !== "all") {
+    if (filters.status === "2") {
+      // "2" adalah UID untuk "Menunggu Jawaban"
+      params.status_lt = 20; // Mengirim parameter kustom `status_lt`
+    } else {
+      params.status = filters.status;
+    }
+  }
+  // -----------------------------------------
 
   Object.keys(params).forEach((key) => {
     if (params[key] === undefined || params[key] === "") delete params[key];
@@ -114,7 +125,8 @@ export function useDownlineTransactions() {
       if (trx.status === 20) {
         summary.success.amount += trx.harga;
         summary.success.count++;
-      } else if (trx.status === 1 || trx.status === 2) {
+      } else if (trx.status < 20) {
+        // Diubah untuk mencakup semua status di bawah 20
         summary.pending.amount += trx.harga;
         summary.pending.count++;
       } else {

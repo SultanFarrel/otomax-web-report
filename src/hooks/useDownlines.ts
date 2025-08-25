@@ -6,9 +6,11 @@ import { apiClient } from "@/api/axios";
 import { Downline, DownlineApiResponse } from "@/types";
 import { SortDescriptor } from "@heroui/table";
 
-// 1. Definisikan interface untuk filter
+// 1. Definisikan interface untuk filter yang lebih spesifik
 export interface DownlineFilters {
-  search: string;
+  kode: string;
+  nama: string;
+  kode_upline: string;
   status: string;
 }
 
@@ -16,8 +18,11 @@ const fetchDownlines = async (
   uplineKode: string,
   filters: DownlineFilters
 ): Promise<DownlineApiResponse> => {
+  // 2. Sesuaikan params untuk dikirim ke API
   const params: any = {
-    search: filters.search || undefined,
+    kode: filters.kode || undefined,
+    nama: filters.nama || undefined,
+    kode_upline: filters.kode_upline || undefined,
     status: filters.status !== "all" ? filters.status : undefined,
   };
 
@@ -32,8 +37,13 @@ export function useDownlines() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  // 2. Pisahkan state untuk input dan filter yang dikirim
-  const initialFilters: DownlineFilters = { search: "", status: "all" };
+  // 3. Inisialisasi filter baru
+  const initialFilters: DownlineFilters = {
+    kode: "",
+    nama: "",
+    kode_upline: "",
+    status: "all",
+  };
   const [inputFilters, setInputFilters] =
     useState<DownlineFilters>(initialFilters);
   const [submittedFilters, setSubmittedFilters] =
@@ -44,7 +54,6 @@ export function useDownlines() {
     direction: "ascending",
   });
 
-  // 3. Query sekarang bergantung pada submittedFilters
   const {
     data: response,
     isLoading,
@@ -89,12 +98,10 @@ export function useDownlines() {
 
   const totalPages = Math.ceil(sortedData.length / pageSize);
 
-  // 4. Handler untuk mengubah input filter
   const handleFilterChange = (field: keyof DownlineFilters, value: any) => {
     setInputFilters((prev) => ({ ...prev, [field]: value }));
   };
 
-  // 5. Handler untuk submit pencarian
   const onSearchSubmit = useCallback(() => {
     setSubmittedFilters(inputFilters);
     setPage(1);

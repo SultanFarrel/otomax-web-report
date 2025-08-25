@@ -74,6 +74,7 @@ export default function ProdukPage() {
 
   return (
     <Table
+      isStriped
       aria-label="Tabel data produk"
       isHeaderSticky
       bottomContent={bottomContent}
