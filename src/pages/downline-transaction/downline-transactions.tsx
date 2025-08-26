@@ -97,7 +97,14 @@ export default function DownlineTransactionPage() {
           {(column) => (
             <TableColumn
               key={column.uid}
-              align={column.uid === "actions" ? "end" : "start"}
+              align={
+                column.uid === "actions" ||
+                column.uid === "kode" ||
+                column.uid === "refid" ||
+                column.uid === "harga"
+                  ? "end"
+                  : "center"
+              }
             >
               {column.name}
             </TableColumn>

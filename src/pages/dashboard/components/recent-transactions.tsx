@@ -38,11 +38,11 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({
         </div>
       </CardHeader>
       <CardBody className="p-0">
-        <div className="divide-y divide-default-100">
+        <div className="divide-y divide-default-100 ">
           {data.map((trx) => (
             <div
               key={trx.kode}
-              className="p-4 flex justify-between items-start"
+              className="py-2 px-4 flex justify-between items-start even:bg-default-100"
             >
               <div>
                 <p className="font-semibold">{trx.kode_produk}</p>

@@ -1,11 +1,11 @@
 import { ChipProps } from "@heroui/chip";
 
 export const COLUMN_NAMES = [
-  { name: "KODE", uid: "kode", sortable: true },
-  { name: "NAMA", uid: "nama", sortable: true },
-  { name: "SALDO", uid: "saldo", sortable: true },
-  { name: "KOMISI", uid: "komisi", sortable: true },
-  { name: "POIN", uid: "poin", sortable: true },
+  { name: "KODE", uid: "kode" },
+  { name: "NAMA", uid: "nama" },
+  { name: "SALDO", uid: "saldo" },
+  { name: "KOMISI", uid: "komisi" },
+  { name: "POIN", uid: "poin" },
   { name: "STATUS", uid: "status" },
   { name: "KODE UPLINE", uid: "kode_upline" },
   { name: "MARKUP", uid: "markup" },

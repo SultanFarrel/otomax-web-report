@@ -104,7 +104,13 @@ export default function BalanceMutationPage() {
         {(column) => (
           <TableColumn
             key={column.uid}
-            align={column.uid === "actions" ? "end" : "start"}
+            align={
+              column.uid === "actions" ||
+              column.uid === "jumlah" ||
+              column.uid === "saldo_akhir"
+                ? "end"
+                : "start"
+            }
           >
             {column.name}
           </TableColumn>

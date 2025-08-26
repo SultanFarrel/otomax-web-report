@@ -47,6 +47,7 @@ export const DownlineTableCell: React.FC<DownlineTableCellProps> = ({
           color={STATUS_COLORS[statusText]}
           size="sm"
           variant="flat"
+          classNames={{ base: "min-w-16 justify-center" }}
         >
           {statusText}
         </Chip>

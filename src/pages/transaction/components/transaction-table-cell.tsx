@@ -40,7 +40,14 @@ const TransactionTableCellComponent: React.FC<TransactionTableCellProps> = ({
         text: "Unknown",
       };
       return (
-        <Chip color={statusInfo.color} size="sm" variant="flat">
+        <Chip
+          color={statusInfo.color}
+          size="sm"
+          variant="flat"
+          classNames={{
+            base: "min-w-32 justify-center",
+          }}
+        >
           {statusInfo.text}
         </Chip>
       );

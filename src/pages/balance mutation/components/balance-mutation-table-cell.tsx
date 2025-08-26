@@ -31,7 +31,7 @@ const BalanceMutationTableCell: React.FC<BalanceMutationTableCellProps> = ({
       const isDebit = (cellValue as number) > 0;
       return (
         <p
-          className={cn("text-sm font-semibold", {
+          className={cn("text-sm font-semibold text-right", {
             "text-success": isDebit,
             "text-danger": !isDebit,
           })}

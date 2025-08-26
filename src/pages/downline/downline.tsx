@@ -91,8 +91,14 @@ export default function DownlinePage() {
           {(column) => (
             <TableColumn
               key={column.uid}
-              align={column.uid === "actions" ? "end" : "start"}
-              allowsSorting={column.sortable}
+              align={
+                column.uid === "saldo" ||
+                column.uid === "poin" ||
+                column.uid === "komisi" ||
+                column.uid === "markup"
+                  ? "end"
+                  : "center"
+              }
             >
               {column.name}
             </TableColumn>

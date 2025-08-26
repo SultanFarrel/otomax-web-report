@@ -47,7 +47,7 @@ export const RecentBalanceMutations: React.FC<RecentBalanceMutationsProps> = ({
           {data.map((mutasi) => (
             <div
               key={mutasi.kode}
-              className="p-4 flex justify-between items-center"
+              className="py-2 px-4 flex justify-between items-center even:bg-default-100"
             >
               <div>
                 <p
