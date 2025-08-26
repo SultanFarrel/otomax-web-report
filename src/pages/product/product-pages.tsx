@@ -91,8 +91,13 @@ export default function ProdukPage() {
         {(column) => (
           <TableColumn
             key={column.uid}
-            align="start"
-            allowsSorting={column.sortable}
+            align={
+              column.uid === "harga_beli" || column.uid === "harga_jual"
+                ? "end"
+                : column.uid === "status"
+                  ? "center"
+                  : "start"
+            }
           >
             {column.name}
           </TableColumn>

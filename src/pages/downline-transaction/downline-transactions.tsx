@@ -103,7 +103,11 @@ export default function DownlineTransactionPage() {
                 column.uid === "refid" ||
                 column.uid === "harga"
                   ? "end"
-                  : "center"
+                  : column.uid === "status" ||
+                      column.uid === "tgl_entri" ||
+                      column.uid === "tgl_status"
+                    ? "center"
+                    : "start"
               }
             >
               {column.name}

@@ -17,7 +17,7 @@ import {
   ChevronDownIcon,
   MagnifyingGlassIcon,
   CalendarIcon,
-  ArrowPathIcon,
+  ArrowsRightLeftIcon,
 } from "@heroicons/react/24/outline";
 import { DownlineTransactionFilters } from "@/hooks/useDownlineTransactions";
 import { Chip } from "@heroui/chip";
@@ -175,9 +175,15 @@ export const DownlineTransactionTableTopContent: React.FC<
           >
             Cari
           </Button>
-          <Tooltip content="Refresh" closeDelay={0}>
-            <Button isIconOnly variant="light" onPress={onResetFilters}>
-              <ArrowPathIcon className="h-5 w-5" />
+          <Tooltip content="Reset Filter" placement="top" closeDelay={0}>
+            <Button
+              isIconOnly
+              variant="light"
+              onPress={onResetFilters}
+              className="text-default-500"
+              aria-label="Reset Filter"
+            >
+              <ArrowsRightLeftIcon className="h-5 w-5" />
             </Button>
           </Tooltip>
         </div>

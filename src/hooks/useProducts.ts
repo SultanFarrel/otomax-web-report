@@ -103,19 +103,25 @@ export function useProducts() {
   };
 
   const onSearchSubmit = useCallback(() => {
-    setSubmittedFilters(inputFilters);
     setPage(1);
-    refetch();
-  }, [inputFilters, refetch]);
+
+    if (
+      inputFilters.search === submittedFilters.search &&
+      inputFilters.status === submittedFilters.status
+    ) {
+      // Jika tidak ada perubahan, panggil refetch() secara manual.
+      refetch();
+    } else {
+      // Jika ada perubahan, perbarui state, yang akan memicu refetch otomatis.
+      setSubmittedFilters(inputFilters);
+    }
+  }, [inputFilters, submittedFilters, refetch]);
 
   const resetFilters = useCallback(() => {
     setInputFilters(initialFilters);
-    setSubmittedFilters(initialFilters);
     setSortDescriptor({ column: "kode", direction: "ascending" });
     setPageSize(10);
-    setPage(1);
-    refetch();
-  }, [refetch]);
+  }, [initialFilters]);
 
   const dataForComponent = useMemo(
     () => ({

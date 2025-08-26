@@ -44,10 +44,10 @@ export const ProductTableCell: React.FC<ProductTableCellProps> = ({
       const statusText = getProductStatus(product);
       return (
         <Chip
-          className="capitalize"
           color={STATUS_COLORS[statusText]}
           size="sm"
           variant="flat"
+          classNames={{ base: "min-w-20 justify-center" }}
         >
           {statusText}
         </Chip>

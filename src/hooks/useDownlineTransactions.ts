@@ -162,19 +162,22 @@ export function useDownlineTransactions() {
   };
 
   const onSearchSubmit = useCallback(() => {
-    setSubmittedFilters(inputFilters);
     setPage(1);
-    refetch();
-  }, [inputFilters]);
+    // Cek apakah filter telah berubah.
+    if (JSON.stringify(inputFilters) === JSON.stringify(submittedFilters)) {
+      // Jika tidak ada perubahan, panggil refetch() secara manual.
+      refetch();
+    } else {
+      // Jika ada perubahan, perbarui state, yang akan memicu refetch otomatis.
+      setSubmittedFilters(inputFilters);
+    }
+  }, [inputFilters, submittedFilters, refetch]);
 
   const resetFilters = useCallback(() => {
     setInputFilters(initialFilters);
-    setSubmittedFilters(initialFilters);
     setSortDescriptor({ column: "tgl_entri", direction: "descending" });
     setPageSize(30);
-    setPage(1);
-    refetch();
-  }, []);
+  }, [initialFilters]);
 
   const dataForComponent = useMemo(
     () => ({

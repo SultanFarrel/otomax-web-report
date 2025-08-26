@@ -133,16 +133,20 @@ export function useBalanceMutation() {
   };
 
   const onSearchSubmit = useCallback(() => {
-    setSubmittedFilters(inputFilters);
-    refetch();
-  }, [inputFilters, refetch]);
+    // Cek apakah filter telah berubah.
+    if (JSON.stringify(inputFilters) === JSON.stringify(submittedFilters)) {
+      // Jika tidak ada perubahan, panggil refetch() secara manual.
+      refetch();
+    } else {
+      // Jika ada perubahan, perbarui state, yang akan memicu refetch otomatis.
+      setSubmittedFilters(inputFilters);
+    }
+  }, [inputFilters, submittedFilters, refetch]);
 
   const resetFilters = useCallback(() => {
     setInputFilters(initialFilters);
-    setSubmittedFilters(initialFilters);
     setSortDescriptor({ column: "tanggal", direction: "descending" });
-    refetch();
-  }, [refetch]);
+  }, [initialFilters]);
 
   return {
     allFetchedItems: data?.data ?? [],

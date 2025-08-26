@@ -13,7 +13,7 @@ import { CheckboxGroup, Checkbox } from "@heroui/checkbox";
 import {
   MagnifyingGlassIcon,
   CalendarIcon,
-  ArrowPathIcon,
+  ArrowsRightLeftIcon,
 } from "@heroicons/react/24/outline";
 import { BalanceMutationFilters } from "@/hooks/useBalanceMutation";
 import { today, getLocalTimeZone } from "@internationalized/date";
@@ -140,10 +140,14 @@ export const BalanceMutationTableTopContent: React.FC<
             />
           </div>
           <div className="flex flex-wrap gap-3 items-end">
-            <Button color="primary" type="submit">
+            <Button
+              color="primary"
+              type="submit"
+              startContent={<MagnifyingGlassIcon className="h-5 w-5" />}
+            >
               Cari
             </Button>
-            <Tooltip content="Reset Filter" placement="bottom" closeDelay={0}>
+            <Tooltip content="Reset Filter" placement="top" closeDelay={0}>
               <Button
                 isIconOnly
                 variant="light"
@@ -151,7 +155,7 @@ export const BalanceMutationTableTopContent: React.FC<
                 className="text-default-500"
                 aria-label="Reset Filter"
               >
-                <ArrowPathIcon className="h-5 w-5" />
+                <ArrowsRightLeftIcon className="h-5 w-5" />
               </Button>
             </Tooltip>
           </div>

@@ -13,7 +13,7 @@ import { Tooltip } from "@heroui/tooltip";
 import {
   ChevronDownIcon,
   MagnifyingGlassIcon,
-  ArrowPathIcon,
+  ArrowsRightLeftIcon,
 } from "@heroicons/react/24/outline";
 import { ProductFilters } from "@/hooks/useProducts"; // Impor tipe ProductFilters
 
@@ -94,10 +94,14 @@ export const ProductTableTopContent: React.FC<ProductTableTopContentProps> = ({
 
         {/* Grup Kanan: Tombol Aksi */}
         <div className="flex gap-3">
-          <Button color="primary" type="submit">
+          <Button
+            color="primary"
+            type="submit"
+            startContent={<MagnifyingGlassIcon className="h-5 w-5" />}
+          >
             Cari
           </Button>
-          <Tooltip content="Refresh" placement="bottom" closeDelay={0}>
+          <Tooltip content="Reset Filter" placement="top" closeDelay={0}>
             <Button
               isIconOnly
               variant="light"
@@ -108,7 +112,7 @@ export const ProductTableTopContent: React.FC<ProductTableTopContentProps> = ({
               className="text-default-500"
               aria-label="Reset Filter"
             >
-              <ArrowPathIcon className="h-5 w-5" />
+              <ArrowsRightLeftIcon className="h-5 w-5" />
             </Button>
           </Tooltip>
         </div>

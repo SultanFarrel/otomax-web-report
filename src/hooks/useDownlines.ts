@@ -103,17 +103,20 @@ export function useDownlines() {
   };
 
   const onSearchSubmit = useCallback(() => {
-    setSubmittedFilters(inputFilters);
     setPage(1);
-    refetch();
-  }, [inputFilters, refetch]);
+    // Cek apakah filter telah berubah.
+    if (JSON.stringify(inputFilters) === JSON.stringify(submittedFilters)) {
+      // Jika tidak ada perubahan, panggil refetch() secara manual.
+      refetch();
+    } else {
+      // Jika ada perubahan, perbarui state, yang akan memicu refetch otomatis.
+      setSubmittedFilters(inputFilters);
+    }
+  }, [inputFilters, submittedFilters, refetch]);
 
   const onResetFilters = useCallback(() => {
     setInputFilters(initialFilters);
-    setSubmittedFilters(initialFilters);
-    setPage(1);
-    refetch();
-  }, [refetch]);
+  }, [initialFilters]);
 
   const handlePageSizeChange = useCallback((size: number) => {
     setPageSize(size);

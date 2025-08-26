@@ -97,7 +97,7 @@ export default function BalanceMutationPage() {
       sortDescriptor={sortDescriptor}
       onSortChange={handleSortChange}
       classNames={{
-        wrapper: "max-h-[550px] overflow-y-auto p-0",
+        wrapper: "max-h-[480px] overflow-y-auto p-0",
       }}
     >
       <TableHeader columns={COLUMN_NAMES}>

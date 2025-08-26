@@ -13,7 +13,7 @@ import { Tooltip } from "@heroui/tooltip";
 import {
   ChevronDownIcon,
   MagnifyingGlassIcon,
-  ArrowPathIcon,
+  ArrowsRightLeftIcon,
 } from "@heroicons/react/24/outline";
 import { DownlineFilters } from "@/hooks/useDownlines";
 
@@ -100,9 +100,15 @@ export const DownlineTableTopContent: React.FC<
           >
             Cari
           </Button>
-          <Tooltip content="Refresh" placement="bottom" closeDelay={0}>
-            <Button isIconOnly variant="light" onPress={onResetFilters}>
-              <ArrowPathIcon className="h-5 w-5" />
+          <Tooltip content="Reset Filter" placement="top" closeDelay={0}>
+            <Button
+              isIconOnly
+              variant="light"
+              onPress={onResetFilters}
+              className="text-default-500"
+              aria-label="Reset Filter"
+            >
+              <ArrowsRightLeftIcon className="h-5 w-5" />
             </Button>
           </Tooltip>
         </div>

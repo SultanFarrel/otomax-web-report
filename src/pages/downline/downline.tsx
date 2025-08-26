@@ -97,7 +97,11 @@ export default function DownlinePage() {
                 column.uid === "komisi" ||
                 column.uid === "markup"
                   ? "end"
-                  : "center"
+                  : column.uid === "status" ||
+                      column.uid === "tgl_daftar" ||
+                      column.uid === "tgl_aktivitas"
+                    ? "center"
+                    : "start"
               }
             >
               {column.name}
