@@ -101,12 +101,12 @@ export type BalanceMutationApiResponse = {
 
 // Tipe data untuk ringkasan statistik
 interface DashboardStats {
-  total_sukses_today: number;
-  total_proses: number;
-  total_gagal_today: number;
-  harga_sukses_today: number;
-  harga_proses: number;
-  harga_gagal_today: number;
+  total_sukses: number;
+  total_pending: number;
+  total_gagal: number;
+  harga_sukses: number;
+  harga_pending: number;
+  harga_gagal: number;
 }
 
 // Tipe data untuk tren transaksi

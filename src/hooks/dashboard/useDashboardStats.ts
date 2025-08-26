@@ -13,8 +13,8 @@ const fetchDashboardStats = async (): Promise<StatsData> => {
   try {
     const { data } = await apiClient.get(`/transaksi/today_stats`);
 
-    if (data && typeof data.stats === "object" && data.stats !== null) {
-      return data.stats;
+    if (data && typeof data === "object" && data !== null) {
+      return data;
     }
 
     throw new Error("Format respons API tidak valid.");
