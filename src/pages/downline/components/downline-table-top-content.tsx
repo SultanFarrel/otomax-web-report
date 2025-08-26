@@ -1,5 +1,3 @@
-// sultanfarrel/otomax-web-report/otomax-web-report-new-api/src/pages/downline/components/downline-table-top-content.tsx
-
 import React from "react";
 import { STATUS_OPTIONS } from "../constants/downline-constants";
 import {
@@ -49,7 +47,7 @@ export const DownlineTableTopContent: React.FC<
         <div className="flex flex-wrap gap-3 items-end flex-grow">
           <Input
             isClearable
-            className="w-full sm:max-w-xs" // Tetapkan lebar maksimum untuk searchbox
+            className="w-full sm:max-w-xs"
             placeholder="Cari kode/nama downline..."
             startContent={<MagnifyingGlassIcon className="h-5 w-5" />}
             value={filters.search}
@@ -62,7 +60,7 @@ export const DownlineTableTopContent: React.FC<
               <Button
                 endContent={<ChevronDownIcon className="h-4 w-4" />}
                 variant="flat"
-                className="min-w-[120px] justify-between" // Jaga lebar minimum untuk dropdown
+                className="min-w-[120px] justify-between"
               >
                 {STATUS_OPTIONS.find((s) => s.uid === filters.status)?.name ||
                   "Status"}

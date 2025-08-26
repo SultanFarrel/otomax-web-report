@@ -1,5 +1,3 @@
-// sultanfarrel/otomax-web-report/otomax-web-report-new-api/src/pages/balance mutation/components/balance-mutation-table-top-content.tsx
-
 import React from "react";
 import { RangeValue } from "@react-types/shared";
 import { formatCurrency, formatDateRange } from "@/utils/formatters";

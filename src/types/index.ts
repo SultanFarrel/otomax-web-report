@@ -24,7 +24,7 @@ export type Product = {
 
 export type Transaction = {
   kode: number;
-  ref_id: string; // TAMBAHKAN properti ini
+  ref_id: string;
   tgl_entri: string;
   kode_produk: string;
   tujuan: string;
@@ -84,18 +84,18 @@ export type ProductApiResponse = {
 };
 
 export type TransactionApiResponse = {
-  rowCount: number; // GANTI dari totalItems menjadi rowCount
+  rowCount: number;
   data: Transaction[];
 };
 
 export interface DownlineApiResponse {
-  rowCount: number; // Ganti dari totalItems/properti lain menjadi rowCount
+  rowCount: number;
   data: Downline[];
 }
 
 export type BalanceMutationApiResponse = {
-  moreDataOffset: number; // TAMBAHKAN properti ini
-  rowCount: number; // GANTI dari totalItems/totalPages/currentPage
+  moreDataOffset: number;
+  rowCount: number;
   data: BalanceMutation[];
 };
 

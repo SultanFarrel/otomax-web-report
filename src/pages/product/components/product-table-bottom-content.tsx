@@ -1,4 +1,3 @@
-// sultanfarrel/otomax-web-report/otomax-web-report-new-api/src/pages/product/components/product-table-bottom-content.tsx
 import React from "react";
 import { Pagination } from "@heroui/pagination";
 import {

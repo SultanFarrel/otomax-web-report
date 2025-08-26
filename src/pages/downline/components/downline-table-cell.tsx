@@ -34,7 +34,6 @@ export const DownlineTableCell: React.FC<DownlineTableCellProps> = ({
       return <p className="text-sm">{formatCurrency(cellValue as number)}</p>;
 
     case "poin":
-      // Jika cellValue null atau undefined, tampilkan 0
       return <p className="text-sm">{cellValue || 0}</p>;
 
     case "tgl_daftar":

@@ -1,4 +1,3 @@
-// sultanfarrel/otomax-web-report/otomax-web-report-new-api/src/mocks/data/balanceMutations.ts
 const randomDate = (
   start = new Date(new Date().setMonth(new Date().getMonth() - 3)),
   end = new Date()

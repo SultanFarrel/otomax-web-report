@@ -1,4 +1,3 @@
-// sultanfarrel/otomax-web-report/otomax-web-report-new-api/src/pages/product/product-pages.tsx
 import React from "react";
 
 import { useProducts } from "@/hooks/useProducts";

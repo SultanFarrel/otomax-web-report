@@ -1,11 +1,8 @@
-// Berkas: sultanfarrel/otomax-web-report/otomax-web-report-new-api/src/hooks/useBalanceMutation.ts
-
 import { useCallback, useState, useMemo } from "react";
 import { RangeValue } from "@react-types/shared";
 import { useQuery } from "@tanstack/react-query";
 import { BalanceMutationApiResponse } from "@/types";
 import { apiClient } from "@/api/axios";
-// Hapus useUserStore karena tidak lagi dibutuhkan
 import { DateValue } from "@heroui/calendar";
 import { SortDescriptor } from "@heroui/table";
 import { today, getLocalTimeZone } from "@internationalized/date";
@@ -16,7 +13,6 @@ export interface BalanceMutationFilters {
   mutationTypes: string[];
 }
 
-// 1. Sesuaikan mutationTypeMap dengan kode baru
 const mutationTypeMap: Record<string, string[]> = {
   Manual: [" "],
   Transaksi: ["T"],
@@ -33,7 +29,6 @@ const fetchBalanceMutation = async ({
   filters: BalanceMutationFilters;
   sortDescriptor: SortDescriptor;
 }): Promise<BalanceMutationApiResponse> => {
-  // 2. Ganti endpoint
   const endpoint = "/mutasi";
 
   const mutationTypeChars = filters.mutationTypes.includes("Semua")
@@ -84,7 +79,6 @@ export function useBalanceMutation() {
     direction: "descending",
   });
 
-  // 3. Hapus user.kode dari queryKey
   const { data, isLoading, isError, refetch } = useQuery<
     BalanceMutationApiResponse,
     Error
@@ -137,13 +131,12 @@ export function useBalanceMutation() {
   const resetFilters = useCallback(() => {
     setInputFilters(initialFilters);
     setSortDescriptor({ column: "tanggal", direction: "descending" });
-    setSubmittedFilters(initialFilters); // Pastikan filter yang dikirim juga direset
+    setSubmittedFilters(initialFilters);
   }, [initialFilters]);
 
-  // 4. Gunakan data.rowCount untuk total, bukan data.data.length
   return {
     allFetchedItems: data?.data ?? [],
-    totalItems: data?.rowCount ?? 0, // Tambahkan ini untuk paginasi
+    totalItems: data?.rowCount ?? 0,
     mutationSummary,
     isLoading,
     isError,

@@ -1,8 +1,5 @@
-// Berkas: sultanfarrel/otomax-web-report/otomax-web-report-new-api/src/hooks/useProducts.ts
-
 import { useCallback, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-// Impor tipe baru
 import { ProductApiResponse, Product } from "@/types";
 import { apiClient } from "@/api/axios";
 import { SortDescriptor } from "@heroui/table";
@@ -12,7 +9,6 @@ export interface ProductFilters {
   status: string;
 }
 
-// Sesuaikan tipe kembalian fungsi
 const fetchProducts = async ({
   filters,
 }: {
@@ -52,7 +48,6 @@ export function useProducts() {
     direction: "ascending",
   });
 
-  // Gunakan tipe baru di useQuery
   const {
     data: response,
     refetch,
@@ -64,7 +59,7 @@ export function useProducts() {
     staleTime: 0,
   });
 
-  // Logika sorting tetap sama, tetapi sekarang bekerja pada data yang lebih sederhana
+  // Logika sorting
   const sortedData = useMemo(() => {
     const data = response?.data || [];
     if (!sortDescriptor.column) return data;

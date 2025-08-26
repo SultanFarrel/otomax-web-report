@@ -1,4 +1,3 @@
-// sultanfarrel/otomax-web-report/otomax-web-report-new-api/src/pages/downline/downline.tsx
 import React from "react";
 import {
   Table,

@@ -1,11 +1,8 @@
-// sultanfarrel/otomax-web-report/otomax-web-report-new-api/src/hooks/useDownlineTransactions.ts
-
 import { useCallback, useMemo, useState } from "react";
 import { RangeValue } from "@react-types/shared";
 import { useQuery } from "@tanstack/react-query";
 import { Transaction, TransactionApiResponse } from "@/types";
 import { apiClient } from "@/api/axios";
-// Hapus useUserStore karena tidak lagi dibutuhkan
 import { DateValue } from "@heroui/calendar";
 import { SortDescriptor } from "@heroui/table";
 import { today, getLocalTimeZone } from "@internationalized/date";
@@ -28,7 +25,6 @@ const fetchDownlineTransactions = async ({
   filters: DownlineTransactionFilters;
   sortDescriptor: SortDescriptor;
 }): Promise<TransactionApiResponse> => {
-  // 1. Ganti endpoint
   const endpoint = "/transaksi/downline";
 
   // Fungsi untuk memformat tanggal ke YYYY-MM-DD
@@ -89,7 +85,6 @@ export function useDownlineTransactions() {
     direction: "descending",
   });
 
-  // 2. Hapus user.kode dari queryKey dan dari parameter fetch
   const {
     data: response,
     refetch,
@@ -136,7 +131,6 @@ export function useDownlineTransactions() {
     return allItems.slice(start, end);
   }, [page, pageSize, response?.data]);
 
-  // 3. Gunakan response.rowCount untuk totalItems
   const totalItems = response?.rowCount || 0;
   const totalPages = Math.ceil(totalItems / pageSize);
 

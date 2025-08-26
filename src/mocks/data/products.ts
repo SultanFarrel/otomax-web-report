@@ -1,4 +1,3 @@
-// sultanfarrel/otomax-web-report/otomax-web-report-new-api/src/mocks/data/products.ts
 const operatorCodes = ["TSEL", "ISAT", "XL", "AXIS", "SMART"];
 const productTypes = ["Pulsa", "Data", "Token PLN", "Voucher Game", "e-Money"];
 

@@ -1,11 +1,8 @@
-// Berkas: sultanfarrel/otomax-web-report/otomax-web-report-new-api/src/hooks/useTransactions.ts
-
 import { useCallback, useMemo, useState } from "react";
 import { RangeValue } from "@react-types/shared";
 import { useQuery } from "@tanstack/react-query";
 import { TransactionApiResponse } from "@/types";
 import { apiClient } from "@/api/axios";
-// Hapus useUserStore karena tidak lagi dibutuhkan untuk endpoint ini
 import { DateValue } from "@heroui/calendar";
 import { SortDescriptor } from "@heroui/table";
 import { today, getLocalTimeZone } from "@internationalized/date";
@@ -26,7 +23,6 @@ const fetchTransactions = async ({
   filters: TransactionFilters;
   sortDescriptor: SortDescriptor;
 }): Promise<TransactionApiResponse> => {
-  // 1. Ganti endpoint
   const endpoint = "/transaksi";
 
   // Konversi format tanggal ke YYYY-MM-DD
@@ -83,7 +79,6 @@ export function useTransactions() {
     direction: "descending",
   });
 
-  // 2. Hapus user.kode dari queryKey
   const {
     data: response,
     refetch,
@@ -130,7 +125,6 @@ export function useTransactions() {
     return allItems.slice(start, end);
   }, [page, pageSize, response?.data]);
 
-  // 3. Gunakan response.rowCount untuk totalItems
   const totalItems = response?.rowCount || 0;
   const totalPages = Math.ceil(totalItems / pageSize);
 
@@ -159,13 +153,11 @@ export function useTransactions() {
     setInputFilters(initialFilters);
     setSortDescriptor({ column: "tgl_entri", direction: "descending" });
     setPageSize(30);
-    // Langsung submit filter yang sudah direset
     setSubmittedFilters(initialFilters);
   }, [initialFilters]);
 
   const dataForComponent = useMemo(
     () => ({
-      // Ubah nama properti di sini
       data: paginatedData,
       totalItems: totalItems,
       totalPages: totalPages,

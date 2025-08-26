@@ -1,4 +1,3 @@
-// sultanfarrel/otomax-web-report/otomax-web-report-new-api/src/pages/product/components/product-table-top-content.tsx
 import React from "react";
 import { STATUS_OPTIONS } from "../constants/product-constants";
 import {
@@ -15,7 +14,7 @@ import {
   MagnifyingGlassIcon,
   ArrowsRightLeftIcon,
 } from "@heroicons/react/24/outline";
-import { ProductFilters } from "@/hooks/useProducts"; // Impor tipe ProductFilters
+import { ProductFilters } from "@/hooks/useProducts";
 
 interface ProductTableTopContentProps {
   filters: ProductFilters;

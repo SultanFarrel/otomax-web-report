@@ -1,4 +1,3 @@
-// sultanfarrel/otomax-web-report/otomax-web-report-new-api/src/mocks/handlers.ts
 import { http, HttpResponse } from "msw";
 import { allDownlines } from "./data/downlines";
 import {

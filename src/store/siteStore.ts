@@ -1,9 +1,7 @@
-// Berkas: src/store/siteStore.ts
-
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { apiClient } from "@/api/axios";
-import { SiteInfo } from "@/types"; // Pastikan tipe SiteInfo ada di types/index.ts
+import { SiteInfo } from "@/types";
 
 interface SiteState {
   siteInfo: SiteInfo | null;

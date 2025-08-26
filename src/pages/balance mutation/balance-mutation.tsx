@@ -1,5 +1,3 @@
-// sultanfarrel/otomax-web-report/otomax-web-report-new-api/src/pages/balance mutation/balance-mutation.tsx
-
 import { useState, useMemo, useCallback } from "react";
 import { useBalanceMutation } from "@/hooks/useBalanceMutation";
 import { COLUMN_NAMES } from "./constants/balance-mutation-constants";
