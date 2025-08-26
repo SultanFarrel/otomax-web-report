@@ -1,4 +1,5 @@
 // sultanfarrel/otomax-web-report/otomax-web-report-new-api/src/pages/downline/components/downline-table-top-content.tsx
+
 import React from "react";
 import { STATUS_OPTIONS } from "../constants/downline-constants";
 import {
@@ -44,31 +45,24 @@ export const DownlineTableTopContent: React.FC<
     >
       <div className="flex flex-wrap justify-between gap-3 items-end">
         {/* Grup Kiri: Semua filter */}
-        <div className="flex flex-wrap gap-3 items-end">
+        {/* Tambahkan `items-end` dan `flex-grow-0` di sini untuk kontrol yang lebih baik */}
+        <div className="flex flex-wrap gap-3 items-end flex-grow">
           <Input
-            className="w-full sm:max-w-[150px]"
-            placeholder="Kode Agen..."
-            value={filters.kode}
-            onValueChange={(v) => onFilterChange("kode", v)}
+            isClearable
+            className="w-full sm:max-w-xs" // Tetapkan lebar maksimum untuk searchbox
+            placeholder="Cari kode/nama downline..."
+            startContent={<MagnifyingGlassIcon className="h-5 w-5" />}
+            value={filters.search}
+            onClear={() => onFilterChange("search", "")}
+            onValueChange={(v) => onFilterChange("search", v)}
           />
-          <Input
-            className="w-full sm:max-w-[150px]"
-            placeholder="Nama Agen..."
-            value={filters.nama}
-            onValueChange={(v) => onFilterChange("nama", v)}
-          />
-          <Input
-            className="w-full sm:max-w-[150px]"
-            placeholder="Kode Upline..."
-            value={filters.kode_upline}
-            onValueChange={(v) => onFilterChange("kode_upline", v)}
-          />
+
           <Dropdown>
             <DropdownTrigger>
               <Button
                 endContent={<ChevronDownIcon className="h-4 w-4" />}
                 variant="flat"
-                className="min-w-[120px] justify-between"
+                className="min-w-[120px] justify-between" // Jaga lebar minimum untuk dropdown
               >
                 {STATUS_OPTIONS.find((s) => s.uid === filters.status)?.name ||
                   "Status"}
@@ -91,8 +85,8 @@ export const DownlineTableTopContent: React.FC<
           </Dropdown>
         </div>
 
-        {/* Grup Kanan: Tombol Aksi */}
-        <div className="flex gap-3">
+        {/* Grup Kanan: Tombol Aksi (Tetap Sama) */}
+        <div className="flex gap-3 items-end">
           <Button
             color="primary"
             type="submit"

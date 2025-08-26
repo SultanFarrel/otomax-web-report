@@ -116,7 +116,7 @@ export default function TransactionPage() {
                 align={
                   column.uid === "actions" ||
                   column.uid === "kode" ||
-                  column.uid === "refid" ||
+                  column.uid === "ref_id" ||
                   column.uid === "harga"
                     ? "end"
                     : column.uid === "status" ||

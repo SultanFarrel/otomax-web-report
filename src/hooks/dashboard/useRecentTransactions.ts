@@ -14,8 +14,8 @@ const fetchRecentTransactions = async (): Promise<RecentTransactionsData> => {
   try {
     const { data } = await apiClient.get(`/transaksi/recent`);
     // Cek apakah data yang diterima adalah array
-    if (Array.isArray(data.recentTransactions)) {
-      return data;
+    if (Array.isArray(data)) {
+      return { recentTransactions: data };
     }
 
     // Jika bukan array, mungkin ini adalah objek error dari server.

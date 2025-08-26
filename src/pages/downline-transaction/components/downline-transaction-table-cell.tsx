@@ -19,6 +19,7 @@ const DownlineTransactionTableCell: React.FC<
 
   switch (columnKey) {
     case "kode":
+    case "ref_id":
       return <p className="text-sm font-mono">{cellValue}</p>;
     case "tgl_entri":
     case "tgl_status":

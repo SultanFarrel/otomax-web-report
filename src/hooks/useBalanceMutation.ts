@@ -1,11 +1,11 @@
-// sultanfarrel/otomax-web-report/otomax-web-report-new-api/src/hooks/useBalanceMutation.ts
+// Berkas: sultanfarrel/otomax-web-report/otomax-web-report-new-api/src/hooks/useBalanceMutation.ts
 
 import { useCallback, useState, useMemo } from "react";
 import { RangeValue } from "@react-types/shared";
 import { useQuery } from "@tanstack/react-query";
 import { BalanceMutationApiResponse } from "@/types";
 import { apiClient } from "@/api/axios";
-import { useUserStore } from "@/store/userStore";
+// Hapus useUserStore karena tidak lagi dibutuhkan
 import { DateValue } from "@heroui/calendar";
 import { SortDescriptor } from "@heroui/table";
 import { today, getLocalTimeZone } from "@internationalized/date";
@@ -16,6 +16,7 @@ export interface BalanceMutationFilters {
   mutationTypes: string[];
 }
 
+// 1. Sesuaikan mutationTypeMap dengan kode baru
 const mutationTypeMap: Record<string, string[]> = {
   Manual: [" "],
   Transaksi: ["T"],
@@ -26,51 +27,45 @@ const mutationTypeMap: Record<string, string[]> = {
 };
 
 const fetchBalanceMutation = async ({
-  kode,
   filters,
   sortDescriptor,
 }: {
-  kode: string;
   filters: BalanceMutationFilters;
   sortDescriptor: SortDescriptor;
 }): Promise<BalanceMutationApiResponse> => {
-  const endpoint = `/mutasi/reseller/${kode}`;
+  // 2. Ganti endpoint
+  const endpoint = "/mutasi";
 
-  // Flatten the mutation types from the map
-  const mutationTypeChars = filters.mutationTypes
-    .flatMap((type) => mutationTypeMap[type] || [])
-    .join(",");
+  const mutationTypeChars = filters.mutationTypes.includes("Semua")
+    ? undefined // Jangan kirim parameter jika "Semua" dipilih
+    : filters.mutationTypes
+        .flatMap((type) => mutationTypeMap[type] || [])
+        .join(",");
+
+  // Fungsi untuk memformat tanggal ke YYYY-MM-DD
+  const formatDate = (date: DateValue | undefined) => {
+    return date ? date.toString().split("T")[0] : undefined;
+  };
 
   const params: any = {
     search: filters.search || undefined,
     sortBy: sortDescriptor.column as string,
     sortDirection: sortDescriptor.direction,
     mutationTypes: mutationTypeChars,
+    startDate: formatDate(filters.dateRange?.start),
+    endDate: formatDate(filters.dateRange?.end),
   };
 
-  // --- LOGIKA BARU UNTUK PENANGANAN ZONA WAKTU ---
-  if (filters.dateRange?.start && filters.dateRange?.end) {
-    const startDate = filters.dateRange.start.toDate(getLocalTimeZone());
-    startDate.setHours(0, 0, 0, 0);
-    params.startDate = startDate.toISOString();
-
-    const endDate = filters.dateRange.end.toDate(getLocalTimeZone());
-    endDate.setHours(23, 59, 59, 999);
-    params.endDate = endDate.toISOString();
-  }
-  // ---------------------------------------------
-
-  Object.keys(params).forEach((key) => {
-    if (params[key] === undefined || params[key] === "") delete params[key];
-  });
+  Object.keys(params).forEach(
+    (key) =>
+      (params[key] === undefined || params[key] === "") && delete params[key]
+  );
 
   const { data } = await apiClient.get(endpoint, { params });
   return data;
 };
 
 export function useBalanceMutation() {
-  const user = useUserStore((state) => state.user);
-
   const initialFilters: BalanceMutationFilters = {
     search: "",
     dateRange: {
@@ -89,19 +84,18 @@ export function useBalanceMutation() {
     direction: "descending",
   });
 
+  // 3. Hapus user.kode dari queryKey
   const { data, isLoading, isError, refetch } = useQuery<
     BalanceMutationApiResponse,
     Error
   >({
-    queryKey: ["balanceMutation", user?.kode, submittedFilters, sortDescriptor],
+    queryKey: ["balanceMutation", submittedFilters, sortDescriptor],
     queryFn: () =>
       fetchBalanceMutation({
-        kode: user!.kode,
         filters: submittedFilters,
         sortDescriptor,
       }),
-    enabled: !!user?.kode,
-    staleTime: 0, // Tanpa cache
+    staleTime: 0,
   });
 
   const mutationSummary = useMemo(() => {
@@ -133,12 +127,9 @@ export function useBalanceMutation() {
   };
 
   const onSearchSubmit = useCallback(() => {
-    // Cek apakah filter telah berubah.
     if (JSON.stringify(inputFilters) === JSON.stringify(submittedFilters)) {
-      // Jika tidak ada perubahan, panggil refetch() secara manual.
       refetch();
     } else {
-      // Jika ada perubahan, perbarui state, yang akan memicu refetch otomatis.
       setSubmittedFilters(inputFilters);
     }
   }, [inputFilters, submittedFilters, refetch]);
@@ -146,10 +137,13 @@ export function useBalanceMutation() {
   const resetFilters = useCallback(() => {
     setInputFilters(initialFilters);
     setSortDescriptor({ column: "tanggal", direction: "descending" });
+    setSubmittedFilters(initialFilters); // Pastikan filter yang dikirim juga direset
   }, [initialFilters]);
 
+  // 4. Gunakan data.rowCount untuk total, bukan data.data.length
   return {
     allFetchedItems: data?.data ?? [],
+    totalItems: data?.rowCount ?? 0, // Tambahkan ini untuk paginasi
     mutationSummary,
     isLoading,
     isError,

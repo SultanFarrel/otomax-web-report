@@ -20,6 +20,7 @@ import { SortDescriptor } from "@heroui/table";
 export default function BalanceMutationPage() {
   const {
     allFetchedItems,
+    totalItems,
     mutationSummary,
     isLoading,
     isError,
@@ -34,7 +35,7 @@ export default function BalanceMutationPage() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
 
-  const pages = Math.ceil(allFetchedItems.length / pageSize);
+  const pages = Math.ceil(totalItems / pageSize);
 
   const itemsToDisplay = useMemo(() => {
     const start = (page - 1) * pageSize;
@@ -55,7 +56,7 @@ export default function BalanceMutationPage() {
         onFilterChange={handleFilterChange}
         onSearchSubmit={onSearchSubmit}
         onResetFilters={resetFilters}
-        totalItems={allFetchedItems.length}
+        totalItems={totalItems}
         summary={mutationSummary}
       />
     ),
@@ -64,7 +65,7 @@ export default function BalanceMutationPage() {
       handleFilterChange,
       onSearchSubmit,
       resetFilters,
-      allFetchedItems.length,
+      totalItems,
       mutationSummary,
     ]
   );

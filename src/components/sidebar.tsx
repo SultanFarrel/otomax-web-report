@@ -28,6 +28,7 @@ import {
 import { MoreHorizontalIcon, ChevronLeftIcon } from "@/components/icons";
 import { useAuthStore } from "@/store/authStore";
 import { useUserStore } from "@/store/userStore";
+import { useSiteStore } from "@/store/siteStore";
 
 interface SidebarProps {
   isCollapsed?: boolean;
@@ -40,6 +41,7 @@ export const SidebarContent = ({
   onNavItemClick,
 }: SidebarProps) => {
   const user = useUserStore((state) => state.user);
+  const siteInfo = useSiteStore((state) => state.siteInfo);
   const logout = useAuthStore((state) => state.logout);
 
   const iconMap: { [key: string]: React.ElementType } = {
@@ -64,7 +66,7 @@ export const SidebarContent = ({
           <Link className="flex items-center gap-3" color="foreground" href="/">
             <p className="font-bold text-inherit text-2xl">
               {/* .kode ganti jadi .judul jika sudah ada */}
-              {user?.kode || "Web Report"}
+              {siteInfo?.judul || "Web Report"}
             </p>
           </Link>
         )}

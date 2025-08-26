@@ -1,49 +1,48 @@
 // sultanfarrel/otomax-web-report/otomax-web-report-new-api/src/hooks/useDownlines.ts
+
 import { useState, useCallback, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useUserStore } from "@/store/userStore";
 import { apiClient } from "@/api/axios";
-import { Downline, DownlineApiResponse } from "@/types";
+import { Downline, DownlineApiResponse } from "@/types"; // Pastikan DownlineApiResponse di types/index.ts sudah sesuai
 import { SortDescriptor } from "@heroui/table";
 
-// 1. Definisikan interface untuk filter yang lebih spesifik
+// 1. Definisikan interface filter yang lebih sederhana
 export interface DownlineFilters {
-  kode: string;
-  nama: string;
-  kode_upline: string;
+  search: string;
   status: string;
 }
 
+// 2. Perbarui fungsi fetchDownlines
 const fetchDownlines = async (
-  uplineKode: string,
   filters: DownlineFilters
 ): Promise<DownlineApiResponse> => {
-  // 2. Sesuaikan params untuk dikirim ke API
+  // Ganti endpoint ke /reseller/downline
+  const endpoint = "/reseller/downline";
+
   const params: any = {
-    kode: filters.kode || undefined,
-    nama: filters.nama || undefined,
-    kode_upline: filters.kode_upline || undefined,
+    search: filters.search || undefined,
     status: filters.status !== "all" ? filters.status : undefined,
   };
 
-  const { data } = await apiClient.get(`/reseller/upline/${uplineKode}`, {
-    params,
-  });
+  // Hapus parameter kosong
+  Object.keys(params).forEach(
+    (key) => params[key] === undefined && delete params[key]
+  );
+
+  const { data } = await apiClient.get(endpoint, { params });
   return data;
 };
 
 export function useDownlines() {
-  const user = useUserStore((state) => state.user);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  // 3. Inisialisasi filter baru
+  // 3. Inisialisasi filter baru yang lebih sederhana
   const initialFilters: DownlineFilters = {
-    kode: "",
-    nama: "",
-    kode_upline: "",
+    search: "",
     status: "all",
   };
+
   const [inputFilters, setInputFilters] =
     useState<DownlineFilters>(initialFilters);
   const [submittedFilters, setSubmittedFilters] =
@@ -54,18 +53,20 @@ export function useDownlines() {
     direction: "ascending",
   });
 
+  // 4. Sesuaikan useQuery
   const {
     data: response,
     isLoading,
     isError,
     refetch,
   } = useQuery<DownlineApiResponse, Error>({
-    queryKey: ["downlines", user?.kode, submittedFilters],
-    queryFn: () => fetchDownlines(user!.kode, submittedFilters),
-    enabled: !!user?.kode,
+    // Hapus user.kode dari queryKey karena endpoint tidak lagi spesifik per user
+    queryKey: ["downlines", submittedFilters],
+    queryFn: () => fetchDownlines(submittedFilters),
+    staleTime: 0, // Tanpa cache
   });
 
-  // Logika sorting tetap di client-side
+  // Logika sorting tetap di sisi klien
   const sortedData = useMemo(() => {
     const data = response?.data || [];
     if (!sortDescriptor.column) return data;
@@ -77,8 +78,8 @@ export function useDownlines() {
       if (first == null || second == null) return 0;
 
       let cmp =
-        (parseInt(first as string) || first) <
-        (parseInt(second as string) || second)
+        (String(first).toLowerCase() || first) <
+        (String(second).toLowerCase() || second)
           ? -1
           : 1;
 
@@ -89,14 +90,16 @@ export function useDownlines() {
     });
   }, [response?.data, sortDescriptor]);
 
-  // Logika paginasi tetap di client-side
+  // Logika paginasi tetap di sisi klien
   const paginatedData = useMemo(() => {
     const start = (page - 1) * pageSize;
     const end = start + pageSize;
     return sortedData.slice(start, end);
   }, [page, pageSize, sortedData]);
 
-  const totalPages = Math.ceil(sortedData.length / pageSize);
+  // 5. Gunakan rowCount dari API untuk total item dan paginasi
+  const totalItems = response?.rowCount || 0;
+  const totalPages = Math.ceil(totalItems / pageSize);
 
   const handleFilterChange = (field: keyof DownlineFilters, value: any) => {
     setInputFilters((prev) => ({ ...prev, [field]: value }));
@@ -104,18 +107,16 @@ export function useDownlines() {
 
   const onSearchSubmit = useCallback(() => {
     setPage(1);
-    // Cek apakah filter telah berubah.
     if (JSON.stringify(inputFilters) === JSON.stringify(submittedFilters)) {
-      // Jika tidak ada perubahan, panggil refetch() secara manual.
       refetch();
     } else {
-      // Jika ada perubahan, perbarui state, yang akan memicu refetch otomatis.
       setSubmittedFilters(inputFilters);
     }
   }, [inputFilters, submittedFilters, refetch]);
 
   const onResetFilters = useCallback(() => {
     setInputFilters(initialFilters);
+    setSubmittedFilters(initialFilters); // Pastikan filter yang dikirim juga direset
   }, [initialFilters]);
 
   const handlePageSizeChange = useCallback((size: number) => {
@@ -127,7 +128,7 @@ export function useDownlines() {
     data: {
       data: paginatedData,
       totalPages,
-      totalItems: sortedData.length,
+      totalItems,
     },
     isLoading,
     isError,

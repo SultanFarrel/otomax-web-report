@@ -9,9 +9,9 @@ interface ApiError {
 }
 type StatsData = Pick<DashboardData, "stats">["stats"];
 
-const fetchDashboardStats = async (kodeUpline: string): Promise<StatsData> => {
+const fetchDashboardStats = async (): Promise<StatsData> => {
   try {
-    const { data } = await apiClient.get(`/dashboard/summary/${kodeUpline}`);
+    const { data } = await apiClient.get(`/transaksi/today_stats`);
 
     if (data && typeof data.stats === "object" && data.stats !== null) {
       return data.stats;
@@ -34,7 +34,7 @@ export function useDashboardStats() {
 
   return useQuery<StatsData, Error>({
     queryKey: ["dashboardStats", user?.kode],
-    queryFn: () => fetchDashboardStats(user!.kode),
+    queryFn: () => fetchDashboardStats(),
     enabled: !!user?.kode,
     staleTime: 0, // Tanpa cache
   });

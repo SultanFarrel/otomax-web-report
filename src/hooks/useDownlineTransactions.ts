@@ -1,10 +1,11 @@
 // sultanfarrel/otomax-web-report/otomax-web-report-new-api/src/hooks/useDownlineTransactions.ts
+
 import { useCallback, useMemo, useState } from "react";
 import { RangeValue } from "@react-types/shared";
 import { useQuery } from "@tanstack/react-query";
 import { Transaction, TransactionApiResponse } from "@/types";
 import { apiClient } from "@/api/axios";
-import { useUserStore } from "@/store/userStore";
+// Hapus useUserStore karena tidak lagi dibutuhkan
 import { DateValue } from "@heroui/calendar";
 import { SortDescriptor } from "@heroui/table";
 import { today, getLocalTimeZone } from "@internationalized/date";
@@ -21,15 +22,19 @@ export interface DownlineTransactionFilters {
 }
 
 const fetchDownlineTransactions = async ({
-  uplineKode,
   filters,
   sortDescriptor,
 }: {
-  uplineKode: string;
   filters: DownlineTransactionFilters;
   sortDescriptor: SortDescriptor;
 }): Promise<TransactionApiResponse> => {
-  const endpoint = `/transaksi/upline/${uplineKode}`;
+  // 1. Ganti endpoint
+  const endpoint = "/transaksi/downline";
+
+  // Fungsi untuk memformat tanggal ke YYYY-MM-DD
+  const formatDate = (date: DateValue | undefined) => {
+    return date ? date.toString().split("T")[0] : undefined;
+  };
 
   const params: any = {
     trxId: filters.trxId || undefined,
@@ -38,33 +43,26 @@ const fetchDownlineTransactions = async ({
     tujuan: filters.tujuan || undefined,
     sn: filters.sn || undefined,
     kodeReseller: filters.kodeReseller || undefined,
-    startDate: filters.dateRange?.start?.toString(),
-    endDate: filters.dateRange?.end?.toString(),
+    startDate: formatDate(filters.dateRange?.start),
+    endDate: formatDate(filters.dateRange?.end),
     sortBy: sortDescriptor.column as string,
     sortDirection: sortDescriptor.direction,
   };
 
-  // --- LOGIKA BARU UNTUK FILTER STATUS ---
   if (filters.status && filters.status !== "all") {
-    if (filters.status === "2") {
-      // "2" adalah UID untuk "Menunggu Jawaban"
-      params.status_lt = 20; // Mengirim parameter kustom `status_lt`
-    } else {
-      params.status = filters.status;
-    }
+    params.status = filters.status;
   }
-  // -----------------------------------------
 
-  Object.keys(params).forEach((key) => {
-    if (params[key] === undefined || params[key] === "") delete params[key];
-  });
+  Object.keys(params).forEach(
+    (key) =>
+      (params[key] === undefined || params[key] === "") && delete params[key]
+  );
 
   const { data } = await apiClient.get(endpoint, { params });
   return data;
 };
 
 export function useDownlineTransactions() {
-  const user = useUserStore((state) => state.user);
   const [pageSize, setPageSize] = useState(30);
 
   const initialFilters: DownlineTransactionFilters = {
@@ -91,26 +89,20 @@ export function useDownlineTransactions() {
     direction: "descending",
   });
 
+  // 2. Hapus user.kode dari queryKey dan dari parameter fetch
   const {
     data: response,
     refetch,
     isLoading,
     isError,
   } = useQuery<TransactionApiResponse, Error>({
-    queryKey: [
-      "downlineTransactions",
-      user?.kode,
-      submittedFilters,
-      sortDescriptor,
-    ],
+    queryKey: ["downlineTransactions", submittedFilters, sortDescriptor],
     queryFn: () =>
       fetchDownlineTransactions({
-        uplineKode: user!.kode,
         filters: submittedFilters,
         sortDescriptor,
       }),
-    enabled: !!user?.kode,
-    staleTime: 0, // Tanpa cache
+    staleTime: 0,
   });
 
   const transactionSummary = useMemo(() => {
@@ -126,7 +118,6 @@ export function useDownlineTransactions() {
         summary.success.amount += trx.harga;
         summary.success.count++;
       } else if (trx.status < 20) {
-        // Diubah untuk mencakup semua status di bawah 20
         summary.pending.amount += trx.harga;
         summary.pending.count++;
       } else {
@@ -138,7 +129,6 @@ export function useDownlineTransactions() {
     return summary;
   }, [response?.data]);
 
-  // LOGIKA PAGINASI DI SISI KLIEN
   const paginatedData = useMemo(() => {
     const allItems = response?.data || [];
     const start = (page - 1) * pageSize;
@@ -146,7 +136,8 @@ export function useDownlineTransactions() {
     return allItems.slice(start, end);
   }, [page, pageSize, response?.data]);
 
-  const totalItems = response?.data?.length || 0;
+  // 3. Gunakan response.rowCount untuk totalItems
+  const totalItems = response?.rowCount || 0;
   const totalPages = Math.ceil(totalItems / pageSize);
 
   const handleFilterChange = (
@@ -163,12 +154,9 @@ export function useDownlineTransactions() {
 
   const onSearchSubmit = useCallback(() => {
     setPage(1);
-    // Cek apakah filter telah berubah.
     if (JSON.stringify(inputFilters) === JSON.stringify(submittedFilters)) {
-      // Jika tidak ada perubahan, panggil refetch() secara manual.
       refetch();
     } else {
-      // Jika ada perubahan, perbarui state, yang akan memicu refetch otomatis.
       setSubmittedFilters(inputFilters);
     }
   }, [inputFilters, submittedFilters, refetch]);
@@ -177,6 +165,7 @@ export function useDownlineTransactions() {
     setInputFilters(initialFilters);
     setSortDescriptor({ column: "tgl_entri", direction: "descending" });
     setPageSize(30);
+    setSubmittedFilters(initialFilters);
   }, [initialFilters]);
 
   const dataForComponent = useMemo(

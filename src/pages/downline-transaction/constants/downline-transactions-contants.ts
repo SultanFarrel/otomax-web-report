@@ -3,7 +3,7 @@ import { ChipProps } from "@heroui/chip";
 // LIST TABLE COLUMNS
 const COLUMN_NAMES = [
   { name: "TRX ID", uid: "kode" },
-  { name: "REFF ID", uid: "refid" },
+  { name: "REFF ID", uid: "ref_id" },
   { name: "TGL TRX", uid: "tgl_entri" },
   { name: "AGEN", uid: "kode_reseller" },
   { name: "PRODUK", uid: "kode_produk" },

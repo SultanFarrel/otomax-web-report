@@ -1,6 +1,9 @@
+// Berkas: sultanfarrel/otomax-web-report/otomax-web-report-new-api/src/hooks/useProducts.ts
+
 import { useCallback, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ApiResponse, Product } from "@/types";
+// Impor tipe baru
+import { ProductApiResponse, Product } from "@/types";
 import { apiClient } from "@/api/axios";
 import { SortDescriptor } from "@heroui/table";
 
@@ -9,11 +12,12 @@ export interface ProductFilters {
   status: string;
 }
 
+// Sesuaikan tipe kembalian fungsi
 const fetchProducts = async ({
   filters,
 }: {
   filters: ProductFilters;
-}): Promise<ApiResponse> => {
+}): Promise<ProductApiResponse> => {
   const endpoint = "/produk";
 
   const params: any = {
@@ -21,12 +25,12 @@ const fetchProducts = async ({
     status: filters.status !== "all" ? filters.status : undefined,
   };
 
-  Object.keys(params).forEach((key) => {
-    if (params[key] === undefined || params[key] === "") delete params[key];
-  });
+  Object.keys(params).forEach(
+    (key) =>
+      (params[key] === undefined || params[key] === "") && delete params[key]
+  );
 
   const { data } = await apiClient.get(endpoint, { params });
-
   return data;
 };
 
@@ -48,18 +52,19 @@ export function useProducts() {
     direction: "ascending",
   });
 
+  // Gunakan tipe baru di useQuery
   const {
     data: response,
     refetch,
     isLoading,
     isError,
-  } = useQuery<ApiResponse, Error>({
+  } = useQuery<ProductApiResponse, Error>({
     queryKey: ["products", submittedFilters],
     queryFn: () => fetchProducts({ filters: submittedFilters }),
-    staleTime: 0, // Tanpa cache
+    staleTime: 0,
   });
 
-  // Logika sorting di sisi klien
+  // Logika sorting tetap sama, tetapi sekarang bekerja pada data yang lebih sederhana
   const sortedData = useMemo(() => {
     const data = response?.data || [];
     if (!sortDescriptor.column) return data;
@@ -69,9 +74,9 @@ export function useProducts() {
       const second = b[sortDescriptor.column as keyof Product];
       let cmp = 0;
 
-      if (first < second) {
+      if (first! < second!) {
         cmp = -1;
-      } else if (first > second) {
+      } else if (first! > second!) {
         cmp = 1;
       }
 
@@ -82,15 +87,14 @@ export function useProducts() {
     });
   }, [response?.data, sortDescriptor]);
 
-  // Logika paginasi di sisi klien
   const paginatedData = useMemo(() => {
     const start = (page - 1) * pageSize;
     const end = start + pageSize;
-
     return sortedData.slice(start, end);
   }, [page, pageSize, sortedData]);
 
-  const totalItems = response?.data?.length || 0;
+  // Gunakan rowCount dari API untuk totalItems
+  const totalItems = response?.rowCount || 0;
   const totalPages = Math.ceil(totalItems / pageSize);
 
   const handleFilterChange = (field: keyof ProductFilters, value: any) => {
@@ -104,15 +108,9 @@ export function useProducts() {
 
   const onSearchSubmit = useCallback(() => {
     setPage(1);
-
-    if (
-      inputFilters.search === submittedFilters.search &&
-      inputFilters.status === submittedFilters.status
-    ) {
-      // Jika tidak ada perubahan, panggil refetch() secara manual.
+    if (JSON.stringify(inputFilters) === JSON.stringify(submittedFilters)) {
       refetch();
     } else {
-      // Jika ada perubahan, perbarui state, yang akan memicu refetch otomatis.
       setSubmittedFilters(inputFilters);
     }
   }, [inputFilters, submittedFilters, refetch]);
@@ -121,6 +119,7 @@ export function useProducts() {
     setInputFilters(initialFilters);
     setSortDescriptor({ column: "kode", direction: "ascending" });
     setPageSize(10);
+    setSubmittedFilters(initialFilters);
   }, [initialFilters]);
 
   const dataForComponent = useMemo(

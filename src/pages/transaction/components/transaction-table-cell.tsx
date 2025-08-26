@@ -25,7 +25,7 @@ const TransactionTableCellComponent: React.FC<TransactionTableCellProps> = ({
 
   switch (columnKey) {
     case "kode":
-    case "refid":
+    case "ref_id":
       return <p className="text-sm font-mono">{cellValue}</p>;
     case "tgl_entri":
     case "tgl_status":

@@ -14,8 +14,9 @@ const fetchRecentMutations = async (): Promise<RecentMutationsData> => {
   try {
     const { data } = await apiClient.get("/mutasi/recent");
     // Cek apakah data yang diterima adalah array
-    if (Array.isArray(data.recentMutasi)) {
-      return data;
+    if (Array.isArray(data)) {
+      // Jika ya, bungkus ke dalam format yang diharapkan oleh komponen.
+      return { recentMutasi: data };
     }
 
     // Jika bukan array, mungkin ini adalah objek error dari server.

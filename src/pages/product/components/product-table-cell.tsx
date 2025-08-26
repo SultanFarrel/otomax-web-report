@@ -1,17 +1,17 @@
-import React from "react";
+// Berkas: sultanfarrel/otomax-web-report/otomax-web-report-new-api/src/pages/product/components/product-table-cell.tsx
 
+import React from "react";
 import { Product } from "@/types";
 import { formatCurrency } from "@/utils/formatters";
-
 import { STATUS_COLORS } from "../constants/product-constants";
-
 import { Chip } from "@heroui/chip";
 
+// Logika status disederhanakan
 const getProductStatus = (product: Product): string => {
   if (product.gangguan) return "Gangguan";
   if (product.kosong) return "Kosong";
-  if (product.aktif) return "Aktif";
-  return "Tidak Aktif";
+  // Asumsi default adalah "Aktif" jika tidak ada gangguan atau kosong
+  return "Aktif";
 };
 
 interface ProductTableCellProps {
@@ -29,16 +29,14 @@ export const ProductTableCell: React.FC<ProductTableCellProps> = ({
     case "nama":
       return (
         <div>
-          <p className="font-bold text-sm">{cellValue}</p>
-          <p className="text-xs text-default-500">{product.kode_operator}</p>
+          {/* Hapus `kode_operator` karena sudah tidak ada */}
+          <p className="font-bold text-sm">{cellValue as string}</p>
         </div>
       );
     case "harga_jual":
-      return (
-        <p className="text-sm"> {formatCurrency(product.harga_jual_final)}</p>
-      );
-    case "harga_beli":
+      // Gunakan `harga_jual` langsung
       return <p className="text-sm"> {formatCurrency(cellValue as number)}</p>;
+    // Hapus case untuk `harga_beli`
 
     case "status": {
       const statusText = getProductStatus(product);
@@ -54,6 +52,6 @@ export const ProductTableCell: React.FC<ProductTableCellProps> = ({
       );
     }
     default:
-      return <p className="text-sm"> {cellValue}</p>;
+      return <p className="text-sm"> {cellValue as string}</p>;
   }
 };

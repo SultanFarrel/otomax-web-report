@@ -14,17 +14,20 @@ import TransaksiDownlinePage from "@/pages/downline-transaction/downline-transac
 import SessionExpiredPage from "./pages/errors/session-expired";
 import { useUserStore } from "./store/userStore";
 import GenericErrorPage from "./pages/errors/generic-error";
+import { useSiteStore } from "./store/siteStore";
 
 function App() {
   const { user, fetchUserData } = useUserStore();
+  const { siteInfo, fetchSiteInfo } = useSiteStore();
 
   useEffect(() => {
     fetchUserData();
-  }, [fetchUserData]);
+    fetchSiteInfo();
+  }, [fetchUserData, fetchSiteInfo]);
 
   useEffect(() => {
-    if (user?.kode) {
-      document.title = `Web Report - ${user.kode}`;
+    if (user?.kode && siteInfo?.judul) {
+      document.title = `Web Report - ${siteInfo.judul}`;
     }
   }, [user]);
 

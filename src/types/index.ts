@@ -5,16 +5,6 @@ export type IconSvgProps = SVGProps<SVGSVGElement> & {
 };
 
 export interface SiteInfo {
-  kode: string;
-  nama: string;
-  saldo: number;
-  alamat: string;
-  aktif: number;
-  kode_upline: string | null;
-  kode_level: string;
-  tgl_daftar: string;
-  saldo_minimal: number;
-  pengingat_saldo: number;
   judul: string;
 }
 
@@ -22,36 +12,33 @@ export type Product = {
   kode: string;
   nama: string;
   harga_jual: number;
-  harga_beli: number;
-  harga_jual_final: number;
-  aktif: number;
   kosong: number;
   gangguan: number;
-  kode_operator: string;
-  RowNum: string;
+  // Jadikan properti lama opsional agar tidak menimbulkan error di tempat lain
+  aktif?: number;
+  harga_beli?: number;
+  harga_jual_final?: number;
+  kode_operator?: string;
+  RowNum?: string;
 };
 
 export type Transaction = {
   kode: number;
+  ref_id: string; // TAMBAHKAN properti ini
   tgl_entri: string;
   kode_produk: string;
   tujuan: string;
-  kode_reseller: string;
-  pengirim: string;
-  tipe_pengirim: string;
   harga: number;
   status: number;
-  harga_beli: number;
-  saldo_awal: number;
   sn: string | null;
-  qty: number;
-  komisi: number | null;
-  poin: number | null;
-  saldo_supplier: number | null;
-  RowNum: string;
-  tgl_status: string;
-  laba: number;
+  saldo_awal: number;
   saldo_akhir: number;
+  pengirim: string;
+  tgl_status: string;
+  // Jadikan properti lama opsional agar tidak menimbulkan error di komponen lain
+  kode_reseller?: string;
+  harga_beli?: number;
+  laba?: number;
 };
 
 export interface Downline {
@@ -91,25 +78,24 @@ export type ApiResponse = {
   data: Product[];
 };
 
+export type ProductApiResponse = {
+  rowCount: number;
+  data: Product[];
+};
+
 export type TransactionApiResponse = {
-  totalItems?: number;
-  totalPages?: number;
-  currentPage?: number;
+  rowCount: number; // GANTI dari totalItems menjadi rowCount
   data: Transaction[];
 };
 
 export interface DownlineApiResponse {
+  rowCount: number; // Ganti dari totalItems/properti lain menjadi rowCount
   data: Downline[];
-  // Menghapus properti paginasi karena tidak ada di respons asli
-  totalItems?: number;
-  totalPages?: number;
-  currentPage?: number;
 }
 
 export type BalanceMutationApiResponse = {
-  totalItems: number;
-  totalPages: number;
-  currentPage: number;
+  moreDataOffset: number; // TAMBAHKAN properti ini
+  rowCount: number; // GANTI dari totalItems/totalPages/currentPage
   data: BalanceMutation[];
 };
 

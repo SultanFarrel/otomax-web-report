@@ -4,14 +4,12 @@ const COLUMN_NAMES = [
   { name: "KODE", uid: "kode" },
   { name: "NAMA", uid: "nama" },
   { name: "STATUS", uid: "status" },
-  { name: "HARGA BELI", uid: "harga_beli" },
   { name: "HARGA JUAL", uid: "harga_jual" },
 ];
 
 const STATUS_OPTIONS = [
   { name: "Semua", uid: "all" },
   { name: "Aktif", uid: "aktif" },
-  { name: "Tidak Aktif", uid: "nonaktif" },
   { name: "Kosong", uid: "kosong" },
   { name: "Gangguan", uid: "gangguan" },
 ];
