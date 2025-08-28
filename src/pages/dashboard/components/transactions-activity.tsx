@@ -16,7 +16,7 @@ export const TransactionRecent: React.FC = () => {
     isFetching,
   } = useRecentTransactions();
 
-  if (isLoading) {
+  if (isLoading || isFetching) {
     return <TransactionActivitySkeleton />;
   }
 

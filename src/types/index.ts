@@ -72,12 +72,12 @@ export type BalanceMutation = {
   saldo_akhir: number;
 };
 
-export type ApiResponse = {
-  totalItems: number;
-  totalPages: number;
-  currentPage: number;
-  data: Product[];
-};
+// export type ApiResponse = {
+//   totalItems: number;
+//   totalPages: number;
+//   currentPage: number;
+//   data: Product[];
+// };
 
 export type ProductApiResponse = {
   rowCount: number;
@@ -87,6 +87,7 @@ export type ProductApiResponse = {
 export type TransactionApiResponse = {
   rowCount: number;
   data: Transaction[];
+  moreDataOffset?: number;
 };
 
 export interface DownlineApiResponse {
@@ -110,33 +111,9 @@ interface DashboardStats {
   harga_gagal: number;
 }
 
-// Tipe data untuk tren transaksi
-interface TransactionTrend {
-  tanggal: string;
-  jumlah: number;
-}
-
-// Tipe data untuk top produk
-interface TopProduct {
-  kode_produk: string;
-  jumlah: number;
-}
-
-// Tipe data untuk top reseller
-interface TopReseller {
-  kode_reseller: string;
-  nama_reseller: string;
-  jumlah_transaksi: number;
-}
-
 // Tipe data untuk respons gabungan dari API
 export interface DashboardData {
   stats: DashboardStats;
-  transactionsByStatus: { status: string; jumlah: number }[];
-  transactionsByProduct: { kode: string; value: number }[];
-  transactionTrend: TransactionTrend[]; // Data baru untuk tren
   recentTransactions: Transaction[];
   recentMutasi: BalanceMutation[];
-  topProducts: TopProduct[];
-  topResellers: TopReseller[];
 }

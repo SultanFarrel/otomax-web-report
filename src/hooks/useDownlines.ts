@@ -54,7 +54,7 @@ export function useDownlines() {
   } = useQuery<DownlineApiResponse, Error>({
     queryKey: ["downlines", submittedFilters],
     queryFn: () => fetchDownlines(submittedFilters),
-    staleTime: 0, // Tanpa cache
+    staleTime: Infinity,
   });
 
   // Logika sorting di sisi klien

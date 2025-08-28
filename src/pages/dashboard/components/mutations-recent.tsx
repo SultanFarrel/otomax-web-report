@@ -16,7 +16,7 @@ export const MutationRecent: React.FC = () => {
     isFetching,
   } = useRecentMutations();
 
-  if (isLoading) {
+  if (isLoading || isFetching) {
     return <TransactionActivitySkeleton />;
   }
 

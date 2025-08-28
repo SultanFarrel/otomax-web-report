@@ -91,7 +91,7 @@ export function useTransactions() {
         filters: submittedFilters,
         sortDescriptor,
       }),
-    staleTime: 0,
+    staleTime: Infinity,
   });
 
   const transactionSummary = useMemo(() => {

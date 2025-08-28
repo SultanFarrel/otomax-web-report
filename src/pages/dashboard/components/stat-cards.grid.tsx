@@ -33,7 +33,7 @@ export const StatCardsGrid: React.FC = () => {
 
   const isRefreshing = isFetchingStats || isFetchingUser;
 
-  if (isLoading) {
+  if (isLoading || isRefreshing) {
     return <StatCardsGridSkeleton />;
   }
 

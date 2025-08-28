@@ -56,7 +56,7 @@ export function useProducts() {
   } = useQuery<ProductApiResponse, Error>({
     queryKey: ["products", submittedFilters],
     queryFn: () => fetchProducts({ filters: submittedFilters }),
-    staleTime: 0,
+    staleTime: Infinity,
   });
 
   // Logika sorting

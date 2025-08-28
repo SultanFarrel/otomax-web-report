@@ -89,7 +89,7 @@ export function useBalanceMutation() {
         filters: submittedFilters,
         sortDescriptor,
       }),
-    staleTime: 0,
+    staleTime: Infinity,
   });
 
   const mutationSummary = useMemo(() => {
