@@ -41,6 +41,7 @@ export const DownlineTransactionTableBottomContent: React.FC<
 }) => {
   return (
     <div className="py-2 px-2 flex justify-between items-center relative">
+      {/* Kiri: Tombol Export */}
       <div className="flex items-center gap-2">
         <Button
           color="success"
@@ -55,6 +56,7 @@ export const DownlineTransactionTableBottomContent: React.FC<
         </Button>
       </div>
 
+      {/* Paginasi di Tengah */}
       <Pagination
         isCompact
         showControls
@@ -65,7 +67,8 @@ export const DownlineTransactionTableBottomContent: React.FC<
         onChange={onPageChange}
       />
 
-      <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
+      {/* Kanan: Page Size Selector */}
+      <div className="flex items-center gap-2">
         <span className="text-sm text-default-600 hidden sm:block">
           Data per halaman:
         </span>

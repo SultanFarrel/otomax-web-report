@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { RangeValue } from "@react-types/shared";
 import { useQuery } from "@tanstack/react-query";
-import { TransactionApiResponse } from "@/types";
+import { Transaction, TransactionApiResponse } from "@/types";
 import { apiClient } from "@/api/axios";
 import { DateValue } from "@heroui/calendar";
 import { SortDescriptor } from "@heroui/table";
@@ -17,6 +17,23 @@ export interface TransactionFilters {
   dateRange: RangeValue<DateValue> | null;
 }
 
+// Fungsi untuk mengubah data dari format [columns, rows] ke [objects]
+const transformTransactionData = (apiData: any): Transaction[] => {
+  if (!apiData || !apiData.columns || !apiData.rows) {
+    return [];
+  }
+
+  const { columns, rows } = apiData;
+
+  return rows.map((row: any[]) => {
+    const transactionObject: { [key: string]: any } = {};
+    columns.forEach((colName: string, index: number) => {
+      transactionObject[colName] = row[index];
+    });
+    return transactionObject as Transaction;
+  });
+};
+
 const fetchTransactions = async ({
   filters,
 }: {
@@ -25,12 +42,12 @@ const fetchTransactions = async ({
 }): Promise<TransactionApiResponse> => {
   const endpoint = "/transaksi";
 
-  // Konversi format tanggal ke YYYY-MM-DD
   const formatDate = (date: DateValue | undefined) => {
     return date ? date.toString().split("T")[0] : undefined;
   };
 
   const params: any = {
+    dataType: 2,
     trxId: filters.trxId || undefined,
     refId: filters.refId || undefined,
     kodeProduk: filters.kodeProduk || undefined,
@@ -50,7 +67,14 @@ const fetchTransactions = async ({
   );
 
   const { data } = await apiClient.get(endpoint, { params });
-  return data;
+
+  // Transformasi data sebelum mengembalikannya
+  const transformedData = transformTransactionData(data.data);
+
+  return {
+    ...data,
+    data: transformedData,
+  };
 };
 
 export function useTransactions() {
