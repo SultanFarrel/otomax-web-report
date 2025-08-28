@@ -64,6 +64,12 @@ export interface Downline {
   markup?: string;
 }
 
+export type DownlineTree = {
+  kode: string;
+  nama: string;
+  downline: DownlineTree[];
+};
+
 export type BalanceMutation = {
   kode: number;
   tanggal: string;

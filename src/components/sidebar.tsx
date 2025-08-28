@@ -24,6 +24,7 @@ import {
   UsersIcon,
   DocumentTextIcon,
   GlobeAltIcon,
+  ShareIcon,
 } from "@heroicons/react/24/outline";
 import { MoreHorizontalIcon, ChevronLeftIcon } from "@/components/icons";
 import { useAuthStore } from "@/store/authStore";
@@ -50,6 +51,7 @@ export const SidebarContent = ({
     "/transaksi": CurrencyDollarIcon,
     "/mutasi-saldo": ArrowPathIcon,
     "/downline": UsersIcon,
+    "/jaringan-downline": ShareIcon,
     "/transaksi-downline": DocumentTextIcon,
   };
 

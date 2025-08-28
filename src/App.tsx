@@ -10,6 +10,7 @@ import ProdukPage from "@/pages/product/product-pages";
 import TransactionPage from "@/pages/transaction/transaction-pages";
 import MutasiSaldoPage from "@/pages/balance mutation/balance-mutation";
 import DownlinePage from "@/pages/downline/downline";
+import DownlineTreePage from "@/pages/downline-tree/downline-tree";
 import TransaksiDownlinePage from "@/pages/downline-transaction/downline-transactions";
 import SessionExpiredPage from "./pages/errors/session-expired";
 import { useUserStore } from "./store/userStore";
@@ -45,6 +46,7 @@ function App() {
           <Route element={<TransactionPage />} path="/transaksi" />
           <Route element={<MutasiSaldoPage />} path="/mutasi-saldo" />
           <Route element={<DownlinePage />} path="/downline" />
+          <Route element={<DownlineTreePage />} path="/jaringan-downline" />
           <Route
             element={<TransaksiDownlinePage />}
             path="/transaksi-downline"

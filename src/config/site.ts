@@ -25,6 +25,10 @@ export const siteConfig = {
       href: "/downline",
     },
     {
+      label: "Jaringan Downline",
+      href: "/jaringan-downline",
+    },
+    {
       label: "Transaksi Downline",
       href: "/transaksi-downline",
     },
