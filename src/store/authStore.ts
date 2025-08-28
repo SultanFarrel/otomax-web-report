@@ -15,7 +15,7 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>()(
   devtools(
-    (set) => ({
+    (set, get) => ({
       token: null,
       isLoading: false,
       error: null,
@@ -59,10 +59,18 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      logout: () => {
-        localStorage.removeItem("authToken");
-        set({ token: null });
-        window.location.href = "/login";
+      logout: async () => {
+        const token = get().token;
+        try {
+          await apiClient.post(`/auth/logout?${token}`);
+        } catch (error) {
+          console.error("Gagal melakukan logout di server:", error);
+        } finally {
+          // Hapus token dari local storage dan state
+          localStorage.removeItem("authToken");
+          set({ token: null });
+          window.location.href = "/login";
+        }
       },
     }),
     { name: "Auth Store" }
