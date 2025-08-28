@@ -64,7 +64,7 @@ export const BalanceMutationTableBottomContent: React.FC<
         onChange={onPageChange}
       />
 
-      <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
+      <div className="flex items-center gap-2">
         <span className="text-sm text-default-600 hidden sm:block">
           Data per halaman:
         </span>
