@@ -1,6 +1,7 @@
 import React from "react";
 
 import { useProducts } from "@/hooks/useProducts";
+import { Product } from "@/types";
 
 import { COLUMN_NAMES } from "./constants/product-constants";
 import { ProductTableCell } from "./components/product-table-cell";
@@ -17,10 +18,19 @@ import {
 } from "@heroui/table";
 import { Spinner } from "@heroui/spinner";
 import { SortDescriptor } from "@heroui/table";
+import { exportToExcel } from "@/utils/exportToExcel";
+
+const getProductStatus = (product: Product): string => {
+  if (product.gangguan) return "Gangguan";
+  if (product.kosong) return "Kosong";
+
+  return "Aktif";
+};
 
 export default function ProdukPage() {
   const {
     data: tableData,
+    allData,
     isLoading: isTableLoading,
     isError: isTableError,
     page,
@@ -34,6 +44,22 @@ export default function ProdukPage() {
     sortDescriptor,
     setSortDescriptor,
   } = useProducts();
+
+  const [isExporting, setIsExporting] = React.useState(false);
+
+  const handleExport = () => {
+    setIsExporting(true);
+    setTimeout(() => {
+      const dataToExport = allData.map((product) => ({
+        Kode: product.kode,
+        Nama: product.nama,
+        Status: getProductStatus(product),
+        "Harga Jual": product.harga_jual,
+      }));
+      exportToExcel(dataToExport, "Laporan Produk");
+      setIsExporting(false);
+    }, 500);
+  };
 
   const topContent = React.useMemo(
     () => (
@@ -62,9 +88,19 @@ export default function ProdukPage() {
         onPageChange={setPage}
         pageSize={pageSize}
         onPageSizeChange={handlePageSizeChange}
+        onExport={handleExport}
+        isExporting={isExporting}
       />
     );
-  }, [page, tableData?.totalPages, setPage, pageSize, handlePageSizeChange]);
+  }, [
+    page,
+    tableData?.totalPages,
+    setPage,
+    pageSize,
+    handlePageSizeChange,
+    isExporting,
+    allData,
+  ]);
 
   const handleSortChange = (descriptor: SortDescriptor) => {
     setSortDescriptor(descriptor);

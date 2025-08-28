@@ -8,6 +8,7 @@ import {
 } from "@heroui/dropdown";
 import { Button } from "@heroui/button";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
+import { ArrowDownTrayIcon } from "@heroicons/react/24/solid";
 
 const pageSizeOptions = [
   { uid: "10", name: "10" },
@@ -23,13 +24,37 @@ interface DownlineTransactionTableBottomContentProps {
   onPageChange: (page: number) => void;
   pageSize: number;
   onPageSizeChange: (size: number) => void;
+  onExport: () => void;
+  isExporting: boolean;
 }
 
 export const DownlineTransactionTableBottomContent: React.FC<
   DownlineTransactionTableBottomContentProps
-> = ({ page, totalPages, onPageChange, pageSize, onPageSizeChange }) => {
+> = ({
+  page,
+  totalPages,
+  onPageChange,
+  pageSize,
+  onPageSizeChange,
+  onExport,
+  isExporting,
+}) => {
   return (
-    <div className="py-2 px-2 flex justify-center items-center relative">
+    <div className="py-2 px-2 flex justify-between items-center relative">
+      <div className="flex items-center gap-2">
+        <Button
+          color="success"
+          variant="ghost"
+          startContent={
+            !isExporting && <ArrowDownTrayIcon className="h-4 w-4" />
+          }
+          onPress={onExport}
+          isLoading={isExporting}
+        >
+          {isExporting ? "Mengekspor..." : "Export to Excel"}
+        </Button>
+      </div>
+
       <Pagination
         isCompact
         showControls

@@ -168,6 +168,7 @@ export function useTransactions() {
 
   return {
     data: dataForComponent,
+    allData: response?.data ?? [],
     transactionSummary,
     isLoading,
     isError,

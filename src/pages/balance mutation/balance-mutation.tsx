@@ -14,6 +14,8 @@ import {
 } from "@heroui/table";
 import { Spinner } from "@heroui/spinner";
 import { SortDescriptor } from "@heroui/table";
+import { exportToExcel } from "@/utils/exportToExcel";
+import { formatDate } from "@/utils/formatters";
 
 export default function BalanceMutationPage() {
   const {
@@ -32,6 +34,7 @@ export default function BalanceMutationPage() {
 
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
+  const [isExporting, setIsExporting] = useState(false);
 
   const pages = Math.ceil(totalItems / pageSize);
 
@@ -46,6 +49,20 @@ export default function BalanceMutationPage() {
     setPageSize(size);
     setPage(1);
   }, []);
+
+  const handleExport = () => {
+    setIsExporting(true);
+    setTimeout(() => {
+      const dataToExport = allFetchedItems.map((mutation) => ({
+        Tanggal: formatDate(mutation.tanggal),
+        Keterangan: mutation.keterangan,
+        Jumlah: mutation.jumlah,
+        "Saldo Akhir": mutation.saldo_akhir,
+      }));
+      exportToExcel(dataToExport, "Laporan Mutasi Saldo");
+      setIsExporting(false);
+    }, 500);
+  };
 
   const topContent = useMemo(
     () => (
@@ -76,9 +93,18 @@ export default function BalanceMutationPage() {
         onPageChange={setPage}
         pageSize={pageSize}
         onPageSizeChange={handlePageSizeChange}
+        onExport={handleExport}
+        isExporting={isExporting}
       />
     );
-  }, [page, pages, pageSize, handlePageSizeChange]);
+  }, [
+    page,
+    pages,
+    pageSize,
+    handlePageSizeChange,
+    isExporting,
+    allFetchedItems,
+  ]);
 
   const handleSortChange = (descriptor: SortDescriptor) => {
     setSortDescriptor(descriptor);

@@ -8,6 +8,7 @@ import {
 } from "@heroui/dropdown";
 import { Button } from "@heroui/button";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
+import { ArrowDownTrayIcon } from "@heroicons/react/24/solid";
 
 const pageSizeOptions = [
   { uid: "10", name: "10" },
@@ -23,13 +24,38 @@ interface TransactionTableBottomContentProps {
   onPageChange: (page: number) => void;
   pageSize: number;
   onPageSizeChange: (size: number) => void;
+  onExport: () => void;
+  isExporting: boolean;
 }
 
 export const TransactionTableBottomContent: React.FC<
   TransactionTableBottomContentProps
-> = ({ page, totalPages, onPageChange, pageSize, onPageSizeChange }) => {
+> = ({
+  page,
+  totalPages,
+  onPageChange,
+  pageSize,
+  onPageSizeChange,
+  onExport,
+  isExporting,
+}) => {
   return (
-    <div className="py-2 px-2 flex justify-center items-center relative">
+    <div className="py-2 px-2 flex justify-between items-center relative">
+      {/* Kiri: Tombol Export */}
+      <div className="flex items-center gap-2">
+        <Button
+          color="success"
+          variant="ghost"
+          startContent={
+            !isExporting && <ArrowDownTrayIcon className="h-4 w-4" />
+          }
+          onPress={onExport}
+          isLoading={isExporting}
+        >
+          {isExporting ? "Mengekspor..." : "Export to Excel"}
+        </Button>
+      </div>
+
       {/* Paginasi di Tengah */}
       <Pagination
         isCompact
@@ -41,8 +67,8 @@ export const TransactionTableBottomContent: React.FC<
         onChange={onPageChange}
       />
 
-      {/* Kanan: Page Size Selector (Diposisikan secara absolut) */}
-      <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
+      {/* Kanan: Page Size Selector */}
+      <div className="flex items-center gap-2">
         <span className="text-sm text-default-600 hidden sm:block">
           Data per halaman:
         </span>

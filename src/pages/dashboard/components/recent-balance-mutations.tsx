@@ -44,9 +44,9 @@ export const RecentBalanceMutations: React.FC<RecentBalanceMutationsProps> = ({
       </CardHeader>
       <CardBody className="p-0">
         <div className="divide-y divide-default-100">
-          {data.map((mutasi) => (
+          {data.map((mutasi, index) => (
             <div
-              key={mutasi.kode}
+              key={index}
               className="py-2 px-4 flex justify-between items-center even:bg-default-100"
             >
               <div>

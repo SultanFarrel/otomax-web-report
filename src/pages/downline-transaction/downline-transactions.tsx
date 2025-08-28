@@ -2,7 +2,10 @@ import { useState, useMemo } from "react";
 import { Transaction } from "@/types";
 import { useDownlineTransactions } from "@/hooks/useDownlineTransactions";
 import { TransactionDetailModal } from "@/pages/transaction/components/transaction-detail-modal";
-import { COLUMN_NAMES } from "./constants/downline-transactions-contants";
+import {
+  COLUMN_NAMES,
+  STATUS_COLORS,
+} from "./constants/downline-transactions-contants";
 import { DownlineTransactionTableTopContent } from "./components/downline-transaction-table-top-content";
 import { DownlineTransactionTableCellComponent } from "./components/downline-transaction-table-cell";
 import { DownlineTransactionTableBottomContent } from "./components/downline-transaction-table-bottom-content";
@@ -16,10 +19,13 @@ import {
 } from "@heroui/table";
 import { Spinner } from "@heroui/spinner";
 import { SortDescriptor } from "@heroui/table";
+import { exportToExcel } from "@/utils/exportToExcel";
+import { formatDate } from "@/utils/formatters";
 
 export default function DownlineTransactionPage() {
   const {
     data,
+    allData,
     transactionSummary,
     isLoading,
     isError,
@@ -36,6 +42,32 @@ export default function DownlineTransactionPage() {
   } = useDownlineTransactions();
 
   const [selectedTrx, setSelectedTrx] = useState<Transaction | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExport = () => {
+    setIsExporting(true);
+    setTimeout(() => {
+      const dataToExport = allData.map((trx) => {
+        const statusInfo = STATUS_COLORS[trx.status] || {
+          text: `Kode ${trx.status}`,
+        };
+        return {
+          "TRX ID": trx.kode,
+          "Ref ID": trx.ref_id,
+          "Tgl TRX": formatDate(trx.tgl_entri),
+          Agen: trx.kode_reseller,
+          Produk: trx.kode_produk,
+          Tujuan: trx.tujuan,
+          Harga: trx.harga,
+          Status: statusInfo.text,
+          SN: trx.sn,
+          "Tgl Status": trx.tgl_status ? formatDate(trx.tgl_status) : "-",
+        };
+      });
+      exportToExcel(dataToExport, "Laporan Transaksi Downline");
+      setIsExporting(false);
+    }, 500);
+  };
 
   const topContent = useMemo(
     () => (
@@ -68,9 +100,19 @@ export default function DownlineTransactionPage() {
         onPageChange={setPage}
         pageSize={pageSize}
         onPageSizeChange={handlePageSizeChange}
+        onExport={handleExport}
+        isExporting={isExporting}
       />
     );
-  }, [page, data.totalPages, setPage, pageSize, handlePageSizeChange]);
+  }, [
+    page,
+    data.totalPages,
+    setPage,
+    pageSize,
+    handlePageSizeChange,
+    isExporting,
+    allData,
+  ]);
 
   const handleSortChange = (descriptor: SortDescriptor) => {
     setSortDescriptor(descriptor);

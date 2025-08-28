@@ -121,6 +121,8 @@ export function useDownlines() {
       totalPages,
       totalItems,
     },
+    allData: sortedData,
+    hasKomisi: response?.hasKomisi ?? false,
     isLoading,
     isError,
     page,

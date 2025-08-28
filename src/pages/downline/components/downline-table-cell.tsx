@@ -13,11 +13,13 @@ const getDownlineStatus = (downline: Downline): string => {
 interface DownlineTableCellProps {
   downline: Downline;
   columnKey: React.Key;
+  hasKomisi: boolean;
 }
 
 export const DownlineTableCell: React.FC<DownlineTableCellProps> = ({
   downline,
   columnKey,
+  hasKomisi,
 }) => {
   const cellValue = downline[columnKey as keyof Downline];
 
@@ -31,7 +33,8 @@ export const DownlineTableCell: React.FC<DownlineTableCellProps> = ({
 
     case "saldo":
     case "komisi":
-      return <p className="text-sm">{formatCurrency(cellValue as number)}</p>;
+      const commissionValue = hasKomisi ? (cellValue as number) : 0;
+      return <p className="text-sm">{formatCurrency(commissionValue)}</p>;
 
     case "poin":
       return <p className="text-sm">{cellValue || 0}</p>;

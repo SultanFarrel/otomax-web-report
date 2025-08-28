@@ -99,6 +99,7 @@ export type TransactionApiResponse = {
 export interface DownlineApiResponse {
   rowCount: number;
   data: Downline[];
+  hasKomisi?: boolean;
 }
 
 export type BalanceMutationApiResponse = {

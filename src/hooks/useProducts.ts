@@ -129,6 +129,7 @@ export function useProducts() {
 
   return {
     data: dataForComponent,
+    allData: sortedData,
     isLoading,
     isError,
     page,

@@ -23,9 +23,9 @@ const formatDate = (
   options?: Intl.DateTimeFormatOptions
 ) => {
   const formatOptions = options || DEFAULT_DATE_OPTIONS;
-  return new Intl.DateTimeFormat("id-ID", formatOptions).format(
-    new Date(dateString)
-  );
+  return new Intl.DateTimeFormat("id-ID", formatOptions)
+    .format(new Date(dateString))
+    .replace(",", "");
 };
 
 const formatDateRange = (range: RangeValue<DateValue> | null) => {

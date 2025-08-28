@@ -4,6 +4,9 @@ import { Transaction } from "@/types";
 import { useTransactions } from "@/hooks/useTransactions";
 import { TransactionDetailModal } from "@/pages/transaction/components/transaction-detail-modal";
 import { TransactionReceipt } from "@/pages/transaction/components/transaction-receipt";
+import { exportToExcel } from "@/utils/exportToExcel";
+import { formatDate } from "@/utils/formatters";
+import { STATUS_COLORS } from "./constants/transaction-constants";
 
 import { COLUMN_NAMES } from "./constants/transaction-constants";
 import { TransactionTableTopContent } from "./components/transaction-table-top-content";
@@ -24,6 +27,7 @@ import { SortDescriptor } from "@heroui/table";
 export default function TransactionPage() {
   const {
     data,
+    allData,
     transactionSummary,
     isLoading,
     isError,
@@ -41,6 +45,7 @@ export default function TransactionPage() {
 
   const [selectedTrx, setSelectedTrx] = useState<Transaction | null>(null);
   const [trxToPrint, setTrxToPrint] = useState<Transaction | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
 
   const handlePrint = (trx: Transaction) => {
     setTrxToPrint(trx);
@@ -48,6 +53,34 @@ export default function TransactionPage() {
       window.print();
       setTrxToPrint(null);
     }, 100);
+  };
+
+  const handleExport = () => {
+    setIsExporting(true);
+
+    // Simulasi proses ekspor agar loading terlihat
+    setTimeout(() => {
+      const dataToExport = allData.map((trx) => {
+        const statusInfo = STATUS_COLORS[trx.status] || {
+          text: `Kode ${trx.status}`,
+        };
+
+        return {
+          "TRX ID": trx.kode,
+          "Ref ID": trx.ref_id,
+          "Tgl TRX": formatDate(trx.tgl_entri),
+          Produk: trx.kode_produk,
+          Tujuan: trx.tujuan,
+          Harga: trx.harga,
+          Status: statusInfo.text,
+          SN: trx.sn,
+          Pengirim: trx.pengirim,
+          "Tgl Status": trx.tgl_status ? formatDate(trx.tgl_status) : "-",
+        };
+      });
+      exportToExcel(dataToExport, "Laporan Transaksi");
+      setIsExporting(false);
+    }, 500);
   };
 
   const topContent = useMemo(
@@ -80,9 +113,19 @@ export default function TransactionPage() {
         onPageChange={setPage}
         pageSize={pageSize}
         onPageSizeChange={handlePageSizeChange}
+        onExport={handleExport}
+        isExporting={isExporting} // <-- Pass state loading
       />
     );
-  }, [page, data?.totalPages, setPage, pageSize, handlePageSizeChange]);
+  }, [
+    page,
+    data?.totalPages,
+    setPage,
+    pageSize,
+    handlePageSizeChange,
+    allData,
+    isExporting,
+  ]);
 
   const handleSortChange = (descriptor: SortDescriptor) => {
     setSortDescriptor(descriptor);

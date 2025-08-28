@@ -15,10 +15,21 @@ import { COLUMN_NAMES } from "./constants/downline-constants";
 import { DownlineTableCell } from "./components/downline-table-cell";
 import { DownlineTableTopContent } from "./components/downline-table-top-content";
 import { DownlineTableBottomContent } from "./components/downline-table-bottom-content";
+import { exportToExcel } from "@/utils/exportToExcel";
+import { formatDate } from "@/utils/formatters";
+import { Downline } from "@/types";
+
+const getDownlineStatus = (downline: Downline): string => {
+  if (downline.suspend) return "Suspend";
+  if (downline.aktif) return "Aktif";
+  return "Nonaktif";
+};
 
 export default function DownlinePage() {
   const {
     data: tableData,
+    allData,
+    hasKomisi,
     isLoading: isTableLoading,
     isError: isTableError,
     page,
@@ -32,6 +43,30 @@ export default function DownlinePage() {
     sortDescriptor,
     setSortDescriptor,
   } = useDownlines();
+
+  const [isExporting, setIsExporting] = React.useState(false);
+
+  const handleExport = () => {
+    setIsExporting(true);
+    setTimeout(() => {
+      const dataToExport = allData.map((downline) => ({
+        Kode: downline.kode,
+        Nama: downline.nama,
+        Saldo: downline.saldo,
+        Komisi: downline.komisi,
+        Poin: downline.poin,
+        Status: getDownlineStatus(downline),
+        "Kode Upline": downline.kode_upline,
+        Markup: downline.markup,
+        "Tgl Daftar": formatDate(downline.tgl_daftar),
+        "Aktivitas Terakhir": downline.tgl_aktivitas
+          ? formatDate(downline.tgl_aktivitas)
+          : "-",
+      }));
+      exportToExcel(dataToExport, "Laporan Downline");
+      setIsExporting(false);
+    }, 500);
+  };
 
   const topContent = React.useMemo(
     () => (
@@ -60,9 +95,19 @@ export default function DownlinePage() {
         onPageChange={setPage}
         pageSize={pageSize}
         onPageSizeChange={handlePageSizeChange}
+        onExport={handleExport}
+        isExporting={isExporting}
       />
     ),
-    [page, tableData?.totalPages, setPage, pageSize, handlePageSizeChange]
+    [
+      page,
+      tableData?.totalPages,
+      setPage,
+      pageSize,
+      handlePageSizeChange,
+      isExporting,
+      allData,
+    ]
   );
 
   const handleSortChange = (descriptor: SortDescriptor) => {
@@ -119,7 +164,11 @@ export default function DownlinePage() {
             <TableRow key={item.kode}>
               {(columnKey) => (
                 <TableCell>
-                  <DownlineTableCell downline={item} columnKey={columnKey} />
+                  <DownlineTableCell
+                    downline={item}
+                    columnKey={columnKey}
+                    hasKomisi={hasKomisi}
+                  />
                 </TableCell>
               )}
             </TableRow>

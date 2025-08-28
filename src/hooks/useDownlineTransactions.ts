@@ -174,6 +174,7 @@ export function useDownlineTransactions() {
 
   return {
     data: dataForComponent,
+    allData: response?.data ?? [],
     transactionSummary,
     isLoading,
     isError,

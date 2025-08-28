@@ -39,9 +39,9 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({
       </CardHeader>
       <CardBody className="p-0">
         <div className="divide-y divide-default-100 ">
-          {data.map((trx) => (
+          {data.map((trx, index) => (
             <div
-              key={trx.kode}
+              key={index}
               className="py-2 px-4 flex justify-between items-start even:bg-default-100"
             >
               <div>
