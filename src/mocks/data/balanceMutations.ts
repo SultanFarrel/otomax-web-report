@@ -7,7 +7,7 @@ const randomDate = (
   ).toISOString();
 };
 
-const mutationTypes = ["K", "T", "G", "O", "1", "2", "A", "Z", "B", " "];
+const mutationTypes = ["K", "T", "G", "O", "1", "2", "A", "Z", "B", "+"];
 const productCodes = ["PULSA10", "PLN20K", "DATA5GB", "GAME100", "GOPAY50K"];
 
 export const mockBalanceMutations = Array.from({ length: 500 }, (_, i) => {

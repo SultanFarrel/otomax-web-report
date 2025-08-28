@@ -27,7 +27,7 @@ function App() {
 
   useEffect(() => {
     if (user?.kode && siteInfo?.judul) {
-      document.title = `Web Report - ${siteInfo.judul}`;
+      document.title = `${siteInfo.judul} - Web Report`;
     }
   }, [user]);
 

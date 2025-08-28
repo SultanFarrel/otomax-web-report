@@ -27,6 +27,7 @@ export type Transaction = {
   ref_id: string;
   tgl_entri: string;
   kode_produk: string;
+  nama_operator: string;
   tujuan: string;
   harga: number;
   status: number;

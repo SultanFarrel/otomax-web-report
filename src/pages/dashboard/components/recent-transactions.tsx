@@ -46,6 +46,7 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({
             >
               <div>
                 <p className="font-semibold">{trx.kode_produk}</p>
+                <p className="font-semibold text-xs">{trx.nama_operator}</p>
                 <p className="text-sm text-default-500">{trx.tujuan}</p>
                 <p className="text-xs text-default-400">
                   {formatDate(trx.tgl_entri)}

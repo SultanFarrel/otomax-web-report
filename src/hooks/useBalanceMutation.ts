@@ -14,7 +14,7 @@ export interface BalanceMutationFilters {
 }
 
 const mutationTypeMap: Record<string, string[]> = {
-  Manual: [" "],
+  Manual: ["+"],
   Transaksi: ["T"],
   Refund: ["G"],
   Komisi: ["K"],

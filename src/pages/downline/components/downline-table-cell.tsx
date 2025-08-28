@@ -1,6 +1,6 @@
 import React from "react";
 import { Downline } from "@/types";
-import { formatCurrency, formatDateTimeCustom } from "@/utils/formatters";
+import { formatCurrency, formatDate } from "@/utils/formatters";
 import { STATUS_COLORS } from "../constants/downline-constants";
 import { Chip } from "@heroui/chip";
 
@@ -38,9 +38,7 @@ export const DownlineTableCell: React.FC<DownlineTableCellProps> = ({
 
     case "tgl_daftar":
     case "tgl_aktivitas":
-      return (
-        <p className="text-sm">{formatDateTimeCustom(cellValue as string)}</p>
-      );
+      return <p className="text-sm">{formatDate(cellValue as string)}</p>;
 
     case "status": {
       const statusText = getDownlineStatus(downline);

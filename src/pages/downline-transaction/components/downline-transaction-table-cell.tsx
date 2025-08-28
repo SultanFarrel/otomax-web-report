@@ -1,6 +1,6 @@
 import React from "react";
 import { Transaction } from "@/types";
-import { formatCurrency, formatDateTimeCustom } from "@/utils/formatters";
+import { formatCurrency, formatDate } from "@/utils/formatters";
 import { STATUS_COLORS } from "../constants/downline-transactions-contants";
 import { Tooltip } from "@heroui/tooltip";
 import { Chip } from "@heroui/chip";
@@ -23,9 +23,7 @@ const DownlineTransactionTableCell: React.FC<
       return <p className="text-sm font-mono">{cellValue}</p>;
     case "tgl_entri":
     case "tgl_status":
-      return (
-        <p className="text-sm">{formatDateTimeCustom(cellValue as string)}</p>
-      );
+      return <p className="text-sm">{formatDate(cellValue as string)}</p>;
     case "harga":
       return <p className="text-sm">{formatCurrency(cellValue as number)}</p>;
     case "status":
