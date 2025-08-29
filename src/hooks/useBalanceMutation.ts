@@ -1,7 +1,7 @@
 import { useCallback, useState, useMemo } from "react";
 import { RangeValue } from "@react-types/shared";
 import { useQuery } from "@tanstack/react-query";
-import { BalanceMutationApiResponse } from "@/types";
+import { BalanceMutation, BalanceMutationApiResponse } from "@/types";
 import { apiClient } from "@/api/axios";
 import { DateValue } from "@heroui/calendar";
 import { SortDescriptor } from "@heroui/table";
@@ -22,6 +22,23 @@ const mutationTypeMap: Record<string, string[]> = {
   Tiket: ["B"],
 };
 
+// Fungsi untuk mengubah data dari format [columns, rows] ke [objects]
+const transformBalanceMutationData = (apiData: any): BalanceMutation[] => {
+  if (!apiData || !apiData.columns || !apiData.rows) {
+    return [];
+  }
+
+  const { columns, rows } = apiData;
+
+  return rows.map((row: any[]) => {
+    const mutationObject: { [key: string]: any } = {};
+    columns.forEach((colName: string, index: number) => {
+      mutationObject[colName] = row[index];
+    });
+    return mutationObject as BalanceMutation;
+  });
+};
+
 const fetchBalanceMutation = async ({
   filters,
   sortDescriptor,
@@ -32,12 +49,11 @@ const fetchBalanceMutation = async ({
   const endpoint = "/mutasi";
 
   const mutationTypeChars = filters.mutationTypes.includes("Semua")
-    ? undefined // Jangan kirim parameter jika "Semua" dipilih
+    ? undefined
     : filters.mutationTypes
         .flatMap((type) => mutationTypeMap[type] || [])
         .join(",");
 
-  // Fungsi untuk memformat tanggal ke YYYY-MM-DD
   const formatDate = (date: DateValue | undefined) => {
     return date ? date.toString().split("T")[0] : undefined;
   };
@@ -57,7 +73,14 @@ const fetchBalanceMutation = async ({
   );
 
   const { data } = await apiClient.get(endpoint, { params });
-  return data;
+
+  // Transformasi data sebelum mengembalikannya
+  const transformedData = transformBalanceMutationData(data.data);
+
+  return {
+    ...data,
+    data: transformedData,
+  };
 };
 
 export function useBalanceMutation() {

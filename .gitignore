@@ -23,6 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 
+*.pem
+
 .env
 pnpm-lock.yaml
 yarn.lock

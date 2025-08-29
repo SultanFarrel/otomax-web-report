@@ -9,6 +9,23 @@ export interface DownlineFilters {
   status: string;
 }
 
+// Fungsi untuk mengubah data dari format [columns, rows] ke [objects]
+const transformDownlineData = (apiData: any): Downline[] => {
+  if (!apiData || !apiData.columns || !apiData.rows) {
+    return [];
+  }
+
+  const { columns, rows } = apiData;
+
+  return rows.map((row: any[]) => {
+    const downlineObject: { [key: string]: any } = {};
+    columns.forEach((colName: string, index: number) => {
+      downlineObject[colName] = row[index];
+    });
+    return downlineObject as Downline;
+  });
+};
+
 const fetchDownlines = async (
   filters: DownlineFilters
 ): Promise<DownlineApiResponse> => {
@@ -24,7 +41,14 @@ const fetchDownlines = async (
   );
 
   const { data } = await apiClient.get(endpoint, { params });
-  return data;
+
+  // Transformasi data sebelum mengembalikannya
+  const transformedData = transformDownlineData(data.data);
+
+  return {
+    ...data,
+    data: transformedData,
+  };
 };
 
 export function useDownlines() {

@@ -1,14 +1,17 @@
 import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
 
-const API_PROTOCOL = "http"; // Ganti menjadi 'https' jika sudah menggunakan SSL di produksi
-const API_PORT = "4001";
+// const API_PROTOCOL = "https"; // Ganti menjadi 'https' jika sudah menggunakan SSL di produksi
+// const API_PORT = "4000";
 
-// Dapatkan hostname dari URL browser saat ini (misalnya, "kliena.webreport.com")
-const currentHostname =
-  typeof window !== "undefined" ? window.location.hostname : "";
+// // Dapatkan hostname dari URL browser saat ini (misalnya, "kliena.webreport.com")
+// const currentHostname =
+//   typeof window !== "undefined" ? window.location.hostname : "";
 
-const baseURL = `${API_PROTOCOL}://${currentHostname}:${API_PORT}/api`;
+// const baseURL = `${API_PROTOCOL}://${currentHostname}:${API_PORT}/api`;
+
+// ONLY ON DEV, DELETE ON PRODUCTION
+const baseURL = "/api";
 
 export const apiClient = axios.create({
   baseURL: baseURL,

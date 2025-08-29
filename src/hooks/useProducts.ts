@@ -9,6 +9,23 @@ export interface ProductFilters {
   status: string;
 }
 
+// Fungsi untuk mengubah data dari format [columns, rows] ke [objects]
+const transformProductData = (apiData: any): Product[] => {
+  if (!apiData || !apiData.columns || !apiData.rows) {
+    return [];
+  }
+
+  const { columns, rows } = apiData;
+
+  return rows.map((row: any[]) => {
+    const productObject: { [key: string]: any } = {};
+    columns.forEach((colName: string, index: number) => {
+      productObject[colName] = row[index];
+    });
+    return productObject as Product;
+  });
+};
+
 const fetchProducts = async ({
   filters,
 }: {
@@ -27,7 +44,13 @@ const fetchProducts = async ({
   );
 
   const { data } = await apiClient.get(endpoint, { params });
-  return data;
+
+  const transformedData = transformProductData(data.data);
+
+  return {
+    ...data,
+    data: transformedData,
+  };
 };
 
 export function useProducts() {

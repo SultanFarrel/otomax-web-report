@@ -47,7 +47,6 @@ const fetchTransactions = async ({
   };
 
   const params: any = {
-    dataType: 2,
     trxId: filters.trxId || undefined,
     refId: filters.refId || undefined,
     kodeProduk: filters.kodeProduk || undefined,
