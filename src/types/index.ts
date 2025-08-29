@@ -78,12 +78,12 @@ export type BalanceMutation = {
   saldo_akhir: number;
 };
 
-// export type ApiResponse = {
-//   totalItems: number;
-//   totalPages: number;
-//   currentPage: number;
-//   data: Product[];
-// };
+export interface Session {
+  kode: number;
+  ip: string;
+  tgl_login: string;
+  is_current: 0 | 1;
+}
 
 export type ProductApiResponse = {
   rowCount: number;
@@ -107,6 +107,11 @@ export type BalanceMutationApiResponse = {
   rowCount: number;
   data: BalanceMutation[];
 };
+
+export interface SessionApiResponse {
+  rowCount: number;
+  data: Session[];
+}
 
 // Tipe data untuk ringkasan statistik
 interface DashboardStats {

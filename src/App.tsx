@@ -5,7 +5,7 @@ import ProtectedRoute from "@/components/protected-route";
 import LoginPage from "@/pages/login";
 import DefaultLayout from "@/layouts/default";
 import DashboardPage from "@/pages/dashboard/dashboard";
-import SettingsPage from "@/pages/settings";
+import SettingsPage from "@/pages/settings/settings";
 import ProdukPage from "@/pages/product/product-pages";
 import TransactionPage from "@/pages/transaction/transaction-pages";
 import MutasiSaldoPage from "@/pages/balance mutation/balance-mutation";

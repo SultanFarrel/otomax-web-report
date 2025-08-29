@@ -1,4 +1,3 @@
-// utils/crypto.ts
 import CryptoJS from "crypto-js";
 
 export function hmacPinWithKode(pin: string, kodeReseller: string): string {
