@@ -11,8 +11,12 @@ import "@/styles/globals.css";
 const queryClient = new QueryClient();
 
 async function enableMocking() {
-  // Aktifkan mocking HANYA jika variabel VITE_API_MOCKING di .env disetel ke 'enabled'
-  if (import.meta.env.VITE_API_MOCKING !== "enabled") {
+  // Pastikan mocking HANYA berjalan di mode 'development'
+  // dan variabel VITE_API_MOCKING disetel ke 'enabled'
+  if (
+    import.meta.env.MODE !== "development" ||
+    import.meta.env.VITE_API_MOCKING !== "enabled"
+  ) {
     return;
   }
 
