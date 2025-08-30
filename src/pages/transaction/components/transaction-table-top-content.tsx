@@ -101,6 +101,7 @@ export const TransactionTableTopContent: React.FC<
           <PopoverContent className="p-0">
             <RangeCalendar
               aria-label="Date filter"
+              // @ts-expect-error
               value={filters.dateRange}
               onChange={handleDateChangeAndClose}
               minValue={minValue}

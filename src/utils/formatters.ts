@@ -1,4 +1,5 @@
-import { DateValue, RangeValue } from "@heroui/calendar";
+import { DateValue } from "@heroui/calendar";
+import { RangeValue } from "@react-types/shared";
 
 const formatCurrency = (amount: number, options?: Intl.NumberFormatOptions) =>
   new Intl.NumberFormat("id-ID", {
