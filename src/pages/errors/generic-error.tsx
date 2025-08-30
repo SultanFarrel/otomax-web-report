@@ -4,7 +4,6 @@ import { ExclamationCircleIcon } from "@heroicons/react/24/solid";
 
 export default function GenericErrorPage() {
   React.useEffect(() => {
-    // Paksa tema gelap agar konsisten dengan halaman login/session-expired
     const root = document.documentElement;
     const originalClassName = root.className;
     root.classList.add("dark");
@@ -26,7 +25,7 @@ export default function GenericErrorPage() {
         <Button
           color="primary"
           fullWidth
-          onPress={() => (window.location.href = "/")} // Arahkan ke dashboard
+          onPress={() => (window.location.href = "/")}
         >
           Kembali ke Halaman Utama
         </Button>

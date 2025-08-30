@@ -23,8 +23,11 @@ dist-ssr
 *.sln
 *.sw?
 
+*.pem
 
+.env
 pnpm-lock.yaml
 yarn.lock
 package-lock.json
 bun.lockb
+public/mockServiceWorker.js

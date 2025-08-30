@@ -1,135 +1,213 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { RangeValue } from "@react-types/shared";
 import { useQuery } from "@tanstack/react-query";
-import { TransactionApiResponse } from "@/types";
+import { Transaction, TransactionApiResponse } from "@/types";
 import { apiClient } from "@/api/axios";
-import { useUserStore } from "@/store/userStore";
-import { useDebounce } from "@/hooks/useDebounce";
 import { DateValue } from "@heroui/calendar";
 import { SortDescriptor } from "@heroui/table";
 import { today, getLocalTimeZone } from "@internationalized/date";
 
-const fetchDownlineTransactions = async ({
-  uplineKode,
-  limit,
-  filterValue,
-  statusFilter,
-  sortDescriptor,
-  dateRange,
-}: {
-  uplineKode: string;
-  limit: number;
-  filterValue: string;
-  statusFilter: string;
-  sortDescriptor: SortDescriptor;
+export interface DownlineTransactionFilters {
+  trxId: string;
+  refId: string;
+  kodeProduk: string;
+  tujuan: string;
+  sn: string;
+  kodeReseller: string;
+  status: string;
   dateRange: RangeValue<DateValue> | null;
+}
+
+// Fungsi untuk mengubah data dari format [columns, rows] ke [objects]
+const transformTransactionData = (apiData: any): Transaction[] => {
+  if (!apiData || !apiData.columns || !apiData.rows) {
+    return [];
+  }
+
+  const { columns, rows } = apiData;
+
+  return rows.map((row: any[]) => {
+    const transactionObject: { [key: string]: any } = {};
+    columns.forEach((colName: string, index: number) => {
+      transactionObject[colName] = row[index];
+    });
+    return transactionObject as Transaction;
+  });
+};
+
+const fetchDownlineTransactions = async ({
+  filters,
+  sortDescriptor,
+}: {
+  filters: DownlineTransactionFilters;
+  sortDescriptor: SortDescriptor;
 }): Promise<TransactionApiResponse> => {
-  const endpoint = `/transaksi/upline/${uplineKode}`;
+  const endpoint = "/transaksi/downline";
+
+  const formatDate = (date: DateValue | undefined) => {
+    return date ? date.toString().split("T")[0] : undefined;
+  };
 
   const params: any = {
-    limit,
-    search: filterValue || undefined,
-    status: statusFilter !== "all" ? statusFilter : undefined,
-    startDate: dateRange?.start?.toString(),
-    endDate: dateRange?.end?.toString(),
+    trxId: filters.trxId || undefined,
+    refId: filters.refId || undefined,
+    kodeProduk: filters.kodeProduk || undefined,
+    tujuan: filters.tujuan || undefined,
+    sn: filters.sn || undefined,
+    kodeReseller: filters.kodeReseller || undefined,
+    startDate: formatDate(filters.dateRange?.start),
+    endDate: formatDate(filters.dateRange?.end),
     sortBy: sortDescriptor.column as string,
     sortDirection: sortDescriptor.direction,
   };
 
-  Object.keys(params).forEach((key) => {
-    if (params[key] === undefined || params[key] === "") delete params[key];
-  });
+  if (filters.status && filters.status !== "all") {
+    params.status = filters.status;
+  }
+
+  Object.keys(params).forEach(
+    (key) =>
+      (params[key] === undefined || params[key] === "") && delete params[key]
+  );
 
   const { data } = await apiClient.get(endpoint, { params });
-  return data;
+
+  // Transformasi data sebelum mengembalikannya
+  const transformedData = transformTransactionData(data.data);
+
+  return {
+    ...data,
+    data: transformedData,
+  };
 };
 
 export function useDownlineTransactions() {
-  const user = useUserStore((state) => state.user);
-  const [filterValue, setFilterValue] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [limit, setLimit] = useState<string>("500");
+  const [pageSize, setPageSize] = useState(30);
 
-  const [dateRange, setDateRange] = useState<RangeValue<DateValue>>({
-    start: today(getLocalTimeZone()),
-    end: today(getLocalTimeZone()),
-  });
+  const initialFilters: DownlineTransactionFilters = {
+    trxId: "",
+    refId: "",
+    kodeProduk: "",
+    tujuan: "",
+    sn: "",
+    kodeReseller: "",
+    status: "all",
+    dateRange: {
+      start: today(getLocalTimeZone()),
+      end: today(getLocalTimeZone()),
+    },
+  };
 
+  const [page, setPage] = useState(1);
+  const [inputFilters, setInputFilters] =
+    useState<DownlineTransactionFilters>(initialFilters);
+  const [submittedFilters, setSubmittedFilters] =
+    useState<DownlineTransactionFilters>(initialFilters);
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: "tgl_entri",
     direction: "descending",
   });
 
-  const debouncedFilterValue = useDebounce(filterValue, 500);
-  const debouncedLimit = useDebounce(limit, 800);
-
-  const { data, isLoading, isError } = useQuery<TransactionApiResponse, Error>({
-    queryKey: [
-      "downlineTransactions",
-      user?.kode,
-      debouncedFilterValue,
-      statusFilter,
-      sortDescriptor,
-      dateRange,
-      debouncedLimit,
-    ],
-    queryFn: () => {
-      const numericLimit = parseInt(limit, 10);
-      const finalLimit =
-        isNaN(numericLimit) || numericLimit <= 0 ? 500 : numericLimit;
-
-      return fetchDownlineTransactions({
-        uplineKode: user!.kode,
-        limit: finalLimit,
-        filterValue: debouncedFilterValue,
-        statusFilter,
-        sortDescriptor,
-        dateRange,
-      });
-    },
-    enabled: !!user?.kode,
-    staleTime: 5 * 60 * 1000, // 5 menit
-  });
-
-  const onLimitChange = useCallback((newLimit: string) => {
-    setLimit(newLimit);
-  }, []);
-
-  const onSearchChange = useCallback(
-    (value?: string) => setFilterValue(value || ""),
-    []
-  );
-  const onStatusChange = useCallback(
-    (key: React.Key) => setStatusFilter(key as string),
-    []
-  );
-  const onDateChange = useCallback(
-    (range: RangeValue<DateValue>) => setDateRange(range),
-    []
-  );
-  const resetFilters = useCallback(() => {
-    setFilterValue("");
-    setStatusFilter("all");
-    setDateRange({
-      start: today(getLocalTimeZone()),
-      end: today(getLocalTimeZone()),
-    });
-    setSortDescriptor({ column: "tgl_entri", direction: "descending" });
-    setLimit("500");
-  }, []);
-
-  return {
-    allFetchedItems: data?.data ?? [],
+  const {
+    data: response,
+    refetch,
     isLoading,
     isError,
-    filterValue,
-    onSearchChange,
-    statusFilter,
-    onStatusChange,
-    dateRange,
-    onDateChange,
-    limit,
-    onLimitChange,
+  } = useQuery<TransactionApiResponse, Error>({
+    queryKey: ["downlineTransactions", submittedFilters, sortDescriptor],
+    queryFn: () =>
+      fetchDownlineTransactions({
+        filters: submittedFilters,
+        sortDescriptor,
+      }),
+    staleTime: Infinity,
+  });
+
+  const transactionSummary = useMemo(() => {
+    const allItems = response?.data || [];
+    const summary = {
+      success: { amount: 0, count: 0 },
+      pending: { amount: 0, count: 0 },
+      failed: { amount: 0, count: 0 },
+    };
+
+    allItems.forEach((trx: Transaction) => {
+      if (trx.status === 20) {
+        summary.success.amount += trx.harga;
+        summary.success.count++;
+      } else if (trx.status < 20) {
+        summary.pending.amount += trx.harga;
+        summary.pending.count++;
+      } else {
+        summary.failed.amount += trx.harga;
+        summary.failed.count++;
+      }
+    });
+
+    return summary;
+  }, [response?.data]);
+
+  const paginatedData = useMemo(() => {
+    const allItems = response?.data || [];
+    const start = (page - 1) * pageSize;
+    const end = start + pageSize;
+    return allItems.slice(start, end);
+  }, [page, pageSize, response?.data]);
+
+  const totalItems = response?.rowCount || 0;
+  const totalPages = Math.ceil(totalItems / pageSize);
+
+  const handleFilterChange = (
+    field: keyof DownlineTransactionFilters,
+    value: any
+  ) => {
+    setInputFilters((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handlePageSizeChange = (size: number) => {
+    setPageSize(size);
+    setPage(1);
+  };
+
+  const onSearchSubmit = useCallback(() => {
+    setPage(1);
+    if (JSON.stringify(inputFilters) === JSON.stringify(submittedFilters)) {
+      refetch();
+    } else {
+      setSubmittedFilters(inputFilters);
+    }
+  }, [inputFilters, submittedFilters, refetch]);
+
+  const resetFilters = useCallback(() => {
+    setInputFilters(initialFilters);
+    setSortDescriptor({ column: "tgl_entri", direction: "descending" });
+    setPageSize(30);
+    setSubmittedFilters(initialFilters);
+  }, [initialFilters]);
+
+  const dataForComponent = useMemo(
+    () => ({
+      data: paginatedData,
+      totalItems,
+      totalPages,
+      currentPage: page,
+    }),
+    [paginatedData, totalItems, totalPages, page]
+  );
+
+  return {
+    data: dataForComponent,
+    allData: response?.data ?? [],
+    transactionSummary,
+    isLoading,
+    isError,
+    page,
+    setPage,
+    pageSize,
+    handlePageSizeChange,
+    inputFilters,
+    handleFilterChange,
+    onSearchSubmit,
     resetFilters,
     sortDescriptor,
     setSortDescriptor,

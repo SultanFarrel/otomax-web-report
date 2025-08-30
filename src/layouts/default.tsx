@@ -6,16 +6,25 @@ import cn from "clsx";
 
 import { Sidebar, SidebarContent } from "@/components/sidebar";
 import { Header } from "@/components/header";
-import { useUiStore } from "@/store/uiStore"; // <-- 1. Import store
+import { useUiStore } from "@/store/uiStore";
 
 import { useUserStore } from "@/store/userStore";
+import { useSiteStore } from "@/store/siteStore";
 
 export default function DefaultLayout() {
-  const { fetchUserData } = useUserStore();
+  const { user, fetchUserData } = useUserStore();
+  const { siteInfo, fetchSiteInfo } = useSiteStore();
 
   useEffect(() => {
     fetchUserData();
-  }, [fetchUserData]);
+    fetchSiteInfo();
+  }, [fetchUserData, fetchSiteInfo]);
+
+  useEffect(() => {
+    if (user?.kode && siteInfo?.judul) {
+      document.title = `${siteInfo.judul} - Web Report`;
+    }
+  }, [user, siteInfo]);
 
   const {
     isSidebarCollapsed,
@@ -36,7 +45,6 @@ export default function DefaultLayout() {
           }
         )}
       >
-        {/* 3. Gunakan action dari store */}
         <Sidebar
           isCollapsed={isSidebarCollapsed}
           onCollapse={toggleSidebarCollapse}
@@ -46,7 +54,7 @@ export default function DefaultLayout() {
       {/* Mobile Sidebar (Drawer) */}
       <Drawer
         isOpen={isSidebarOpen}
-        onOpenChange={setSidebarOpen} // <-- 4. Hubungkan dengan action store
+        onOpenChange={setSidebarOpen}
         placement="left"
         size="sm"
       >
@@ -67,7 +75,6 @@ export default function DefaultLayout() {
           {/* Header for All Screens */}
           <header className="sticky top-0 z-40 w-full border-b border-divider bg-background/80 backdrop-blur-sm">
             <div className="container mx-auto max-w-8xl px-6">
-              {/* 5. Gunakan action dari store untuk membuka sidebar mobile */}
               <Header onMenuOpen={() => setSidebarOpen(true)} />
             </div>
           </header>

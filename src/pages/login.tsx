@@ -10,17 +10,12 @@ export default function LoginPage() {
 
   React.useEffect(() => {
     const root = document.documentElement;
-    // Simpan kelas tema asli sebelum diubah
     const originalClassName = root.className;
 
-    // Paksa tema gelap dengan menambahkan kelas 'dark'
     root.classList.add("dark");
-    // Hapus kelas light jika ada untuk menghindari konflik
     root.classList.remove("light");
 
-    // Fungsi cleanup yang akan dijalankan saat komponen ditinggalkan
     return () => {
-      // Kembalikan kelas ke kondisi semula
       root.className = originalClassName;
     };
   }, []);

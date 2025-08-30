@@ -1,8 +1,9 @@
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useBalanceMutation } from "@/hooks/useBalanceMutation";
 import { COLUMN_NAMES } from "./constants/balance-mutation-constants";
 import { BalanceMutationTableTopContent } from "./components/balance-mutation-table-top-content";
 import { BalanceMutationTableCellComponent } from "./components/balance-mutation-table-cell";
+import { BalanceMutationTableBottomContent } from "./components/balance-mutation-table-bottom-content";
 import {
   Table,
   TableHeader,
@@ -12,92 +13,98 @@ import {
   TableCell,
 } from "@heroui/table";
 import { Spinner } from "@heroui/spinner";
-import { Button } from "@heroui/button";
 import { SortDescriptor } from "@heroui/table";
-
-const ITEMS_PER_LOAD = 20;
+import { exportToExcel } from "@/utils/exportToExcel";
+import { formatDate } from "@/utils/formatters";
 
 export default function BalanceMutationPage() {
   const {
     allFetchedItems,
+    totalItems,
+    mutationSummary,
     isLoading,
     isError,
-    filterValue,
-    onSearchChange,
-    dateRange,
-    onDateChange,
+    inputFilters,
+    handleFilterChange,
+    onSearchSubmit,
     resetFilters,
     sortDescriptor,
     setSortDescriptor,
-    limit,
-    onLimitChange,
   } = useBalanceMutation();
 
-  const [visibleItemCount, setVisibleItemCount] = useState(ITEMS_PER_LOAD);
-  const [isClientLoading, setIsClientLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [isExporting, setIsExporting] = useState(false);
 
-  useEffect(() => {
-    setVisibleItemCount(ITEMS_PER_LOAD);
-  }, [allFetchedItems]);
+  const pages = Math.ceil(totalItems / pageSize);
 
-  const itemsToDisplay = useMemo(
-    () => allFetchedItems.slice(0, visibleItemCount),
-    [allFetchedItems, visibleItemCount]
-  );
+  const itemsToDisplay = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    const end = start + pageSize;
 
-  const handleLoadMore = useCallback(() => {
-    setIsClientLoading(true);
-    // Simulasi loading agar spinner terlihat
+    return allFetchedItems.slice(start, end);
+  }, [page, pageSize, allFetchedItems]);
+
+  const handlePageSizeChange = useCallback((size: number) => {
+    setPageSize(size);
+    setPage(1);
+  }, []);
+
+  const handleExport = () => {
+    setIsExporting(true);
     setTimeout(() => {
-      setVisibleItemCount((prev) =>
-        // Pastikan tidak melebihi total item yang ada
-        Math.min(prev + ITEMS_PER_LOAD, allFetchedItems.length)
-      );
-      setIsClientLoading(false);
-    }, 300);
-  }, [allFetchedItems.length]);
-
-  const canLoadMore = visibleItemCount < allFetchedItems.length;
+      const dataToExport = allFetchedItems.map((mutation) => ({
+        Tanggal: formatDate(mutation.tanggal),
+        Keterangan: mutation.keterangan,
+        Jumlah: mutation.jumlah,
+        "Saldo Akhir": mutation.saldo_akhir,
+      }));
+      exportToExcel(dataToExport, "Laporan Mutasi Saldo");
+      setIsExporting(false);
+    }, 500);
+  };
 
   const topContent = useMemo(
     () => (
       <BalanceMutationTableTopContent
-        filterValue={filterValue}
-        onSearchChange={onSearchChange}
-        dateRange={dateRange}
-        onDateChange={onDateChange}
+        filters={inputFilters}
+        onFilterChange={handleFilterChange}
+        onSearchSubmit={onSearchSubmit}
         onResetFilters={resetFilters}
-        totalItems={allFetchedItems.length}
-        limit={limit}
-        onLimitChange={onLimitChange}
+        totalItems={totalItems}
+        summary={mutationSummary}
       />
     ),
     [
-      filterValue,
-      onSearchChange,
-      dateRange,
-      onDateChange,
+      inputFilters,
+      handleFilterChange,
+      onSearchSubmit,
       resetFilters,
-      allFetchedItems.length,
-      limit,
-      onLimitChange,
+      totalItems,
+      mutationSummary,
     ]
   );
 
   const bottomContent = useMemo(() => {
-    if (!canLoadMore) return null;
     return (
-      <div className="flex w-full justify-center py-4">
-        <Button
-          isLoading={isClientLoading}
-          onPress={handleLoadMore}
-          variant="flat"
-        >
-          Tampilkan Lebih Banyak
-        </Button>
-      </div>
+      <BalanceMutationTableBottomContent
+        page={page}
+        totalPages={pages}
+        onPageChange={setPage}
+        pageSize={pageSize}
+        onPageSizeChange={handlePageSizeChange}
+        onExport={handleExport}
+        isExporting={isExporting}
+      />
     );
-  }, [canLoadMore, isClientLoading, handleLoadMore]);
+  }, [
+    page,
+    pages,
+    pageSize,
+    handlePageSizeChange,
+    isExporting,
+    allFetchedItems,
+  ]);
 
   const handleSortChange = (descriptor: SortDescriptor) => {
     setSortDescriptor(descriptor);
@@ -105,6 +112,7 @@ export default function BalanceMutationPage() {
 
   return (
     <Table
+      isStriped
       isHeaderSticky
       bottomContent={bottomContent}
       bottomContentPlacement="outside"
@@ -114,14 +122,20 @@ export default function BalanceMutationPage() {
       sortDescriptor={sortDescriptor}
       onSortChange={handleSortChange}
       classNames={{
-        wrapper: "max-h-[600px] overflow-y-auto p-0",
+        wrapper: "max-h-[480px] overflow-y-auto p-0",
       }}
     >
       <TableHeader columns={COLUMN_NAMES}>
         {(column) => (
           <TableColumn
             key={column.uid}
-            align={column.uid === "actions" ? "end" : "start"}
+            align={
+              column.uid === "actions" ||
+              column.uid === "jumlah" ||
+              column.uid === "saldo_akhir"
+                ? "end"
+                : "start"
+            }
           >
             {column.name}
           </TableColumn>

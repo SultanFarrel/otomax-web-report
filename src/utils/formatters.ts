@@ -1,4 +1,5 @@
-import { DateValue, RangeValue } from "@heroui/calendar";
+import { DateValue } from "@heroui/calendar";
+import { RangeValue } from "@react-types/shared";
 
 const formatCurrency = (amount: number, options?: Intl.NumberFormatOptions) =>
   new Intl.NumberFormat("id-ID", {
@@ -9,21 +10,23 @@ const formatCurrency = (amount: number, options?: Intl.NumberFormatOptions) =>
   }).format(amount);
 
 const DEFAULT_DATE_OPTIONS: Intl.DateTimeFormatOptions = {
-  dateStyle: "medium",
-  timeStyle: "medium",
-  timeZone: "UTC",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: false,
 };
 
 const formatDate = (
   dateString: string,
   options?: Intl.DateTimeFormatOptions
 ) => {
-  const formatOptions = options
-    ? { timeZone: "UTC", ...options }
-    : DEFAULT_DATE_OPTIONS;
-  return new Intl.DateTimeFormat("id-ID", formatOptions).format(
-    new Date(dateString)
-  );
+  const formatOptions = options || DEFAULT_DATE_OPTIONS;
+  return new Intl.DateTimeFormat("id-ID", formatOptions)
+    .format(new Date(dateString))
+    .replace(",", "");
 };
 
 const formatDateRange = (range: RangeValue<DateValue> | null) => {

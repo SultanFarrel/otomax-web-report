@@ -12,23 +12,22 @@ import { Tooltip } from "@heroui/tooltip";
 import {
   ChevronDownIcon,
   MagnifyingGlassIcon,
-  ArrowPathIcon,
+  ArrowsRightLeftIcon,
 } from "@heroicons/react/24/outline";
+import { ProductFilters } from "@/hooks/useProducts";
 
 interface ProductTableTopContentProps {
-  filterValue: string;
-  onSearchChange: (value: string) => void;
-  statusFilter: string;
-  onStatusChange: (key: React.Key) => void;
+  filters: ProductFilters;
+  onFilterChange: (field: keyof ProductFilters, value: any) => void;
+  onSearchSubmit: () => void;
   onResetFilters: () => void;
   totalItems: number;
 }
 
 export const ProductTableTopContent: React.FC<ProductTableTopContentProps> = ({
-  filterValue,
-  onSearchChange,
-  statusFilter,
-  onStatusChange,
+  filters,
+  onFilterChange,
+  onSearchSubmit,
   onResetFilters,
   totalItems,
 }) => {
@@ -36,32 +35,38 @@ export const ProductTableTopContent: React.FC<ProductTableTopContentProps> = ({
     React.useState(false);
 
   const statusButtonText = React.useMemo(() => {
-    if (!isStatusFilterTouched || statusFilter === "all") {
+    if (!isStatusFilterTouched || filters.status === "all") {
       return "Status";
     }
-    return STATUS_OPTIONS.find((status) => status.uid === statusFilter)?.name;
-  }, [isStatusFilterTouched, statusFilter]);
+    return STATUS_OPTIONS.find((status) => status.uid === filters.status)?.name;
+  }, [isStatusFilterTouched, filters.status]);
 
   return (
     <div className="flex flex-col gap-4">
-      {/* --- PERBAIKAN DI SINI --- */}
-      <div className="flex flex-wrap justify-between gap-3 items-end">
-        {/* Mengubah max-width agar sama dengan halaman lain */}
-        <Input
-          isClearable
-          className="w-full sm:max-w-xs" // Diubah dari sm:max-w-[44%]
-          placeholder="Cari berdasarkan nama/kode..."
-          startContent={<MagnifyingGlassIcon className="h-5 w-5" />}
-          value={filterValue}
-          onClear={() => onSearchChange("")}
-          onValueChange={onSearchChange}
-        />
-        <div className="flex gap-3">
+      <form
+        className="flex flex-wrap justify-between gap-3 items-end"
+        onSubmit={(e) => {
+          e.preventDefault();
+          onSearchSubmit();
+        }}
+      >
+        {/* Grup Kiri: Search dan Status */}
+        <div className="flex gap-3 w-full sm:w-auto">
+          <Input
+            isClearable
+            className="w-full sm:max-w-xs"
+            placeholder="Cari nama/kode..."
+            startContent={<MagnifyingGlassIcon className="h-5 w-5" />}
+            value={filters.search}
+            onClear={() => onFilterChange("search", "")}
+            onValueChange={(value) => onFilterChange("search", value)}
+          />
           <Dropdown>
             <DropdownTrigger>
               <Button
                 endContent={<ChevronDownIcon className="h-4 w-4" />}
                 variant="flat"
+                className="min-w-[120px] justify-between"
               >
                 {statusButtonText}
               </Button>
@@ -70,10 +75,10 @@ export const ProductTableTopContent: React.FC<ProductTableTopContentProps> = ({
               disallowEmptySelection
               aria-label="Filter by status"
               closeOnSelect
-              selectedKeys={new Set([statusFilter])}
+              selectedKeys={new Set([filters.status])}
               selectionMode="single"
               onAction={(key) => {
-                onStatusChange(key);
+                onFilterChange("status", key);
                 setIsStatusFilterTouched(true);
               }}
             >
@@ -84,7 +89,18 @@ export const ProductTableTopContent: React.FC<ProductTableTopContentProps> = ({
               ))}
             </DropdownMenu>
           </Dropdown>
-          <Tooltip content="Reset Filter" placement="bottom" closeDelay={0}>
+        </div>
+
+        {/* Grup Kanan: Tombol Aksi */}
+        <div className="flex gap-3">
+          <Button
+            color="primary"
+            type="submit"
+            startContent={<MagnifyingGlassIcon className="h-5 w-5" />}
+          >
+            Cari
+          </Button>
+          <Tooltip content="Reset Filter" placement="top" closeDelay={0}>
             <Button
               isIconOnly
               variant="light"
@@ -95,11 +111,11 @@ export const ProductTableTopContent: React.FC<ProductTableTopContentProps> = ({
               className="text-default-500"
               aria-label="Reset Filter"
             >
-              <ArrowPathIcon className="h-5 w-5" />
+              <ArrowsRightLeftIcon className="h-5 w-5" />
             </Button>
           </Tooltip>
         </div>
-      </div>
+      </form>
       <span className="text-default-400 text-small">
         Total {totalItems} produk
       </span>

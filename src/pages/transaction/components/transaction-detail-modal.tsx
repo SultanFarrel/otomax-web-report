@@ -14,7 +14,6 @@ import {
 import { Button } from "@heroui/button";
 import { Chip } from "@heroui/chip";
 
-// Komponen untuk menampilkan satu baris detail
 const DetailRow = ({
   label,
   value,
@@ -28,7 +27,6 @@ const DetailRow = ({
   </div>
 );
 
-// Komponen utama Modal
 interface ModalProps {
   trx: Transaction | null;
   onClose: () => void;
@@ -91,22 +89,12 @@ export const TransactionDetailModal: React.FC<ModalProps> = ({
                       value={formatCurrency(trx.harga)}
                     />
                     <DetailRow
-                      label="Harga Beli"
-                      value={formatCurrency(trx.harga_beli)}
-                    />
-                    <DetailRow
-                      label="Laba"
-                      value={formatCurrency(trx.laba || 0)}
-                    />
-                    <DetailRow
                       label="Saldo Awal"
                       value={formatCurrency(trx.saldo_awal)}
                     />
                     <DetailRow
                       label="Saldo Akhir"
-                      value={formatCurrency(
-                        trx.saldo_akhir || trx.saldo_awal - trx.harga_beli
-                      )}
+                      value={formatCurrency(trx.saldo_akhir)}
                     />
                   </dl>
                 </div>

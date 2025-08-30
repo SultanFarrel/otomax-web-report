@@ -1,5 +1,3 @@
-// src/pages/dashboard/components/recent-mutasi-saldo.tsx
-
 import React from "react";
 import { Card, CardHeader, CardBody, CardFooter } from "@heroui/card";
 import { Button } from "@heroui/button";
@@ -15,17 +13,41 @@ interface RecentBalanceMutationsProps {
 export const RecentBalanceMutations: React.FC<RecentBalanceMutationsProps> = ({
   data,
 }) => {
+  const totalAmount = React.useMemo(() => {
+    if (!data) {
+      return 0;
+    }
+
+    return data.reduce((acc, mutasi) => {
+      acc += mutasi.jumlah;
+      return acc;
+    }, 0);
+  }, [data]);
+
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <h3 className="text-lg font-semibold">10 Mutasi Saldo Terakhir</h3>
+        <div className="flex items-center gap-2 text-sm font-medium">
+          <p>
+            Total Jumlah:{" "}
+            <span
+              className={cn({
+                "text-success": totalAmount >= 0,
+                "text-danger": totalAmount < 0,
+              })}
+            >
+              {formatCurrency(totalAmount)}
+            </span>
+          </p>
+        </div>
       </CardHeader>
       <CardBody className="p-0">
         <div className="divide-y divide-default-100">
-          {data.map((mutasi) => (
+          {data.map((mutasi, index) => (
             <div
-              key={mutasi.kode}
-              className="p-4 flex justify-between items-center"
+              key={index}
+              className="py-2 px-4 flex justify-between items-center even:bg-default-100"
             >
               <div>
                 <p

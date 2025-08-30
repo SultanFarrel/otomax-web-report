@@ -1,125 +1,171 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useMemo } from "react";
 import { RangeValue } from "@react-types/shared";
 import { useQuery } from "@tanstack/react-query";
-import { BalanceMutationApiResponse } from "@/types";
+import { BalanceMutation, BalanceMutationApiResponse } from "@/types";
 import { apiClient } from "@/api/axios";
-import { useUserStore } from "@/store/userStore";
-import { useDebounce } from "@/hooks/useDebounce";
 import { DateValue } from "@heroui/calendar";
 import { SortDescriptor } from "@heroui/table";
 import { today, getLocalTimeZone } from "@internationalized/date";
 
-const fetchBalanceMutation = async ({
-  kode,
-  limit,
-  filterValue,
-  sortDescriptor,
-  dateRange,
-}: {
-  kode: string;
-  limit: number;
-  filterValue: string;
-  sortDescriptor: SortDescriptor;
+export interface BalanceMutationFilters {
+  search: string;
   dateRange: RangeValue<DateValue> | null;
-}): Promise<BalanceMutationApiResponse> => {
-  const endpoint = `/mutasi/reseller/${kode}`;
+  mutationTypes: string[];
+}
 
-  const params: any = {
-    limit,
-    search: filterValue || undefined,
-    startDate: dateRange?.start?.toString(),
-    endDate: dateRange?.end?.toString(),
-    sortBy: sortDescriptor.column as string,
-    sortDirection: sortDescriptor.direction,
+const mutationTypeMap: Record<string, string[]> = {
+  Manual: ["+"],
+  Transaksi: ["T"],
+  Refund: ["G"],
+  Komisi: ["K"],
+  "Transfer Saldo": ["1", "2"],
+  Tiket: ["B"],
+};
+
+// Fungsi untuk mengubah data dari format [columns, rows] ke [objects]
+const transformBalanceMutationData = (apiData: any): BalanceMutation[] => {
+  if (!apiData || !apiData.columns || !apiData.rows) {
+    return [];
+  }
+
+  const { columns, rows } = apiData;
+
+  return rows.map((row: any[]) => {
+    const mutationObject: { [key: string]: any } = {};
+    columns.forEach((colName: string, index: number) => {
+      mutationObject[colName] = row[index];
+    });
+    return mutationObject as BalanceMutation;
+  });
+};
+
+const fetchBalanceMutation = async ({
+  filters,
+  sortDescriptor,
+}: {
+  filters: BalanceMutationFilters;
+  sortDescriptor: SortDescriptor;
+}): Promise<BalanceMutationApiResponse> => {
+  const endpoint = "/mutasi";
+
+  const mutationTypeChars = filters.mutationTypes.includes("Semua")
+    ? undefined
+    : filters.mutationTypes
+        .flatMap((type) => mutationTypeMap[type] || [])
+        .join(",");
+
+  const formatDate = (date: DateValue | undefined) => {
+    return date ? date.toString().split("T")[0] : undefined;
   };
 
-  Object.keys(params).forEach((key) => {
-    if (params[key] === undefined || params[key] === "") delete params[key];
-  });
+  const params: any = {
+    search: filters.search || undefined,
+    sortBy: sortDescriptor.column as string,
+    sortDirection: sortDescriptor.direction,
+    mutationTypes: mutationTypeChars,
+    startDate: formatDate(filters.dateRange?.start),
+    endDate: formatDate(filters.dateRange?.end),
+  };
+
+  Object.keys(params).forEach(
+    (key) =>
+      (params[key] === undefined || params[key] === "") && delete params[key]
+  );
 
   const { data } = await apiClient.get(endpoint, { params });
-  return data;
+
+  // Transformasi data sebelum mengembalikannya
+  const transformedData = transformBalanceMutationData(data.data);
+
+  return {
+    ...data,
+    data: transformedData,
+  };
 };
 
 export function useBalanceMutation() {
-  const user = useUserStore((state) => state.user);
-  const [filterValue, setFilterValue] = useState("");
-  const [limit, setLimit] = useState<string>("500");
+  const initialFilters: BalanceMutationFilters = {
+    search: "",
+    dateRange: {
+      start: today(getLocalTimeZone()),
+      end: today(getLocalTimeZone()),
+    },
+    mutationTypes: ["Semua"],
+  };
 
-  const [dateRange, setDateRange] = useState<RangeValue<DateValue>>({
-    start: today(getLocalTimeZone()),
-    end: today(getLocalTimeZone()),
-  });
-
+  const [inputFilters, setInputFilters] =
+    useState<BalanceMutationFilters>(initialFilters);
+  const [submittedFilters, setSubmittedFilters] =
+    useState<BalanceMutationFilters>(initialFilters);
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
-    column: "kode",
+    column: "tanggal",
     direction: "descending",
   });
 
-  const debouncedFilterValue = useDebounce(filterValue, 500);
-  const debouncedLimit = useDebounce(limit, 800);
-
-  const { data, isLoading, isError } = useQuery<
+  const { data, isLoading, isError, refetch } = useQuery<
     BalanceMutationApiResponse,
     Error
   >({
-    queryKey: [
-      "balanceMutation",
-      user?.kode,
-      debouncedFilterValue,
-      sortDescriptor,
-      dateRange,
-      debouncedLimit,
-    ],
-    queryFn: () => {
-      const numericLimit = parseInt(limit, 10);
-      const finalLimit =
-        isNaN(numericLimit) || numericLimit <= 0 ? 500 : numericLimit;
-
-      return fetchBalanceMutation({
-        kode: user!.kode,
-        limit: finalLimit,
-        filterValue: debouncedFilterValue,
+    queryKey: ["balanceMutation", submittedFilters, sortDescriptor],
+    queryFn: () =>
+      fetchBalanceMutation({
+        filters: submittedFilters,
         sortDescriptor,
-        dateRange,
-      });
-    },
-    enabled: !!user?.kode,
-    staleTime: 5 * 60 * 1000, // 5 menit
+      }),
+    staleTime: Infinity,
   });
 
-  const onLimitChange = useCallback((newLimit: string) => {
-    setLimit(newLimit);
-  }, []);
+  const mutationSummary = useMemo(() => {
+    const allItems = data?.data || [];
+    const summary = {
+      credit: 0,
+      debit: 0,
+      total: 0,
+    };
 
-  const onSearchChange = useCallback(
-    (value?: string) => setFilterValue(value || ""),
-    []
-  );
-  const onDateChange = useCallback(
-    (range: RangeValue<DateValue>) => setDateRange(range),
-    []
-  );
-  const resetFilters = useCallback(() => {
-    setFilterValue("");
-    setDateRange({
-      start: today(getLocalTimeZone()),
-      end: today(getLocalTimeZone()),
+    allItems.forEach((mutation) => {
+      if (mutation.jumlah > 0) {
+        summary.credit += mutation.jumlah;
+      } else {
+        summary.debit += mutation.jumlah;
+      }
     });
-    setSortDescriptor({ column: "kode", direction: "descending" });
-    setLimit("500");
-  }, []);
+
+    summary.total = summary.credit + summary.debit;
+
+    return summary;
+  }, [data?.data]);
+
+  const handleFilterChange = (
+    field: keyof BalanceMutationFilters,
+    value: any
+  ) => {
+    setInputFilters((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const onSearchSubmit = useCallback(() => {
+    if (JSON.stringify(inputFilters) === JSON.stringify(submittedFilters)) {
+      refetch();
+    } else {
+      setSubmittedFilters(inputFilters);
+    }
+  }, [inputFilters, submittedFilters, refetch]);
+
+  const resetFilters = useCallback(() => {
+    setInputFilters(initialFilters);
+    setSortDescriptor({ column: "tanggal", direction: "descending" });
+    setSubmittedFilters(initialFilters);
+  }, [initialFilters]);
 
   return {
     allFetchedItems: data?.data ?? [],
+    totalItems: data?.rowCount ?? 0,
+    mutationSummary,
     isLoading,
     isError,
-    filterValue,
-    onSearchChange,
-    dateRange,
-    onDateChange,
-    limit,
-    onLimitChange,
+    inputFilters,
+    handleFilterChange,
+    onSearchSubmit,
     resetFilters,
     sortDescriptor,
     setSortDescriptor,

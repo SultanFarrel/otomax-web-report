@@ -19,17 +19,11 @@ const DownlineTransactionTableCell: React.FC<
 
   switch (columnKey) {
     case "kode":
+    case "ref_id":
       return <p className="text-sm font-mono">{cellValue}</p>;
     case "tgl_entri":
-      return (
-        <p className="text-sm">
-          {formatDate(cellValue as string, {
-            year: "numeric",
-            month: "numeric",
-            day: "numeric",
-          })}
-        </p>
-      );
+    case "tgl_status":
+      return <p className="text-sm">{formatDate(cellValue as string)}</p>;
     case "harga":
       return <p className="text-sm">{formatCurrency(cellValue as number)}</p>;
     case "status":
@@ -38,7 +32,14 @@ const DownlineTransactionTableCell: React.FC<
         text: "Unknown",
       };
       return (
-        <Chip color={statusInfo.color} size="sm" variant="flat">
+        <Chip
+          color={statusInfo.color}
+          size="sm"
+          variant="flat"
+          classNames={{
+            base: "min-w-32 justify-center",
+          }}
+        >
           {statusInfo.text}
         </Chip>
       );

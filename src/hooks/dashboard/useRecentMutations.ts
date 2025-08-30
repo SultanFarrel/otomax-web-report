@@ -8,22 +8,15 @@ interface ApiError {
   error: string;
 }
 
-export type RecentActivityData = Pick<
-  DashboardData,
-  "recentTransactions" | "recentMutasi"
->;
+export type RecentMutationsData = Pick<DashboardData, "recentMutasi">;
 
-// Fungsi untuk mengambil data dari endpoint
-const fetchRecentActivity = async (
-  kodeUpline: string
-): Promise<RecentActivityData> => {
+const fetchRecentMutations = async (): Promise<RecentMutationsData> => {
   try {
-    const { data } = await apiClient.get(
-      `/dashboard/recent-transaction-mutation/${kodeUpline}`
-    );
+    const { data } = await apiClient.get("/mutasi/recent");
     // Cek apakah data yang diterima adalah array
-    if (Array.isArray(data.stats)) {
-      return data.stats || data;
+    if (Array.isArray(data)) {
+      // Jika ya, bungkus ke dalam format yang diharapkan oleh komponen.
+      return { recentMutasi: data };
     }
 
     // Jika bukan array, mungkin ini adalah objek error dari server.
@@ -42,13 +35,13 @@ const fetchRecentActivity = async (
   }
 };
 
-export function useRecentActivity() {
+export function useRecentMutations() {
   const user = useUserStore((state) => state.user);
 
   return useQuery({
-    queryKey: ["recentActivity", user?.kode],
-    queryFn: () => fetchRecentActivity(user!.kode),
+    queryKey: ["recentMutations", user?.kode],
+    queryFn: () => fetchRecentMutations(),
     enabled: !!user?.kode,
-    staleTime: 5 * 60 * 1000, // Cache data selama 5 menit
+    staleTime: Infinity,
   });
 }

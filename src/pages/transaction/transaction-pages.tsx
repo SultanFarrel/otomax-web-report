@@ -1,13 +1,17 @@
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo } from "react";
 
 import { Transaction } from "@/types";
 import { useTransactions } from "@/hooks/useTransactions";
 import { TransactionDetailModal } from "@/pages/transaction/components/transaction-detail-modal";
 import { TransactionReceipt } from "@/pages/transaction/components/transaction-receipt";
+import { exportToExcel } from "@/utils/exportToExcel";
+import { formatDate } from "@/utils/formatters";
+import { STATUS_COLORS } from "./constants/transaction-constants";
 
 import { COLUMN_NAMES } from "./constants/transaction-constants";
 import { TransactionTableTopContent } from "./components/transaction-table-top-content";
 import { TransactionTableCell } from "./components/transaction-table-cell";
+import { TransactionTableBottomContent } from "./components/transaction-table-bottom-content";
 
 import {
   Table,
@@ -19,64 +23,29 @@ import {
 } from "@heroui/table";
 import { Spinner } from "@heroui/spinner";
 import { SortDescriptor } from "@heroui/table";
-import { Button } from "@heroui/button";
-
-const ITEMS_PER_LOAD = 20;
 
 export default function TransactionPage() {
   const {
-    allFetchedItems,
+    data,
+    allData,
+    transactionSummary,
     isLoading,
     isError,
-    filterValue,
-    onSearchChange,
-    statusFilter,
-    onStatusChange,
-    dateRange,
-    onDateChange,
+    page,
+    setPage,
+    pageSize,
+    handlePageSizeChange,
+    inputFilters,
+    handleFilterChange,
+    onSearchSubmit,
     resetFilters,
     sortDescriptor,
     setSortDescriptor,
-    limit,
-    onLimitChange,
   } = useTransactions();
-
-  const [visibleItemCount, setVisibleItemCount] = useState(ITEMS_PER_LOAD);
-  const [isClientLoading, setIsClientLoading] = useState(false);
-
-  useEffect(() => {
-    setVisibleItemCount(ITEMS_PER_LOAD);
-  }, [allFetchedItems]);
-
-  const itemsToDisplay = useMemo(
-    () => allFetchedItems.slice(0, visibleItemCount),
-    [allFetchedItems, visibleItemCount]
-  );
-
-  const handleLoadMore = useCallback(() => {
-    setIsClientLoading(true);
-    // Simulasi loading agar spinner terlihat
-    setTimeout(() => {
-      setVisibleItemCount((prev) =>
-        // Pastikan tidak melebihi total item yang ada
-        Math.min(prev + ITEMS_PER_LOAD, allFetchedItems.length)
-      );
-      setIsClientLoading(false);
-    }, 300);
-  }, [allFetchedItems.length]);
-
-  const canLoadMore = visibleItemCount < allFetchedItems.length;
 
   const [selectedTrx, setSelectedTrx] = useState<Transaction | null>(null);
   const [trxToPrint, setTrxToPrint] = useState<Transaction | null>(null);
-
-  const [visibleColumns, setVisibleColumns] = useState<Set<string>>(
-    new Set(COLUMN_NAMES.map((c) => c.uid))
-  );
-
-  const headerColumns = useMemo(() => {
-    return COLUMN_NAMES.filter((column) => visibleColumns.has(column.uid));
-  }, [visibleColumns]);
+  const [isExporting, setIsExporting] = useState(false);
 
   const handlePrint = (trx: Transaction) => {
     setTrxToPrint(trx);
@@ -86,56 +55,81 @@ export default function TransactionPage() {
     }, 100);
   };
 
+  const handleExport = () => {
+    setIsExporting(true);
+
+    // Simulasi proses ekspor agar loading terlihat
+    setTimeout(() => {
+      const dataToExport = allData.map((trx) => {
+        const statusInfo = STATUS_COLORS[trx.status] || {
+          text: `Kode ${trx.status}`,
+        };
+
+        return {
+          "TRX ID": trx.kode,
+          "Ref ID": trx.ref_id,
+          "Tgl TRX": formatDate(trx.tgl_entri),
+          Produk: trx.kode_produk,
+          Tujuan: trx.tujuan,
+          Harga: trx.harga,
+          Status: statusInfo.text,
+          SN: trx.sn,
+          Pengirim: trx.pengirim,
+          "Tgl Status": trx.tgl_status ? formatDate(trx.tgl_status) : "-",
+        };
+      });
+      exportToExcel(dataToExport, "Laporan Transaksi");
+      setIsExporting(false);
+    }, 500);
+  };
+
   const topContent = useMemo(
     () => (
       <TransactionTableTopContent
-        filterValue={filterValue}
-        onSearchChange={onSearchChange}
-        statusFilter={statusFilter}
-        onStatusChange={onStatusChange}
-        dateRange={dateRange}
-        onDateChange={onDateChange}
-        visibleColumns={visibleColumns}
-        onVisibleColumnsChange={setVisibleColumns as any}
+        filters={inputFilters}
+        onFilterChange={handleFilterChange}
+        onSearchSubmit={onSearchSubmit}
         onResetFilters={resetFilters}
-        totalItems={allFetchedItems.length}
-        limit={limit}
-        onLimitChange={onLimitChange}
+        totalItems={data?.totalItems || 0}
+        summary={transactionSummary}
       />
     ),
     [
-      filterValue,
-      onSearchChange,
-      statusFilter,
-      onStatusChange,
-      dateRange,
-      onDateChange,
-      visibleColumns,
+      inputFilters,
+      handleFilterChange,
+      onSearchSubmit,
       resetFilters,
-      allFetchedItems.length,
-      limit,
-      onLimitChange,
+      data?.totalItems,
+      transactionSummary,
     ]
   );
 
   const bottomContent = useMemo(() => {
-    if (!canLoadMore) return null;
-
+    if (!data) return null;
     return (
-      <div className="flex w-full justify-center py-4">
-        <Button
-          isLoading={isClientLoading}
-          onPress={handleLoadMore}
-          variant="flat"
-        >
-          Tampilkan Lebih Banyak
-        </Button>
-      </div>
+      <TransactionTableBottomContent
+        page={page}
+        totalPages={data.totalPages}
+        onPageChange={setPage}
+        pageSize={pageSize}
+        onPageSizeChange={handlePageSizeChange}
+        onExport={handleExport}
+        isExporting={isExporting} // <-- Pass state loading
+      />
     );
-  }, [canLoadMore, isClientLoading, handleLoadMore]);
+  }, [
+    page,
+    data?.totalPages,
+    setPage,
+    pageSize,
+    handlePageSizeChange,
+    allData,
+    isExporting,
+  ]);
 
   const handleSortChange = (descriptor: SortDescriptor) => {
     setSortDescriptor(descriptor);
+    setPage(1);
   };
 
   return (
@@ -145,6 +139,7 @@ export default function TransactionPage() {
       </div>
       <div className="main-content">
         <Table
+          isStriped
           isHeaderSticky
           aria-label="Tabel Data Transaksi"
           bottomContent={bottomContent}
@@ -154,22 +149,32 @@ export default function TransactionPage() {
           sortDescriptor={sortDescriptor}
           onSortChange={handleSortChange}
           classNames={{
-            wrapper: "max-h-[600px] p-0 ps-2 overflow-y-auto stable-scrollbar",
+            wrapper: "max-h-[565px] p-0 ps-2 overflow-y-auto stable-scrollbar",
           }}
         >
-          <TableHeader columns={headerColumns}>
+          <TableHeader columns={COLUMN_NAMES}>
             {(column) => (
               <TableColumn
                 key={column.uid}
-                align={column.uid === "actions" ? "end" : "start"}
-                allowsSorting={column.sortable}
+                align={
+                  column.uid === "actions" ||
+                  column.uid === "kode" ||
+                  column.uid === "ref_id" ||
+                  column.uid === "harga"
+                    ? "end"
+                    : column.uid === "status" ||
+                        column.uid === "tgl_entri" ||
+                        column.uid === "tgl_status"
+                      ? "center"
+                      : "start"
+                }
               >
                 {column.name}
               </TableColumn>
             )}
           </TableHeader>
           <TableBody
-            items={itemsToDisplay}
+            items={data?.data ?? []}
             isLoading={isLoading}
             loadingContent={<Spinner label="Memuat data..." />}
             emptyContent={

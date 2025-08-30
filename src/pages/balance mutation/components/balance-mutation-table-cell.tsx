@@ -16,22 +16,12 @@ const BalanceMutationTableCell: React.FC<BalanceMutationTableCellProps> = ({
 
   switch (columnKey) {
     case "tanggal":
-      return (
-        <p className="text-sm">
-          {formatDate(cellValue as string, {
-            year: "numeric",
-            month: "numeric",
-            day: "numeric",
-            hour: "numeric",
-            minute: "numeric",
-          })}
-        </p>
-      );
+      return <p className="text-sm">{formatDate(cellValue as string)}</p>;
     case "jumlah":
       const isDebit = (cellValue as number) > 0;
       return (
         <p
-          className={cn("text-sm font-semibold", {
+          className={cn("text-sm font-semibold text-right", {
             "text-success": isDebit,
             "text-danger": !isDebit,
           })}

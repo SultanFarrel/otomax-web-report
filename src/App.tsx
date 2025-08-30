@@ -1,33 +1,20 @@
 import { Route, Routes } from "react-router-dom";
-import { useEffect } from "react";
 
 import ProtectedRoute from "@/components/protected-route";
 import LoginPage from "@/pages/login";
 import DefaultLayout from "@/layouts/default";
 import DashboardPage from "@/pages/dashboard/dashboard";
-import SettingsPage from "@/pages/settings";
+import SettingsPage from "@/pages/settings/settings";
 import ProdukPage from "@/pages/product/product-pages";
 import TransactionPage from "@/pages/transaction/transaction-pages";
 import MutasiSaldoPage from "@/pages/balance mutation/balance-mutation";
-import DownlinePage from "@/pages/downline";
+import DownlinePage from "@/pages/downline/downline";
+import DownlineTreePage from "@/pages/downline-tree/downline-tree";
 import TransaksiDownlinePage from "@/pages/downline-transaction/downline-transactions";
 import SessionExpiredPage from "./pages/errors/session-expired";
-import { useUserStore } from "./store/userStore";
 import GenericErrorPage from "./pages/errors/generic-error";
 
 function App() {
-  const { user, fetchUserData } = useUserStore();
-
-  useEffect(() => {
-    fetchUserData();
-  }, [fetchUserData]);
-
-  useEffect(() => {
-    if (user?.kode) {
-      document.title = `Web Report - ${user.kode}`;
-    }
-  }, [user]);
-
   return (
     <Routes>
       {/* Rute publik, bisa diakses tanpa login */}
@@ -42,6 +29,7 @@ function App() {
           <Route element={<TransactionPage />} path="/transaksi" />
           <Route element={<MutasiSaldoPage />} path="/mutasi-saldo" />
           <Route element={<DownlinePage />} path="/downline" />
+          <Route element={<DownlineTreePage />} path="/jaringan-downline" />
           <Route
             element={<TransaksiDownlinePage />}
             path="/transaksi-downline"

@@ -26,10 +26,8 @@ export function useManualTheme() {
     document.documentElement.classList.add(newTheme);
   };
 
-  // Sync ulang class html saat mount atau ketika theme berubah
   useEffect(() => {
     setTheme(theme);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return { theme, setTheme };

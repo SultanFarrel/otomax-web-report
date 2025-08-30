@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
-import { Spinner } from "@heroui/spinner"; // Impor Spinner
+import { Spinner } from "@heroui/spinner";
 
 const ProtectedRoute = () => {
   const token = useAuthStore((state) => state.token);

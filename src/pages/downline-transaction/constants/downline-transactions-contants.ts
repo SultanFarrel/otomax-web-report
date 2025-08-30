@@ -2,16 +2,16 @@ import { ChipProps } from "@heroui/chip";
 
 // LIST TABLE COLUMNS
 const COLUMN_NAMES = [
-  { name: "TRX ID", uid: "kode", sortable: true },
-  { name: "TGL ENTRI", uid: "tgl_entri", sortable: true },
-  { name: "RESELLER", uid: "kode_reseller" },
+  { name: "TRX ID", uid: "kode" },
+  { name: "REFF ID", uid: "ref_id" },
+  { name: "TGL TRX", uid: "tgl_entri" },
+  { name: "AGEN", uid: "kode_reseller" },
   { name: "PRODUK", uid: "kode_produk" },
   { name: "TUJUAN", uid: "tujuan" },
-  { name: "PENGIRIM", uid: "pengirim" },
-  { name: "STATUS", uid: "status" },
   { name: "HARGA", uid: "harga" },
-  { name: "KOMISI", uid: "komisi" },
+  { name: "STATUS", uid: "status" },
   { name: "SN", uid: "sn" },
+  { name: "TGL STATUS", uid: "tgl_status" },
   { name: "ACTIONS", uid: "actions" },
 ];
 
@@ -20,7 +20,7 @@ const STATUS_COLORS: Record<
   string,
   { color: ChipProps["color"]; text: string }
 > = {
-  "1": { color: "warning", text: "Proses" },
+  "1": { color: "primary", text: "Menunggu Jawaban" },
   "20": { color: "success", text: "Sukses" },
   "201": { color: "danger", text: "Dialihkan" },
   "64": { color: "danger", text: "Diabaikan" },
@@ -29,9 +29,9 @@ const STATUS_COLORS: Record<
   "2": { color: "primary", text: "Menunggu Jawaban" },
   "69": { color: "danger", text: "Cutoff" },
   "50": { color: "danger", text: "Dibatalkan" },
-  "3": { color: "danger", text: "Gagal Kirim" },
+  "3": { color: "primary", text: "Menunggu Jawaban" },
   "59": { color: "danger", text: "Harga Tidak Sesuai" },
-  "0": { color: "warning", text: "Kirim Ulang" },
+  "0": { color: "primary", text: "Menunggu Jawaban" },
   "54": { color: "danger", text: "Area Tidak Cocok" },
   "56": { color: "danger", text: "Blacklist" },
   "58": { color: "danger", text: "Tidak Aktif" },
@@ -42,7 +42,7 @@ const STATUS_COLORS: Record<
   "55": { color: "danger", text: "Timeout" },
   "46": { color: "danger", text: "Transaksi Dobel" },
   "53": { color: "danger", text: "Luar Wilayah" },
-  "4": { color: "warning", text: "Tidak ada Parsing" },
+  "4": { color: "primary", text: "Menunggu Jawaban" },
   "44": { color: "danger", text: "Produk Salah" },
 };
 
@@ -51,9 +51,7 @@ const STATUS_OPTIONS = [
   { name: "Semua", uid: "all" },
   { name: "Sukses", uid: "20" },
   { name: "Gagal", uid: "40" },
-  { name: "Sedang Proses", uid: "1" },
   { name: "Menunggu Jawaban", uid: "2" },
-  { name: "Gagal Kirim", uid: "3" },
   { name: "Dibatalkan", uid: "50" },
   { name: "Tujuan Salah", uid: "52" },
   { name: "Tujuan Diluar Wilayah", uid: "53" },

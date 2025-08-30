@@ -1,18 +1,14 @@
 import React from "react";
-
 import { Product } from "@/types";
 import { formatCurrency } from "@/utils/formatters";
-
 import { STATUS_COLORS } from "../constants/product-constants";
-
 import { Chip } from "@heroui/chip";
 
-// Helper untuk menentukan status produk
 const getProductStatus = (product: Product): string => {
   if (product.gangguan) return "Gangguan";
   if (product.kosong) return "Kosong";
-  if (product.aktif) return "Aktif";
-  return "Tidak Aktif";
+
+  return "Aktif";
 };
 
 interface ProductTableCellProps {
@@ -30,31 +26,26 @@ export const ProductTableCell: React.FC<ProductTableCellProps> = ({
     case "nama":
       return (
         <div>
-          <p className="font-bold text-sm">{cellValue}</p>
-          <p className="text-xs text-default-500">{product.kode_operator}</p>
+          <p className="font-bold text-sm">{cellValue as string}</p>
         </div>
       );
     case "harga_jual":
-      return (
-        <p className="text-sm"> {formatCurrency(product.harga_jual_final)}</p>
-      );
-    case "harga_beli":
       return <p className="text-sm"> {formatCurrency(cellValue as number)}</p>;
 
     case "status": {
       const statusText = getProductStatus(product);
       return (
         <Chip
-          className="capitalize"
           color={STATUS_COLORS[statusText]}
           size="sm"
           variant="flat"
+          classNames={{ base: "min-w-20 justify-center" }}
         >
           {statusText}
         </Chip>
       );
     }
     default:
-      return <p className="text-sm"> {cellValue}</p>;
+      return <p className="text-sm"> {cellValue as string}</p>;
   }
 };

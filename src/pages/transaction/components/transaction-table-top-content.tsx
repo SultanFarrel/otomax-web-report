@@ -1,12 +1,7 @@
 import React from "react";
-
 import { RangeValue } from "@react-types/shared";
-import { formatDateRange } from "@/utils/formatters";
-import {
-  COLUMN_NAMES,
-  STATUS_OPTIONS,
-} from "../constants/transaction-constants";
-
+import { formatCurrency, formatDateRange } from "@/utils/formatters";
+import { STATUS_OPTIONS } from "../constants/transaction-constants";
 import {
   Dropdown,
   DropdownTrigger,
@@ -22,161 +17,196 @@ import {
   ChevronDownIcon,
   MagnifyingGlassIcon,
   CalendarIcon,
-  ArrowPathIcon,
+  ArrowsRightLeftIcon,
 } from "@heroicons/react/24/outline";
+import { TransactionFilters } from "@/hooks/useTransactions";
+import { Chip } from "@heroui/chip";
+import { today, getLocalTimeZone } from "@internationalized/date";
+
+interface SummaryData {
+  amount: number;
+  count: number;
+}
 
 interface TransactionTableTopContentProps {
-  filterValue: string;
-  onSearchChange: (value: string) => void;
-  statusFilter: string;
-  onStatusChange: (key: React.Key) => void;
-  dateRange: RangeValue<DateValue> | null;
-  onDateChange: (range: RangeValue<DateValue>) => void;
-  visibleColumns: Set<string>;
-  onVisibleColumnsChange: (keys: any) => void;
+  filters: TransactionFilters;
+  onFilterChange: (field: keyof TransactionFilters, value: any) => void;
+  onSearchSubmit: () => void;
   onResetFilters: () => void;
   totalItems: number;
-  limit: string;
-  onLimitChange: (value: string) => void;
+  summary: {
+    success: SummaryData;
+    pending: SummaryData;
+    failed: SummaryData;
+  };
 }
 
 export const TransactionTableTopContent: React.FC<
   TransactionTableTopContentProps
 > = (props) => {
   const {
-    filterValue,
-    onSearchChange,
-    statusFilter,
-    onStatusChange,
-    dateRange,
-    onDateChange,
-    visibleColumns,
-    onVisibleColumnsChange,
+    filters,
+    onFilterChange,
+    onSearchSubmit,
     onResetFilters,
     totalItems,
-    limit,
-    onLimitChange,
+    summary,
   } = props;
 
-  const [isStatusFilterTouched, setIsStatusFilterTouched] =
-    React.useState(false);
+  const [isCalendarOpen, setIsCalendarOpen] = React.useState(false);
 
-  const statusButtonText = React.useMemo(() => {
-    if (!isStatusFilterTouched || statusFilter === "all") {
-      return "Status";
+  // --- LOGIKA UNTUK MEMBATASI TANGGAL ---
+  const now = today(getLocalTimeZone());
+  const minValue = now.subtract({ days: 7 });
+  const maxValue = now;
+  // -----------------------------------------
+
+  const handleDateChangeAndClose = (range: RangeValue<DateValue>) => {
+    onFilterChange("dateRange", range);
+    if (range.start && range.end) {
+      setIsCalendarOpen(false);
     }
-    return (
-      STATUS_OPTIONS.find((status) => status.uid === statusFilter)?.name ||
-      "Status"
-    );
-  }, [isStatusFilterTouched, statusFilter]);
+  };
+
+  const handleStatusChange = (key: React.Key) => {
+    onFilterChange("status", key as string);
+  };
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSearchSubmit();
+  };
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap justify-between gap-3 items-end">
-        <Input
-          isClearable
-          className="w-full sm:max-w-xs"
-          placeholder="Cari berdasarkan tujuan / kode produk..."
-          startContent={<MagnifyingGlassIcon className="h-5 w-5" />}
-          value={filterValue}
-          onClear={() => onSearchChange("")}
-          onValueChange={onSearchChange}
-        />
-        <div className="flex flex-wrap gap-3 items-end">
+    <form onSubmit={handleFormSubmit} className="flex flex-col gap-4">
+      {/* Container utama dengan justify-between */}
+      <div className="flex flex-wrap gap-3 items-end justify-between">
+        {/* Grup Kiri: Date Range Picker */}
+        <Popover
+          placement="bottom-start"
+          isOpen={isCalendarOpen}
+          onOpenChange={setIsCalendarOpen}
+        >
+          <PopoverTrigger>
+            <Button
+              variant="flat"
+              startContent={
+                <CalendarIcon className="h-4 w-4 text-default-500" />
+              }
+              className="min-w-[210px] justify-start"
+            >
+              {formatDateRange(filters.dateRange)}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="p-0">
+            <RangeCalendar
+              aria-label="Date filter"
+              // @ts-expect-error
+              value={filters.dateRange}
+              onChange={handleDateChangeAndClose}
+              minValue={minValue}
+              maxValue={maxValue}
+            />
+          </PopoverContent>
+        </Popover>
+
+        {/* Grup Kanan: Semua filter dan tombol lainnya */}
+        <div className="flex flex-wrap gap-3 items-end justify-end">
           <Input
-            aria-label="Set Limit Data"
-            placeholder="500"
-            type="number"
-            className="w-28"
-            value={limit}
-            onValueChange={onLimitChange}
+            className="max-w-[120px]"
+            placeholder="TRX ID"
+            value={filters.trxId}
+            onValueChange={(v) => onFilterChange("trxId", v)}
+          />
+          <Input
+            className="max-w-[120px]"
+            placeholder="Ref ID"
+            value={filters.refId}
+            onValueChange={(v) => onFilterChange("refId", v)}
+          />
+          <Input
+            className="max-w-[120px]"
+            placeholder="Produk"
+            value={filters.kodeProduk}
+            onValueChange={(v) => onFilterChange("kodeProduk", v)}
+          />
+          <Input
+            className="max-w-[120px]"
+            placeholder="Tujuan"
+            value={filters.tujuan}
+            onValueChange={(v) => onFilterChange("tujuan", v)}
+          />
+          <Input
+            className="max-w-[120px]"
+            placeholder="SN"
+            value={filters.sn}
+            onValueChange={(v) => onFilterChange("sn", v)}
           />
           <Dropdown>
             <DropdownTrigger>
               <Button
-                endContent={<ChevronDownIcon className="h-4 w-4" />}
                 variant="flat"
+                endContent={<ChevronDownIcon className="h-4 w-4" />}
+                className="min-w-[120px] justify-between"
               >
-                {statusButtonText}
+                {STATUS_OPTIONS.find((s) => s.uid === filters.status)?.name ||
+                  "Status"}
               </Button>
             </DropdownTrigger>
             <DropdownMenu
               disallowEmptySelection
               aria-label="Filter Status"
               closeOnSelect
-              selectedKeys={new Set([statusFilter])}
+              selectedKeys={new Set([filters.status])}
               selectionMode="single"
-              onAction={(key) => {
-                onStatusChange(key);
-                setIsStatusFilterTouched(true);
-              }}
+              onAction={handleStatusChange}
             >
               {STATUS_OPTIONS.map((status) => (
                 <DropdownItem key={status.uid}>{status.name}</DropdownItem>
               ))}
             </DropdownMenu>
           </Dropdown>
-          <Dropdown>
-            <DropdownTrigger>
-              <Button
-                endContent={<ChevronDownIcon className="h-4 w-4" />}
-                variant="flat"
-              >
-                Kolom
-              </Button>
-            </DropdownTrigger>
-            <DropdownMenu
-              disallowEmptySelection
-              aria-label="Tampilkan Kolom"
-              closeOnSelect={false}
-              selectedKeys={visibleColumns}
-              selectionMode="multiple"
-              onSelectionChange={onVisibleColumnsChange as any}
-            >
-              {COLUMN_NAMES.map((column) => (
-                <DropdownItem key={column.uid}>{column.name}</DropdownItem>
-              ))}
-            </DropdownMenu>
-          </Dropdown>
-          <Popover placement="bottom-start">
-            <PopoverTrigger>
-              <Button
-                variant="flat"
-                startContent={
-                  <CalendarIcon className="h-4 w-4 text-default-500" />
-                }
-              >
-                {formatDateRange(dateRange)}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="p-0">
-              <RangeCalendar
-                aria-label="Date filter"
-                value={dateRange}
-                onChange={onDateChange}
-              />
-            </PopoverContent>
-          </Popover>
-          <Tooltip content="Reset Filter" placement="bottom" closeDelay={0}>
+          <Button
+            color="primary"
+            type="submit"
+            startContent={<MagnifyingGlassIcon className="h-5 w-5" />}
+          >
+            Cari
+          </Button>
+          <Tooltip content="Reset Filter" placement="top" closeDelay={0}>
             <Button
               isIconOnly
               variant="light"
-              onPress={() => {
-                onResetFilters();
-                setIsStatusFilterTouched(false);
-              }}
+              onPress={onResetFilters}
               className="text-default-500"
               aria-label="Reset Filter"
             >
-              <ArrowPathIcon className="h-5 w-5" />
+              <ArrowsRightLeftIcon className="h-5 w-5" />
             </Button>
           </Tooltip>
         </div>
       </div>
-      <span className="text-default-400 text-small">
-        Total {totalItems} transaksi ditemukan.
-      </span>
-    </div>
+
+      {/* Bagian bawah: Total item dan Ringkasan dalam bentuk Chip */}
+      <div className="flex flex-wrap justify-between items-center gap-4">
+        <span className="text-default-400 text-small">
+          Total {totalItems} transaksi ditemukan.
+        </span>
+        <div className="flex flex-wrap items-center gap-2">
+          <Chip color="success" size="sm" variant="flat">
+            Sukses: {formatCurrency(summary.success.amount)} (
+            {summary.success.count} Trx)
+          </Chip>
+          <Chip color="primary" size="sm" variant="flat">
+            Pending: {formatCurrency(summary.pending.amount)} (
+            {summary.pending.count} Trx)
+          </Chip>
+          <Chip color="danger" size="sm" variant="flat">
+            Gagal: {formatCurrency(summary.failed.amount)} (
+            {summary.failed.count} Trx)
+          </Chip>
+        </div>
+      </div>
+    </form>
   );
 };

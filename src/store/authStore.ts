@@ -15,7 +15,7 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>()(
   devtools(
-    (set) => ({
+    (set, get) => ({
       token: null,
       isLoading: false,
       error: null,
@@ -43,16 +43,13 @@ export const useAuthStore = create<AuthState>()(
           set({ token, isLoading: false, error: null });
           window.location.href = "/";
         } catch (err: any) {
-          // Cek jika error datang dari server dan bukan error jaringan
           if (err.response) {
-            // Atur pesan error spesifik untuk login
             set({
               error: err.response.data?.error || "Login gagal.",
               isLoading: false,
               token: null,
             });
           } else {
-            // Handle error lain (misal: tidak ada koneksi)
             set({
               error: "Gagal terhubung ke server.",
               isLoading: false,
@@ -62,15 +59,22 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      logout: () => {
-        localStorage.removeItem("authToken");
-        set({ token: null });
-        window.location.href = "/login";
+      logout: async () => {
+        const token = get().token;
+        try {
+          await apiClient.post(`/auth/logout?${token}`);
+        } catch (error) {
+          console.error("Gagal melakukan logout di server:", error);
+        } finally {
+          // Hapus token dari local storage dan state
+          localStorage.removeItem("authToken");
+          set({ token: null });
+          window.location.href = "/login";
+        }
       },
     }),
     { name: "Auth Store" }
   )
 );
 
-// Panggil initialize saat aplikasi pertama kali dimuat
 useAuthStore.getState().initialize();

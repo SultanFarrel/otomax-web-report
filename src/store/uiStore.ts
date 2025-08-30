@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { devtools } from "zustand/middleware"; // <-- 1. Import devtools
+import { devtools } from "zustand/middleware";
 
 interface UiState {
   isSidebarCollapsed: boolean;
@@ -8,7 +8,6 @@ interface UiState {
   setSidebarOpen: (isOpen: boolean) => void;
 }
 
-// 2. Bungkus store Anda dengan devtools()
 export const useUiStore = create<UiState>()(
   devtools(
     (set) => ({
@@ -23,6 +22,6 @@ export const useUiStore = create<UiState>()(
       setSidebarOpen: (isOpen) =>
         set({ isSidebarOpen: isOpen }, false, "setSidebarOpen"),
     }),
-    { name: "UI Store" } // Nama opsional untuk store Anda
+    { name: "UI Store" }
   )
 );

@@ -1,6 +1,6 @@
 import { Fragment } from "react";
 import * as React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   Dropdown,
   DropdownItem,
@@ -24,10 +24,12 @@ import {
   UsersIcon,
   DocumentTextIcon,
   GlobeAltIcon,
+  ShareIcon,
 } from "@heroicons/react/24/outline";
 import { MoreHorizontalIcon, ChevronLeftIcon } from "@/components/icons";
 import { useAuthStore } from "@/store/authStore";
 import { useUserStore } from "@/store/userStore";
+import { useSiteStore } from "@/store/siteStore";
 
 interface SidebarProps {
   isCollapsed?: boolean;
@@ -40,7 +42,9 @@ export const SidebarContent = ({
   onNavItemClick,
 }: SidebarProps) => {
   const user = useUserStore((state) => state.user);
+  const siteInfo = useSiteStore((state) => state.siteInfo);
   const logout = useAuthStore((state) => state.logout);
+  const navigate = useNavigate();
 
   const iconMap: { [key: string]: React.ElementType } = {
     "/": HomeIcon,
@@ -48,6 +52,7 @@ export const SidebarContent = ({
     "/transaksi": CurrencyDollarIcon,
     "/mutasi-saldo": ArrowPathIcon,
     "/downline": UsersIcon,
+    "/jaringan-downline": ShareIcon,
     "/transaksi-downline": DocumentTextIcon,
   };
 
@@ -64,7 +69,7 @@ export const SidebarContent = ({
           <Link className="flex items-center gap-3" color="foreground" href="/">
             <p className="font-bold text-inherit text-2xl">
               {/* .kode ganti jadi .judul jika sudah ada */}
-              {user?.kode || "Web Report"}
+              {siteInfo?.judul || "Web Report"}
             </p>
           </Link>
         )}
@@ -162,7 +167,7 @@ export const SidebarContent = ({
             </DropdownItem>
             <DropdownItem
               key="settings"
-              href="/settings"
+              onPress={() => navigate("/settings")}
               startContent={<Cog6ToothIcon className="h-5 w-5" />}
             >
               Settings

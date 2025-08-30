@@ -5,16 +5,6 @@ export type IconSvgProps = SVGProps<SVGSVGElement> & {
 };
 
 export interface SiteInfo {
-  kode: string;
-  nama: string;
-  saldo: number;
-  alamat: string;
-  aktif: number;
-  kode_upline: string | null;
-  kode_level: string;
-  tgl_daftar: string;
-  saldo_minimal: number;
-  pengingat_saldo: number;
   judul: string;
 }
 
@@ -22,45 +12,42 @@ export type Product = {
   kode: string;
   nama: string;
   harga_jual: number;
-  harga_beli: number;
-  harga_jual_final: number;
-  aktif: number;
   kosong: number;
   gangguan: number;
-  kode_operator: string;
-  RowNum: string;
+  // Jadikan properti lama opsional agar tidak menimbulkan error di tempat lain
+  aktif?: number;
+  harga_beli?: number;
+  harga_jual_final?: number;
+  kode_operator?: string;
+  RowNum?: string;
 };
 
 export type Transaction = {
   kode: number;
+  ref_id: string;
   tgl_entri: string;
   kode_produk: string;
+  nama_operator: string;
   tujuan: string;
-  kode_reseller: string;
-  pengirim: string;
-  tipe_pengirim: string;
   harga: number;
   status: number;
-  harga_beli: number;
-  saldo_awal: number;
   sn: string | null;
-  qty: number;
-  komisi: number | null;
-  poin: number | null;
-  saldo_supplier: number | null;
-  RowNum: string;
-  tgl_status: string;
-  laba: number;
+  saldo_awal: number;
   saldo_akhir: number;
+  pengirim: string;
+  tgl_status: string;
+  // Jadikan properti lama opsional agar tidak menimbulkan error di komponen lain
+  kode_reseller?: string;
+  harga_beli?: number;
+  laba?: number;
 };
 
 export interface Downline {
   kode: string;
   nama: string;
   saldo: number;
-  alamat: string;
+  alamat: string | null;
   aktif: number;
-  suspend: number;
   kode_upline: string;
   kode_level: string;
   keterangan: string | null;
@@ -68,14 +55,20 @@ export interface Downline {
   saldo_minimal: number;
   tgl_aktivitas: string | null;
   pengingat_saldo: number;
-  RowNum: string;
+  suspend: number | null;
   total_downline: number;
 
-  // Properti opsional untuk struktur pohon
-  level?: number;
-  children?: Downline[];
-  hasChildren?: boolean; // Untuk menandakan apakah perlu menampilkan tombol expand
+  // Properti baru untuk frontend
+  komisi?: number;
+  poin?: number;
+  markup?: string;
 }
+
+export type DownlineTree = {
+  kode: string;
+  nama: string;
+  downline: DownlineTree[];
+};
 
 export type BalanceMutation = {
   kode: number;
@@ -85,71 +78,54 @@ export type BalanceMutation = {
   saldo_akhir: number;
 };
 
-export type ApiResponse = {
-  totalItems: number;
-  totalPages: number;
-  currentPage: number;
+export interface Session {
+  kode: number;
+  ip: string;
+  tgl_login: string;
+  is_current: 0 | 1;
+}
+
+export type ProductApiResponse = {
+  rowCount: number;
   data: Product[];
 };
 
 export type TransactionApiResponse = {
-  totalItems: number;
-  totalPages: number;
-  currentPage: number;
+  rowCount: number;
   data: Transaction[];
+  moreDataOffset?: number;
 };
 
 export interface DownlineApiResponse {
-  totalItems: number;
-  totalPages: number;
-  currentPage: number;
+  rowCount: number;
   data: Downline[];
+  hasKomisi?: boolean;
 }
 
 export type BalanceMutationApiResponse = {
-  totalItems: number;
-  totalPages: number;
-  currentPage: number;
+  moreDataOffset: number;
+  rowCount: number;
   data: BalanceMutation[];
 };
 
+export interface SessionApiResponse {
+  rowCount: number;
+  data: Session[];
+}
+
 // Tipe data untuk ringkasan statistik
 interface DashboardStats {
-  total_trx_today: number;
-  total_laba_today: number;
-  total_mutasi_in_today: number;
-  total_mutasi_out_today: number;
-  total_komisi_today: number;
-  total_komisi_all: number;
-}
-
-// Tipe data untuk tren transaksi
-interface TransactionTrend {
-  tanggal: string;
-  jumlah: number;
-}
-
-// Tipe data untuk top produk
-interface TopProduct {
-  kode_produk: string;
-  jumlah: number;
-}
-
-// Tipe data untuk top reseller
-interface TopReseller {
-  kode_reseller: string;
-  nama_reseller: string;
-  jumlah_transaksi: number;
+  total_sukses: number;
+  total_pending: number;
+  total_gagal: number;
+  harga_sukses: number;
+  harga_pending: number;
+  harga_gagal: number;
 }
 
 // Tipe data untuk respons gabungan dari API
 export interface DashboardData {
   stats: DashboardStats;
-  transactionsByStatus: { status: string; jumlah: number }[];
-  transactionsByProduct: { kode: string; value: number }[];
-  transactionTrend: TransactionTrend[]; // Data baru untuk tren
   recentTransactions: Transaction[];
   recentMutasi: BalanceMutation[];
-  topProducts: TopProduct[];
-  topResellers: TopReseller[];
 }

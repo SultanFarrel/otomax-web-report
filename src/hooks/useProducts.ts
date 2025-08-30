@@ -1,125 +1,167 @@
-import React from "react";
-
+import { useCallback, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-
-import { ApiResponse } from "@/types";
+import { ProductApiResponse, Product } from "@/types";
 import { apiClient } from "@/api/axios";
-import { useDebounce } from "@/hooks/useDebounce";
-
 import { SortDescriptor } from "@heroui/table";
 
-// --- Fetching API ---
-const fetchProducts = async (
-  page: number,
-  pageSize: number,
-  filterValue: string,
-  statusFilter: string,
-  sortDescriptor: SortDescriptor
-): Promise<ApiResponse> => {
-  const endpoint = "/produk";
+export interface ProductFilters {
+  search: string;
+  status: string;
+}
 
-  const params: {
-    page: number;
-    pageSize: number;
-    search?: string;
-    status?: string;
-    sortBy?: string;
-    sortDirection?: "ascending" | "descending";
-  } = {
-    page,
-    pageSize,
-  };
-
-  if (filterValue) {
-    params.search = filterValue;
+// Fungsi untuk mengubah data dari format [columns, rows] ke [objects]
+const transformProductData = (apiData: any): Product[] => {
+  if (!apiData || !apiData.columns || !apiData.rows) {
+    return [];
   }
 
-  if (statusFilter !== "all") {
-    params.status = statusFilter;
-  }
+  const { columns, rows } = apiData;
 
-  if (sortDescriptor && sortDescriptor.column) {
-    params.sortBy = sortDescriptor.column as string;
-    params.sortDirection = sortDescriptor.direction;
-  }
-
-  // Hapus properti yang 'undefined'
-  Object.keys(params).forEach((key) => {
-    const K = key as keyof typeof params;
-    if (params[K] === undefined) {
-      delete params[K];
-    }
+  return rows.map((row: any[]) => {
+    const productObject: { [key: string]: any } = {};
+    columns.forEach((colName: string, index: number) => {
+      productObject[colName] = row[index];
+    });
+    return productObject as Product;
   });
-
-  const { data } = await apiClient.get(endpoint, {
-    params,
-  });
-
-  return data;
 };
 
-// --- Custom Hook useProducts ---
+const fetchProducts = async ({
+  filters,
+}: {
+  filters: ProductFilters;
+}): Promise<ProductApiResponse> => {
+  const endpoint = "/produk";
+
+  const params: any = {
+    search: filters.search || undefined,
+    status: filters.status !== "all" ? filters.status : undefined,
+  };
+
+  Object.keys(params).forEach(
+    (key) =>
+      (params[key] === undefined || params[key] === "") && delete params[key]
+  );
+
+  const { data } = await apiClient.get(endpoint, { params });
+
+  const transformedData = transformProductData(data.data);
+
+  return {
+    ...data,
+    data: transformedData,
+  };
+};
+
 export function useProducts() {
-  const [page, setPage] = React.useState(1);
-  const [filterValue, setFilterValue] = React.useState("");
-  const [statusFilter, setStatusFilter] = React.useState<string>("all");
-  const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor>({
+  const [pageSize, setPageSize] = useState(10);
+
+  const initialFilters: ProductFilters = {
+    search: "",
+    status: "all",
+  };
+
+  const [page, setPage] = useState(1);
+  const [inputFilters, setInputFilters] =
+    useState<ProductFilters>(initialFilters);
+  const [submittedFilters, setSubmittedFilters] =
+    useState<ProductFilters>(initialFilters);
+  const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: "kode",
     direction: "ascending",
   });
 
-  const debouncedFilterValue = useDebounce(filterValue, 500);
-  const rowsPerPage = 10;
-
-  const { data, isLoading, isError } = useQuery<ApiResponse, Error>({
-    queryKey: [
-      "products",
-      page,
-      debouncedFilterValue,
-      statusFilter,
-      sortDescriptor,
-    ],
-    queryFn: () =>
-      fetchProducts(
-        page,
-        rowsPerPage,
-        debouncedFilterValue,
-        statusFilter,
-        sortDescriptor
-      ),
-    placeholderData: (previousData) => previousData,
-    staleTime: 5 * 60 * 1000, // Cache data selama 5 menit
+  const {
+    data: response,
+    refetch,
+    isLoading,
+    isError,
+  } = useQuery<ProductApiResponse, Error>({
+    queryKey: ["products", submittedFilters],
+    queryFn: () => fetchProducts({ filters: submittedFilters }),
+    staleTime: Infinity,
   });
 
-  // Handler untuk mengubah filter
-  const onSearchChange = React.useCallback((value?: string) => {
-    setFilterValue(value || "");
-    setPage(1);
-  }, []);
+  // Logika sorting
+  const sortedData = useMemo(() => {
+    const data = response?.data || [];
+    if (!sortDescriptor.column) return data;
 
-  const onStatusChange = React.useCallback((key: React.Key) => {
-    setStatusFilter(key as string);
-    setPage(1);
-  }, []);
+    return [...data].sort((a, b) => {
+      const first = a[sortDescriptor.column as keyof Product];
+      const second = b[sortDescriptor.column as keyof Product];
+      let cmp = 0;
 
-  const resetFilters = React.useCallback(() => {
-    setFilterValue("");
-    setStatusFilter("all");
+      if (first! < second!) {
+        cmp = -1;
+      } else if (first! > second!) {
+        cmp = 1;
+      }
+
+      if (sortDescriptor.direction === "descending") {
+        cmp *= -1;
+      }
+      return cmp;
+    });
+  }, [response?.data, sortDescriptor]);
+
+  const paginatedData = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    const end = start + pageSize;
+    return sortedData.slice(start, end);
+  }, [page, pageSize, sortedData]);
+
+  // Gunakan rowCount dari API untuk totalItems
+  const totalItems = response?.rowCount || 0;
+  const totalPages = Math.ceil(totalItems / pageSize);
+
+  const handleFilterChange = (field: keyof ProductFilters, value: any) => {
+    setInputFilters((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handlePageSizeChange = (size: number) => {
+    setPageSize(size);
+    setPage(1);
+  };
+
+  const onSearchSubmit = useCallback(() => {
+    setPage(1);
+    if (JSON.stringify(inputFilters) === JSON.stringify(submittedFilters)) {
+      refetch();
+    } else {
+      setSubmittedFilters(inputFilters);
+    }
+  }, [inputFilters, submittedFilters, refetch]);
+
+  const resetFilters = useCallback(() => {
+    setInputFilters(initialFilters);
     setSortDescriptor({ column: "kode", direction: "ascending" });
-    setPage(1);
-  }, []);
+    setPageSize(10);
+    setSubmittedFilters(initialFilters);
+  }, [initialFilters]);
 
-  // Kembalikan semua state dan fungsi yang dibutuhkan oleh UI
+  const dataForComponent = useMemo(
+    () => ({
+      data: paginatedData,
+      totalItems,
+      totalPages,
+      currentPage: page,
+    }),
+    [paginatedData, totalItems, totalPages, page]
+  );
+
   return {
-    data,
+    data: dataForComponent,
+    allData: sortedData,
     isLoading,
     isError,
     page,
     setPage,
-    filterValue,
-    onSearchChange,
-    statusFilter,
-    onStatusChange,
+    pageSize,
+    handlePageSizeChange,
+    inputFilters,
+    handleFilterChange,
+    onSearchSubmit,
     resetFilters,
     sortDescriptor,
     setSortDescriptor,
