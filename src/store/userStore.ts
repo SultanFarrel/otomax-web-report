@@ -32,8 +32,6 @@ export const useUserStore = create<UserState>()(
           // Ambil token dari authStore
           const token = useAuthStore.getState().token;
           if (!token) return;
-          // Hit endpoint pertama (/webreport/me)
-          await apiClient.get("/webreport/me");
 
           // Setelah berhasil, hit endpoint kedua (/reseller/me)
           const response = await apiClient.get("/reseller/me");

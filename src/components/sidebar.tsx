@@ -1,6 +1,6 @@
 import { Fragment } from "react";
 import * as React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   Dropdown,
   DropdownItem,
@@ -44,6 +44,7 @@ export const SidebarContent = ({
   const user = useUserStore((state) => state.user);
   const siteInfo = useSiteStore((state) => state.siteInfo);
   const logout = useAuthStore((state) => state.logout);
+  const navigate = useNavigate();
 
   const iconMap: { [key: string]: React.ElementType } = {
     "/": HomeIcon,
@@ -166,7 +167,7 @@ export const SidebarContent = ({
             </DropdownItem>
             <DropdownItem
               key="settings"
-              href="/settings"
+              onPress={() => navigate("/settings")}
               startContent={<Cog6ToothIcon className="h-5 w-5" />}
             >
               Settings

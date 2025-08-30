@@ -1,5 +1,4 @@
 import { Route, Routes } from "react-router-dom";
-import { useEffect } from "react";
 
 import ProtectedRoute from "@/components/protected-route";
 import LoginPage from "@/pages/login";
@@ -13,25 +12,9 @@ import DownlinePage from "@/pages/downline/downline";
 import DownlineTreePage from "@/pages/downline-tree/downline-tree";
 import TransaksiDownlinePage from "@/pages/downline-transaction/downline-transactions";
 import SessionExpiredPage from "./pages/errors/session-expired";
-import { useUserStore } from "./store/userStore";
 import GenericErrorPage from "./pages/errors/generic-error";
-import { useSiteStore } from "./store/siteStore";
 
 function App() {
-  const { user, fetchUserData } = useUserStore();
-  const { siteInfo, fetchSiteInfo } = useSiteStore();
-
-  useEffect(() => {
-    fetchUserData();
-    fetchSiteInfo();
-  }, [fetchUserData, fetchSiteInfo]);
-
-  useEffect(() => {
-    if (user?.kode && siteInfo?.judul) {
-      document.title = `${siteInfo.judul} - Web Report`;
-    }
-  }, [user]);
-
   return (
     <Routes>
       {/* Rute publik, bisa diakses tanpa login */}

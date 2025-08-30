@@ -42,17 +42,20 @@ export function useSessions() {
   const queryClient = useQueryClient();
 
   // Query untuk mengambil data sesi
-  const { data, isLoading, isError } = useQuery<SessionApiResponse, Error>({
+  const { data, isLoading, isError, refetch, isFetching } = useQuery<
+    SessionApiResponse,
+    Error
+  >({
     queryKey: ["sessions"],
     queryFn: fetchSessions,
-    staleTime: 5 * 60 * 1000, // Stale time 5 menit
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
   });
 
   // Mutation untuk menghentikan sesi
   const mutation = useMutation({
     mutationFn: killSession,
     onSuccess: () => {
-      // Jika berhasil, muat ulang (refetch) daftar sesi
       queryClient.invalidateQueries({ queryKey: ["sessions"] });
     },
   });
@@ -65,5 +68,7 @@ export function useSessions() {
     isError,
     killSession: mutation.mutate,
     isKilling: mutation.isPending,
+    refetchSessions: refetch,
+    isRefetching: isFetching,
   };
 }

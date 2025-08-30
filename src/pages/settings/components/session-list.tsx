@@ -11,14 +11,21 @@ import { Button } from "@heroui/button";
 import { Chip } from "@heroui/chip";
 import { Spinner } from "@heroui/spinner";
 import { Tooltip } from "@heroui/tooltip";
-import { TrashIcon } from "@heroicons/react/24/outline";
+import { TrashIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
 import { useSessions } from "@/hooks/useSessions";
 import { formatDate } from "@/utils/formatters";
 import { Session } from "@/types";
 
 export const SessionList: React.FC = () => {
-  const { sessions, isLoading, isError, killSession, isKilling } =
-    useSessions();
+  const {
+    sessions,
+    isLoading,
+    isError,
+    killSession,
+    isKilling,
+    refetchSessions,
+    isRefetching,
+  } = useSessions();
 
   const handleKillSession = (kode: number) => {
     if (window.confirm("Apakah Anda yakin ingin menghentikan sesi ini?")) {
@@ -35,16 +42,30 @@ export const SessionList: React.FC = () => {
 
   return (
     <div>
-      <h2 className="text-xl font-semibold">Sesi Aktif</h2>
-      <p className="text-sm text-default-500 mb-4">
-        Daftar sesi yang sedang aktif. Anda dapat menghentikan sesi lain jika
-        diperlukan.
-      </p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-xl font-semibold">Sesi Aktif</h2>
+          <p className="text-sm text-default-500 mb-4">
+            Daftar sesi yang sedang aktif. Anda dapat menghentikan sesi lain
+            jika diperlukan.
+          </p>
+        </div>
+        <Tooltip content="Refresh Daftar Sesi">
+          <Button
+            isIconOnly
+            variant="light"
+            onPress={() => refetchSessions()}
+            isLoading={isRefetching}
+          >
+            <ArrowPathIcon className="h-5 w-5" />
+          </Button>
+        </Tooltip>
+      </div>
       <Table aria-label="Tabel Sesi Aktif">
         <TableHeader>
           <TableColumn>TANGGAL LOGIN</TableColumn>
-          <TableColumn align="center">ALAMAT IP</TableColumn>
-          <TableColumn align="center">STATUS</TableColumn>
+          <TableColumn>ALAMAT IP</TableColumn>
+          <TableColumn>STATUS</TableColumn>
           <TableColumn align="end">AKSI</TableColumn>
         </TableHeader>
         <TableBody
