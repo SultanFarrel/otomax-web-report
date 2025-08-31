@@ -1,14 +1,14 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { apiClient } from "@/api/axios";
-import { hmacPinWithKode } from "@/utils/crypto";
+import { hmacPinWithKode, hmacPinWithNoHp } from "@/utils/crypto";
 
 interface AuthState {
   token: string | null;
   isLoading: boolean;
   error: string | null;
   isInitialized: boolean;
-  login: (kode: string, pin: string) => Promise<void>;
+  login: (kode: string, nomorHp: string, pin: string) => Promise<boolean>;
   logout: () => void;
   initialize: () => void;
 }
@@ -30,18 +30,20 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      login: async (kode, pin) => {
+      login: async (kode, nomorHp, pin) => {
         set({ isLoading: true, error: null });
         try {
           const hashedPin = hmacPinWithKode(pin, kode);
+          const hashedNoHp = hmacPinWithNoHp(pin, nomorHp);
           const response = await apiClient.post("/auth/login", {
             kode: kode,
+            nomorHp: hashedNoHp,
             pin: hashedPin,
           });
           const { token } = response.data;
           localStorage.setItem("authToken", token);
           set({ token, isLoading: false, error: null });
-          window.location.href = "/";
+          return true; // Mengembalikan true jika login berhasil
         } catch (err: any) {
           if (err.response) {
             set({
@@ -56,6 +58,7 @@ export const useAuthStore = create<AuthState>()(
               token: null,
             });
           }
+          return false; // Mengembalikan false jika login gagal
         }
       },
 

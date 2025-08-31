@@ -1,9 +1,10 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
 
 import ProtectedRoute from "@/components/protected-route";
 import DefaultLayout from "@/layouts/default";
 import { Spinner } from "@heroui/spinner";
+import { useSiteStore } from "@/store/siteStore";
 
 // --- Lazy Load Pages ---
 const LoginPage = lazy(() => import("@/pages/login"));
@@ -33,6 +34,12 @@ const SuspenseFallback = () => (
 );
 
 function App() {
+  const fetchSiteInfo = useSiteStore((state) => state.fetchSiteInfo);
+
+  useEffect(() => {
+    fetchSiteInfo();
+  }, [fetchSiteInfo]);
+
   return (
     <Suspense fallback={<SuspenseFallback />}>
       <Routes>

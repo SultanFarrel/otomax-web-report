@@ -9,22 +9,13 @@ import { Header } from "@/components/header";
 import { useUiStore } from "@/store/uiStore";
 
 import { useUserStore } from "@/store/userStore";
-import { useSiteStore } from "@/store/siteStore";
 
 export default function DefaultLayout() {
-  const { user, fetchUserData } = useUserStore();
-  const { siteInfo, fetchSiteInfo } = useSiteStore();
+  const { fetchUserData } = useUserStore();
 
   useEffect(() => {
     fetchUserData();
-    fetchSiteInfo();
-  }, [fetchUserData, fetchSiteInfo]);
-
-  useEffect(() => {
-    if (user?.kode && siteInfo?.judul) {
-      document.title = `${siteInfo.judul} - Web Report`;
-    }
-  }, [user, siteInfo]);
+  }, [fetchUserData]);
 
   const {
     isSidebarCollapsed,

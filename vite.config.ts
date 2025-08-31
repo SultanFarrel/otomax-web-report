@@ -20,7 +20,7 @@ export default defineConfig({
     // ONLY ON DEV, DELETE ON PRODUCTION
     proxy: {
       "/api": {
-        target: "https://metropln.report.web.id:4000",
+        target: "https://metropln.report.web.id:4001",
         changeOrigin: true,
         secure: false,
         ws: true,

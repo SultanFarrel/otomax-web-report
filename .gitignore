@@ -31,3 +31,4 @@ yarn.lock
 package-lock.json
 bun.lockb
 public/mockServiceWorker.js
+public/favicon_otomax.ico

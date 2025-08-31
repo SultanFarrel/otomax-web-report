@@ -15,12 +15,11 @@ export const useSiteStore = create<SiteState>()(
       siteInfo: null,
       isLoading: false,
       fetchSiteInfo: async () => {
-        // Jangan fetch jika data sudah ada atau sedang loading
+        // Mencegah panggilan ganda jika data sudah ada atau sedang diambil
         if (get().siteInfo || get().isLoading) return;
 
         set({ isLoading: true });
         try {
-          // Panggil endpoint /webreport/me
           const response = await apiClient.get("/webreport/me");
           set({ siteInfo: response.data, isLoading: false });
         } catch (error) {

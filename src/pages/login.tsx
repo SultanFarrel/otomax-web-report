@@ -1,14 +1,20 @@
-import React from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
 import { useAuthStore } from "@/store/authStore";
+import { useSiteStore } from "@/store/siteStore";
 
 export default function LoginPage() {
-  const [kodeRs, setKodeRs] = React.useState("");
-  const [pin, setPin] = React.useState("");
+  const [kodeRs, setKodeRs] = useState("");
+  const [nomorHp, setNomorHp] = useState("");
+  const [pin, setPin] = useState("");
   const { login, isLoading, error } = useAuthStore();
+  const navigate = useNavigate();
 
-  React.useEffect(() => {
+  const { siteInfo, fetchSiteInfo } = useSiteStore();
+
+  useEffect(() => {
     const root = document.documentElement;
     const originalClassName = root.className;
 
@@ -20,9 +26,22 @@ export default function LoginPage() {
     };
   }, []);
 
-  const handleLogin = (e: React.FormEvent) => {
+  useEffect(() => {
+    fetchSiteInfo();
+  }, [fetchSiteInfo]);
+
+  useEffect(() => {
+    if (siteInfo?.judul) {
+      document.title = `${siteInfo.judul} - Web Report`;
+    }
+  }, [siteInfo]);
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    login(kodeRs, pin);
+    const loginSuccess = await login(kodeRs, nomorHp, pin);
+    if (loginSuccess) {
+      navigate("/"); // Arahkan pengguna setelah login berhasil
+    }
   };
 
   return (
@@ -31,13 +50,22 @@ export default function LoginPage() {
         onSubmit={handleLogin}
         className="w-full max-w-sm p-8 space-y-6 bg-content1 rounded-lg shadow-md"
       >
-        <h1 className="text-2xl font-bold text-center">Web Report Login</h1>
+        <h1 className="text-2xl font-bold text-center">
+          {siteInfo?.judul} Web Report Login
+        </h1>
         <Input
           isRequired
           label="Kode Reseller"
           placeholder="Masukkan kode Anda"
           value={kodeRs}
           onValueChange={setKodeRs}
+        />
+        <Input
+          isRequired
+          label="Nomor HP"
+          placeholder="Masukkan nomor HP terdaftar"
+          value={nomorHp}
+          onValueChange={setNomorHp}
         />
         <Input
           isRequired
