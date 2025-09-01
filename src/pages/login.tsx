@@ -32,7 +32,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (siteInfo?.judul) {
-      document.title = `${siteInfo.judul} - Web Report`;
+      document.title = `${siteInfo.judul}`;
     }
   }, [siteInfo]);
 
@@ -51,7 +51,7 @@ export default function LoginPage() {
         className="w-full max-w-sm p-8 space-y-6 bg-content1 rounded-lg shadow-md"
       >
         <h1 className="text-2xl font-bold text-center">
-          {siteInfo?.judul} Web Report Login
+          {siteInfo?.judul ? siteInfo.judul : "Web Report"}
         </h1>
         <Input
           isRequired

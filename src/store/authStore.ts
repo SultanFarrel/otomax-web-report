@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { apiClient } from "@/api/axios";
-import { hmacPinWithKode, hmacPinWithNoHp } from "@/utils/crypto";
+import { hmacPinWithKode } from "@/utils/crypto";
 
 interface AuthState {
   token: string | null;
@@ -34,10 +34,9 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true, error: null });
         try {
           const hashedPin = hmacPinWithKode(pin, kode);
-          const hashedNoHp = hmacPinWithNoHp(pin, nomorHp);
           const response = await apiClient.post("/auth/login", {
             kode: kode,
-            nomorHp: hashedNoHp,
+            nomorHp,
             pin: hashedPin,
           });
           const { token } = response.data;
