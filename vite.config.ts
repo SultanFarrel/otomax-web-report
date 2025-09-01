@@ -9,23 +9,23 @@ export default defineConfig({
   plugins: [react(), tsconfigPaths()],
   server: {
     host: true,
-    https: {
-      key: fs.readFileSync(
-        path.resolve(__dirname, "metropln.report.web.id-key.pem")
-      ),
-      cert: fs.readFileSync(
-        path.resolve(__dirname, "metropln.report.web.id.pem")
-      ),
-    },
-    // ONLY ON DEV, DELETE ON PRODUCTION
-    proxy: {
-      "/api": {
-        target: "https://metropln.report.web.id:4000",
-        changeOrigin: true,
-        secure: false,
-        ws: true,
-      },
-    },
+    // https: {
+    //   key: fs.readFileSync(
+    //     path.resolve(__dirname, "metropln.report.web.id-key.pem")
+    //   ),
+    //   cert: fs.readFileSync(
+    //     path.resolve(__dirname, "metropln.report.web.id.pem")
+    //   ),
+    // },
+    // // ONLY ON DEV, DELETE ON PRODUCTION
+    // proxy: {
+    //   "/api": {
+    //     target: "https://metropln.report.web.id:4000",
+    //     changeOrigin: true,
+    //     secure: false,
+    //     ws: true,
+    //   },
+    // },
   },
   build: {
     rollupOptions: {

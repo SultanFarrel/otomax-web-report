@@ -1,16 +1,14 @@
 import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
 
-const API_PROTOCOL = "https";
+const API_PROTOCOL = "http";
 const API_PORT = "4000";
 
 // Dapatkan hostname dari URL browser saat ini (misalnya, "kliena.webreport.com")
 const currentHostname =
   typeof window !== "undefined" ? window.location.hostname : "";
 
-const baseURL = import.meta.env.DEV
-  ? "/api" // pakai proxy Vite saat dev
-  : `${API_PROTOCOL}://${currentHostname}:${API_PORT}/api`; // pakai URL asli saat build
+const baseURL = `${API_PROTOCOL}://${currentHostname}:${API_PORT}/api`; // pakai URL asli saat build
 
 export const apiClient = axios.create({
   baseURL: baseURL,
