@@ -44,7 +44,7 @@ export const ProductTableTopContent: React.FC<ProductTableTopContentProps> = ({
   return (
     <div className="flex flex-col gap-4">
       <form
-        className="flex flex-wrap justify-between gap-3 items-end"
+        className="flex flex-col sm:flex-row flex-wrap justify-between gap-3 items-end"
         onSubmit={(e) => {
           e.preventDefault();
           onSearchSubmit();
@@ -92,11 +92,12 @@ export const ProductTableTopContent: React.FC<ProductTableTopContentProps> = ({
         </div>
 
         {/* Grup Kanan: Tombol Aksi */}
-        <div className="flex gap-3">
+        <div className="flex gap-3 w-full sm:w-auto">
           <Button
             color="primary"
             type="submit"
             startContent={<MagnifyingGlassIcon className="h-5 w-5" />}
+            className="w-full sm:w-auto"
           >
             Cari
           </Button>

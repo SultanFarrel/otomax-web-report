@@ -40,9 +40,8 @@ export const DownlineTransactionTableBottomContent: React.FC<
   isExporting,
 }) => {
   return (
-    <div className="py-2 px-2 flex justify-between items-center relative">
-      {/* Kiri: Tombol Export */}
-      <div className="flex items-center gap-2">
+    <div className="py-2 px-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="w-full flex items-center justify-between sm:w-auto">
         <Button
           color="success"
           variant="ghost"
@@ -54,22 +53,48 @@ export const DownlineTransactionTableBottomContent: React.FC<
         >
           {isExporting ? "Mengekspor..." : "Export to Excel"}
         </Button>
+
+        <div className="flex items-center gap-2 sm:hidden">
+          <Dropdown>
+            <DropdownTrigger>
+              <Button
+                variant="flat"
+                endContent={<ChevronDownIcon className="h-4 w-4" />}
+              >
+                {pageSize}
+              </Button>
+            </DropdownTrigger>
+            <DropdownMenu
+              disallowEmptySelection
+              aria-label="Page size"
+              closeOnSelect
+              selectedKeys={new Set([String(pageSize)])}
+              selectionMode="single"
+              onAction={(key) => onPageSizeChange(Number(key))}
+            >
+              {pageSizeOptions.map((option) => (
+                <DropdownItem key={option.uid}>{option.name}</DropdownItem>
+              ))}
+            </DropdownMenu>
+          </Dropdown>
+        </div>
       </div>
 
-      {/* Paginasi di Tengah */}
-      <Pagination
-        isCompact
-        showControls
-        showShadow
-        color="primary"
-        page={page}
-        total={totalPages || 1}
-        onChange={onPageChange}
-      />
+      <div className="w-full sm:w-auto order-last sm:order-none">
+        <Pagination
+          isCompact
+          showControls
+          showShadow
+          color="primary"
+          page={page}
+          total={totalPages || 1}
+          onChange={onPageChange}
+          className="flex justify-center"
+        />
+      </div>
 
-      {/* Kanan: Page Size Selector */}
-      <div className="flex items-center gap-2">
-        <span className="text-sm text-default-600 hidden sm:block">
+      <div className="hidden sm:flex items-center gap-2">
+        <span className="text-sm text-default-600 whitespace-nowrap">
           Data per halaman:
         </span>
         <Dropdown>

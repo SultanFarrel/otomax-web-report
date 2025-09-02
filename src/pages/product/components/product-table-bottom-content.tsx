@@ -38,8 +38,10 @@ const BottomContent: React.FC<ProductTableBottomContentProps> = ({
   isExporting,
 }) => {
   return (
-    <div className="py-2 px-2 flex justify-between items-center relative">
-      <div className="flex items-center gap-2">
+    <div className="py-2 px-2 flex flex-col sm:flex-row items-center justify-between gap-4">
+      {/* Grup untuk baris atas di mobile (Export & PageSize) */}
+      <div className="w-full flex items-center justify-between sm:w-auto sm:justify-start">
+        {/* Tombol Export */}
         <Button
           color="success"
           variant="ghost"
@@ -51,24 +53,50 @@ const BottomContent: React.FC<ProductTableBottomContentProps> = ({
         >
           {isExporting ? "Mengekspor..." : "Export to Excel"}
         </Button>
+        {/* Page Size Selector (hanya untuk mobile) */}
+        <div className="flex items-center gap-2 sm:hidden">
+          <Dropdown>
+            <DropdownTrigger>
+              <Button
+                variant="flat"
+                endContent={<ChevronDownIcon className="h-4 w-4" />}
+              >
+                {pageSize}
+              </Button>
+            </DropdownTrigger>
+            <DropdownMenu
+              disallowEmptySelection
+              aria-label="Page size"
+              closeOnSelect
+              selectedKeys={new Set([String(pageSize)])}
+              selectionMode="single"
+              onAction={(key) => onPageSizeChange(Number(key))}
+            >
+              {pageSizeOptions.map((option) => (
+                <DropdownItem key={option.uid}>{option.name}</DropdownItem>
+              ))}
+            </DropdownMenu>
+          </Dropdown>
+        </div>
       </div>
 
-      {/* Paginasi di Tengah */}
-      <Pagination
-        isCompact
-        showControls
-        showShadow
-        color="primary"
-        page={page}
-        total={totalPages || 1}
-        onChange={onPageChange}
-      />
+      {/* Paginasi (selalu di tengah untuk desktop, di bawah untuk mobile) */}
+      <div className="w-full sm:w-auto order-last sm:order-none">
+        <Pagination
+          isCompact
+          showControls
+          showShadow
+          color="primary"
+          page={page}
+          total={totalPages || 1}
+          onChange={onPageChange}
+          className="flex justify-center"
+        />
+      </div>
 
-      {/* Kanan: Page Size Selector */}
-      <div className="flex items-center gap-2">
-        <span className="text-sm text-default-600 hidden sm:block">
-          Data per halaman:
-        </span>
+      {/* Page Size Selector (hanya untuk desktop) */}
+      <div className="hidden sm:flex items-center gap-2">
+        <span className="text-sm text-default-600">Data per halaman:</span>
         <Dropdown>
           <DropdownTrigger>
             <Button
