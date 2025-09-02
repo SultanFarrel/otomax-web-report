@@ -99,10 +99,6 @@
   outline: none !important;
 }
 
-.tooltip-no-pointer {
-  pointer-events: none !important;
-}
-
 /* Style untuk Print */
 @media print {
   /* Sembunyikan semua elemen kecuali area yang bisa dicetak */

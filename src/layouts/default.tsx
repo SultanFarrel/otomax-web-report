@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 import { Drawer, DrawerContent } from "@heroui/drawer";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import cn from "clsx";
 
 import { Sidebar, SidebarContent } from "@/components/sidebar";
@@ -12,10 +12,17 @@ import { useUserStore } from "@/store/userStore";
 
 export default function DefaultLayout() {
   const { fetchUserData } = useUserStore();
+  const location = useLocation();
 
   useEffect(() => {
     fetchUserData();
   }, [fetchUserData]);
+
+  useEffect(() => {
+    if (isSidebarOpen) {
+      setSidebarOpen(false);
+    }
+  }, [location.pathname]);
 
   const {
     isSidebarCollapsed,
@@ -51,7 +58,7 @@ export default function DefaultLayout() {
       >
         <DrawerContent>
           <div className="flex h-full w-full flex-col bg-background p-6">
-            <SidebarContent onNavItemClick={() => setSidebarOpen(false)} />
+            <SidebarContent />
           </div>
         </DrawerContent>
       </Drawer>

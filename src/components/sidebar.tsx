@@ -34,13 +34,9 @@ import { useSiteStore } from "@/store/siteStore";
 interface SidebarProps {
   isCollapsed?: boolean;
   onCollapse?: () => void;
-  onNavItemClick?: () => void;
 }
 
-export const SidebarContent = ({
-  isCollapsed,
-  onNavItemClick,
-}: SidebarProps) => {
+export const SidebarContent = ({ isCollapsed }: SidebarProps) => {
   const user = useUserStore((state) => state.user);
   const siteInfo = useSiteStore((state) => state.siteInfo);
   const logout = useAuthStore((state) => state.logout);
@@ -91,7 +87,6 @@ export const SidebarContent = ({
             >
               <NavLink
                 to={item.href}
-                onClick={onNavItemClick}
                 className={({ isActive }) =>
                   cn(
                     "flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors",
@@ -187,11 +182,7 @@ export const SidebarContent = ({
   );
 };
 
-export const Sidebar = ({
-  isCollapsed,
-  onCollapse,
-  onNavItemClick,
-}: SidebarProps) => {
+export const Sidebar = ({ isCollapsed, onCollapse }: SidebarProps) => {
   return (
     <div
       className={cn(
@@ -217,10 +208,7 @@ export const Sidebar = ({
         <ChevronLeftIcon />
       </Button>
 
-      <SidebarContent
-        isCollapsed={isCollapsed}
-        onNavItemClick={onNavItemClick}
-      />
+      <SidebarContent isCollapsed={isCollapsed} />
     </div>
   );
 };
