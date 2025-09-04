@@ -115,6 +115,7 @@ export interface SessionApiResponse {
 
 // Tipe data untuk ringkasan statistik
 interface DashboardStats {
+  total_saldo_agen: number;
   total_sukses: number;
   total_pending: number;
   total_gagal: number;
