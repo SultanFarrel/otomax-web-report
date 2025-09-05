@@ -25,6 +25,7 @@ import {
   DocumentTextIcon,
   GlobeAltIcon,
   ShareIcon,
+  KeyIcon,
 } from "@heroicons/react/24/outline";
 import { MoreHorizontalIcon, ChevronLeftIcon } from "@/components/icons";
 import { useAuthStore } from "@/store/authStore";
@@ -60,6 +61,7 @@ export const SidebarContent = ({ isCollapsed }: SidebarProps) => {
     "/list": UsersIcon,
     "/jaringan-downline": ShareIcon,
     "/transaksi-downline": DocumentTextIcon,
+    "/list-login": KeyIcon,
   };
 
   return (
@@ -84,55 +86,74 @@ export const SidebarContent = ({ isCollapsed }: SidebarProps) => {
 
       {/* Navigation */}
       <nav className="flex-1 space-y-1">
-        {siteConfig.navItems.map((item) => {
-          const Icon = iconMap[item.href];
-          let targetHref = isAdmin ? `/adm${item.href}` : item.href;
-          let label = item.label;
+        {siteConfig.navItems
+          // --- LOGIKA FILTER DINAMIS ---
+          .filter((item) => {
+            const adminOnlyMenus = ["/list-login"];
+            const userOnlyMenus = ["/jaringan-downline", "/transaksi-downline"];
 
-          if (item.href === "/list") {
             if (isAdmin) {
-              targetHref = "/adm/agen";
-              label = "List Agen";
+              // Jika admin, sembunyikan menu khusus user
+              return !userOnlyMenus.includes(item.href);
             } else {
-              targetHref = "/downline";
-              label = "List Downline";
+              // Jika user, sembunyikan menu khusus admin
+              return !adminOnlyMenus.includes(item.href);
             }
-          }
+          })
+          .map((item) => {
+            const Icon = iconMap[item.href];
 
-          return (
-            <Tooltip
-              key={item.href}
-              content={label}
-              isDisabled={!isCollapsed}
-              placement="right"
-              closeDelay={0}
-            >
-              <NavLink
-                to={targetHref}
-                end={item.href === "/"}
-                className={({ isActive }) =>
-                  cn(
-                    "flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                    {
-                      "bg-primary text-primary-foreground": isActive,
-                      "text-foreground-500 hover:bg-default-100": !isActive,
-                      "justify-center": isCollapsed,
-                    }
-                  )
-                }
+            let targetHref = isAdmin ? `/adm${item.href}` : item.href;
+            let label = item.label;
+
+            if (item.href === "/list") {
+              if (isAdmin) {
+                targetHref = "/adm/agen";
+                label = "List Agen";
+              } else {
+                targetHref = "/downline";
+                label = "List Downline";
+              }
+            }
+
+            if (item.href === "/list-login" && isAdmin) {
+              targetHref = "/adm/list-login";
+            }
+
+            return (
+              <Tooltip
+                key={item.href}
+                content={label}
+                isDisabled={!isCollapsed}
+                placement="right"
+                closeDelay={0}
               >
-                {Icon && (
-                  <Icon
-                    className={cn("h-5 w-5 flex-shrink-0", {
-                      "mr-3": !isCollapsed,
-                    })}
-                  />
-                )}
-                {!isCollapsed && label}
-              </NavLink>
-            </Tooltip>
-          );
-        })}
+                <NavLink
+                  to={targetHref}
+                  end={item.href === "/"}
+                  className={({ isActive }) =>
+                    cn(
+                      "flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                      {
+                        "bg-primary text-primary-foreground": isActive,
+                        "text-foreground-500 hover:bg-default-100": !isActive,
+                        "justify-center": isCollapsed,
+                      }
+                    )
+                  }
+                >
+                  {Icon && (
+                    <Icon
+                      className={cn("h-5 w-5 flex-shrink-0", {
+                        "mr-3": !isCollapsed,
+                      })}
+                    />
+                  )}
+                  {!isCollapsed && label}
+                </NavLink>
+              </Tooltip>
+            );
+          })}
       </nav>
 
       {/* Footer */}

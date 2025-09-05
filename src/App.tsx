@@ -21,6 +21,7 @@ const DownlinePage = lazy(() => import("@/pages/downline/downline"));
 const DownlineTreePage = lazy(
   () => import("@/pages/downline-tree/downline-tree")
 );
+const LoginListPage = lazy(() => import("@/pages/login-lists/login-list-page"));
 const SessionExpiredPage = lazy(() => import("./pages/errors/session-expired"));
 const GenericErrorPage = lazy(() => import("./pages/errors/generic-error"));
 
@@ -64,6 +65,7 @@ function App() {
             <Route path="agen" element={<DownlinePage />} />
             <Route path="jaringan-downline" element={<DownlineTreePage />} />
             <Route path="transaksi-downline" element={<TransactionPage />} />
+            <Route element={<LoginListPage />} path="list-login" />
             <Route path="settings" element={<SettingsPage />} />
           </Route>
         </Route>

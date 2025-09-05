@@ -1,3 +1,4 @@
+import { useState, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/api/axios";
 import { Session, SessionApiResponse } from "@/types";
@@ -20,16 +21,17 @@ const transformSessionData = (apiData: any): Session[] => {
 };
 
 // Fungsi untuk mengambil daftar sesi
-const fetchSessions = async (): Promise<SessionApiResponse> => {
-  const { data } = await apiClient.get("/session");
-
-  // Transformasi data sebelum mengembalikannya
-  const transformedData = transformSessionData(data.data);
-
-  return {
-    ...data,
-    data: transformedData,
+const fetchSessions = async (
+  endpoint: string,
+  filters: { search?: string }
+): Promise<SessionApiResponse> => {
+  const params = {
+    search: filters.search || undefined,
   };
+
+  const { data } = await apiClient.get(endpoint, { params });
+  const transformedData = transformSessionData(data.data);
+  return { ...data, data: transformedData };
 };
 
 // Fungsi untuk menghentikan sesi
@@ -38,19 +40,28 @@ const killSession = async (kode: number): Promise<any> => {
   return data;
 };
 
-export function useSessions() {
+export function useSessions({ sessionType = "user" } = {}) {
   const queryClient = useQueryClient();
+  const endpoint = sessionType === "admin" ? "/session" : "/session"; // SESSION TYPE
+
+  const [search, setSearch] = useState("");
+  const [submittedSearch, setSubmittedSearch] = useState("");
 
   // Query untuk mengambil data sesi
   const { data, isLoading, isError, refetch, isFetching } = useQuery<
     SessionApiResponse,
     Error
   >({
-    queryKey: ["sessions"],
-    queryFn: fetchSessions,
+    queryKey: ["sessions", endpoint, submittedSearch],
+    queryFn: () => fetchSessions(endpoint, { search: submittedSearch }),
     staleTime: Infinity,
     refetchOnWindowFocus: false,
   });
+
+  const onSearchSubmit = useCallback(() => {
+    setSubmittedSearch(search);
+    refetch();
+  }, [search, refetch]);
 
   // Mutation untuk menghentikan sesi
   const mutation = useMutation({
@@ -70,5 +81,8 @@ export function useSessions() {
     isKilling: mutation.isPending,
     refetchSessions: refetch,
     isRefetching: isFetching,
+    search,
+    setSearch,
+    onSearchSubmit,
   };
 }

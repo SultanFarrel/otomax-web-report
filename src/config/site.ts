@@ -32,6 +32,10 @@ export const siteConfig = {
       label: "Transaksi Downline",
       href: "/transaksi-downline",
     },
+    {
+      label: "List Login",
+      href: "/list-login",
+    },
   ],
   navMenuItems: [
     {

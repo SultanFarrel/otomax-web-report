@@ -84,6 +84,7 @@ export interface Session {
   ip: string;
   tgl_login: string;
   is_current: 0 | 1;
+  kode_reseller?: string;
 }
 
 export type ProductApiResponse = {
