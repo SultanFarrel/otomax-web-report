@@ -10,7 +10,7 @@ import {
   ArrowPathIcon,
 } from "@heroicons/react/24/outline";
 
-import { useAdminDashboardStats } from "@/hooks/dashboard/useAdminDashboardStats";
+import { useDashboardStats } from "@/hooks/dashboard/useDashboardStats";
 import { StatCardsGridSkeleton } from "./skeleton/stat-cards-grid.skeleton";
 import { Tooltip } from "@heroui/tooltip";
 import { Button } from "@heroui/button";
@@ -22,7 +22,7 @@ export const AdminStatCardsGrid: React.FC = () => {
     error,
     refetch: refetchStats,
     isFetching: isFetchingStats,
-  } = useAdminDashboardStats();
+  } = useDashboardStats();
 
   const handleRefresh = () => {
     refetchStats();
@@ -80,11 +80,10 @@ export const AdminStatCardsGrid: React.FC = () => {
           </div>
           <div className="flex gap-2 mt-2">
             <Chip size="sm" variant="flat">
-              {/* MOCK */}
-              Komisi: {/*stats ? formatCurrency(stats.komisi) : */ "0"}
+              Komisi: {"0"}
             </Chip>
             <Chip size="sm" variant="flat">
-              Poin: {/*stats ? stats.poin : */ "0"}
+              Poin: {"0"}
             </Chip>
           </div>
         </CardBody>

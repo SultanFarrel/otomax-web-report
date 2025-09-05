@@ -14,7 +14,7 @@ interface AdminAuthState {
 
 export const useAdminAuthStore = create<AdminAuthState>()(
   devtools(
-    (set) => ({
+    (set, get) => ({
       adminToken: null,
       isLoading: false,
       error: null,
@@ -61,10 +61,16 @@ export const useAdminAuthStore = create<AdminAuthState>()(
       },
 
       logout: async () => {
-        // Logika logout bisa disesuaikan jika perlu call API
-        localStorage.removeItem("adminAuthToken");
-        set({ adminToken: null });
-        window.location.href = "/adm/login";
+        const adminToken = get().adminToken;
+        try {
+          await apiClient.post(`/auth/logout?${adminToken}`);
+        } catch (error) {
+          console.error("Gagal melakukan logout di server:", error);
+        } finally {
+          localStorage.removeItem("adminAuthToken");
+          set({ adminToken: null });
+          window.location.href = "/adm/login";
+        }
       },
     }),
     { name: "Admin Auth Store" }

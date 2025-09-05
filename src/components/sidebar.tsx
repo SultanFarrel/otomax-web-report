@@ -1,6 +1,6 @@
 import { Fragment } from "react";
 import * as React from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   Dropdown,
   DropdownItem,
@@ -28,7 +28,9 @@ import {
 } from "@heroicons/react/24/outline";
 import { MoreHorizontalIcon, ChevronLeftIcon } from "@/components/icons";
 import { useAuthStore } from "@/store/authStore";
+import { useAdminAuthStore } from "@/store/adminAuthStore";
 import { useUserStore } from "@/store/userStore";
+import { useAdminUserStore } from "@/store/adminUserStore";
 import { useSiteStore } from "@/store/siteStore";
 
 interface SidebarProps {
@@ -37,10 +39,18 @@ interface SidebarProps {
 }
 
 export const SidebarContent = ({ isCollapsed }: SidebarProps) => {
-  const user = useUserStore((state) => state.user);
+  const location = useLocation();
+  const isAdmin = location.pathname.startsWith("/adm");
+
+  const { user } = useUserStore();
+  const { adminUser } = useAdminUserStore();
   const siteInfo = useSiteStore((state) => state.siteInfo);
-  const logout = useAuthStore((state) => state.logout);
+  const { logout: userLogout } = useAuthStore();
+  const { logout: adminLogout } = useAdminAuthStore();
   const navigate = useNavigate();
+
+  const currentUser = isAdmin ? adminUser : user;
+  const logout = isAdmin ? adminLogout : userLogout;
 
   const iconMap: { [key: string]: React.ElementType } = {
     "/": HomeIcon,
@@ -127,13 +137,14 @@ export const SidebarContent = ({ isCollapsed }: SidebarProps) => {
             >
               <Avatar
                 size="sm"
-                name={user?.nama}
+                name={currentUser?.nama}
                 className="bg-primary text-primary-foreground"
               />
               {!isCollapsed && (
                 <div className="flex-1">
                   <p className="text-sm font-semibold text-foreground">
-                    {user?.nama || "Nama Pengguna"}
+                    {currentUser?.nama ||
+                      (isAdmin ? "Nama Admin" : "Nama Pengguna")}
                   </p>
                 </div>
               )}
@@ -149,7 +160,7 @@ export const SidebarContent = ({ isCollapsed }: SidebarProps) => {
               textValue="Profile Info"
               isDisabled
             >
-              <p className="font-semibold">{user?.kode}</p>
+              <p>{currentUser?.kode}</p>
               <p className="font-semibold">
                 {user?.saldo !== undefined
                   ? new Intl.NumberFormat("id-ID", {
@@ -162,7 +173,7 @@ export const SidebarContent = ({ isCollapsed }: SidebarProps) => {
             </DropdownItem>
             <DropdownItem
               key="settings"
-              onPress={() => navigate("/settings")}
+              onPress={() => navigate(isAdmin ? "/adm/settings" : "/settings")}
               startContent={<Cog6ToothIcon className="h-5 w-5" />}
             >
               Settings

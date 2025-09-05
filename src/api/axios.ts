@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
+import { useAdminAuthStore } from "@/store/adminAuthStore";
 
 const API_PROTOCOL = "http";
 const API_PORT = "4000";
@@ -16,13 +17,29 @@ export const apiClient = axios.create({
 
 apiClient.interceptors.request.use(
   (config) => {
-    // Ambil token langsung dari store
-    const token = useAuthStore.getState().token;
-    if (token) {
-      // Atur header Authorization dengan format Bearer Token
-      config.headers.Authorization = `Bearer ${token}`;
+    const isAdminRoute = window.location.pathname.startsWith("/adm");
+
+    // URL publik yang tidak akan pernah dimodifikasi
+    const publicUrls = ["/webreport/me", "/auth/login"];
+
+    if (publicUrls.some((url) => config.url?.includes(url))) {
+      return config;
     }
-    // config.headers["X-Client-Host"] = "otomax.report.web.id"; // DELETE THIS FOR PRODUCTION
+
+    if (isAdminRoute) {
+      const adminToken = useAdminAuthStore.getState().adminToken;
+      if (adminToken) {
+        config.headers.Authorization = `Bearer ${adminToken}`;
+      }
+      // Tambahkan prefix /adm ke semua request non-publik di rute admin
+      config.url = `/mock/adm${config.url}`;
+    } else {
+      const token = useAuthStore.getState().token;
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    }
+
     return config;
   },
   (error) => {
@@ -34,27 +51,25 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response) {
-      if (error.response.status === 401 && error.config.url !== "/auth/login") {
+      const isLoginRequest = error.config.url?.includes("/auth/login");
+      if (error.response.status === 401 && !isLoginRequest) {
         const responseData = error.response.data;
-        if (responseData && responseData.error === "SESSION_EXPIRED") {
-          window.location.href = "/session-expired";
+        const isAdminRoute = window.location.pathname.startsWith("/adm");
+
+        // Hapus token yang tidak valid sebelum redirect
+        if (isAdminRoute) {
+          localStorage.removeItem("adminAuthToken");
+          useAdminAuthStore.setState({ adminToken: null });
         } else {
+          localStorage.removeItem("authToken");
+          useAuthStore.setState({ token: null });
+        }
+
+        if (responseData && responseData.error === "SESSION_EXPIRED") {
           window.location.href = "/session-expired";
         }
       }
-
-      //   if (typeof error.response.data !== "object") {
-      //     if (window.location.pathname !== "/error") {
-      //       window.location.href = "/error";
-      //     }
-      //   }
-      // } else if (error.request) {
-      //   if (window.location.pathname !== "/error") {
-      //     window.location.href = "/error";
-      //   }
     }
-
-    // Kembalikan error agar bisa ditangani oleh fungsi pemanggil
     return Promise.reject(error);
   }
 );

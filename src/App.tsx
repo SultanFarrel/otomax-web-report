@@ -2,7 +2,6 @@ import { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
 
 import ProtectedRoute from "@/components/protected-route";
-import ProtectedRouteAdmin from "@/components/protected-route-admin";
 import DefaultLayout from "@/layouts/default";
 import { Spinner } from "@heroui/spinner";
 
@@ -11,6 +10,9 @@ const LoginPage = lazy(() => import("@/pages/login"));
 const DashboardPage = lazy(() => import("@/pages/dashboard/dashboard"));
 const SettingsPage = lazy(() => import("@/pages/settings/settings"));
 const ProdukPage = lazy(() => import("@/pages/product/product-pages"));
+const AdminProdukPage = lazy(
+  () => import("@/pages/product/admin-product-pages")
+);
 const TransactionPage = lazy(
   () => import("@/pages/transaction/transaction-pages")
 );
@@ -27,15 +29,6 @@ const TransaksiDownlinePage = lazy(
 const SessionExpiredPage = lazy(() => import("./pages/errors/session-expired"));
 const GenericErrorPage = lazy(() => import("./pages/errors/generic-error"));
 
-// ADMIN PAGES
-const AdminLoginPage = lazy(() => import("@/pages/admin/login"));
-const AdminDashboardPage = lazy(
-  () => import("@/pages/dashboard/admin-dashboard")
-);
-const AdminProdukPage = lazy(
-  () => import("@/pages/product/admin-product-pages")
-);
-
 const SuspenseFallback = () => (
   <div className="flex justify-center items-center h-screen">
     <Spinner label="Memuat halaman..." size="lg" />
@@ -48,44 +41,41 @@ function App() {
       <Routes>
         {/* Rute publik */}
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/adm/login" element={<AdminLoginPage />} />
+        <Route path="/adm/login" element={<LoginPage />} />
         <Route path="/session-expired" element={<SessionExpiredPage />} />
         <Route path="/error" element={<GenericErrorPage />} />
 
-        {/* Rute terproteksi Agen*/}
+        {/* Rute Terproteksi Pengguna Biasa */}
         <Route element={<ProtectedRoute />}>
           <Route element={<DefaultLayout />}>
-            <Route element={<DashboardPage />} path="/" />
-            <Route element={<ProdukPage />} path="/produk" />
-            <Route element={<TransactionPage />} path="/transaksi" />
-            <Route element={<MutasiSaldoPage />} path="/mutasi-saldo" />
-            <Route element={<DownlinePage />} path="/downline" />
-            <Route element={<DownlineTreePage />} path="/jaringan-downline" />
+            <Route path="/" element={<DashboardPage />} />
+            <Route path="/produk" element={<ProdukPage />} />
+            <Route path="/transaksi" element={<TransactionPage />} />
+            <Route path="/mutasi-saldo" element={<MutasiSaldoPage />} />
+            <Route path="/downline" element={<DownlinePage />} />
+            <Route path="/jaringan-downline" element={<DownlineTreePage />} />
             <Route
-              element={<TransaksiDownlinePage />}
               path="/transaksi-downline"
+              element={<TransaksiDownlinePage />}
             />
-            <Route element={<SettingsPage />} path="/settings" />
+            <Route path="/settings" element={<SettingsPage />} />
           </Route>
         </Route>
 
-        {/* Rute Terproteksi Admin */}
-        <Route element={<ProtectedRouteAdmin />}>
+        {/* Rute Terproteksi Admin dengan prefix /adm */}
+        <Route path="/adm" element={<ProtectedRoute isAdmin />}>
           <Route element={<DefaultLayout />}>
-            <Route element={<AdminDashboardPage />} path="/adm" />
-            <Route element={<AdminProdukPage />} path="/adm/produk" />
-            <Route element={<TransactionPage />} path="/adm/transaksi" />
-            <Route element={<MutasiSaldoPage />} path="/adm/mutasi-saldo" />
-            <Route element={<DownlinePage />} path="/adm/downline" />
+            <Route index element={<DashboardPage />} />
+            <Route path="produk" element={<AdminProdukPage />} />
+            <Route path="transaksi" element={<TransactionPage />} />
+            <Route path="mutasi-saldo" element={<MutasiSaldoPage />} />
+            <Route path="downline" element={<DownlinePage />} />
+            <Route path="jaringan-downline" element={<DownlineTreePage />} />
             <Route
-              element={<DownlineTreePage />}
-              path="/adm/jaringan-downline"
-            />
-            <Route
+              path="transaksi-downline"
               element={<TransaksiDownlinePage />}
-              path="/adm/transaksi-downline"
             />
-            <Route element={<SettingsPage />} path="/adm/settings" />
+            <Route path="settings" element={<SettingsPage />} />
           </Route>
         </Route>
       </Routes>
