@@ -15,6 +15,7 @@ export interface TransactionFilters {
   sn: string;
   status: string;
   dateRange: RangeValue<DateValue> | null;
+  kodeReseller?: string; // Tambahkan filter kode agen (opsional)
 }
 
 // Fungsi untuk mengubah data dari format [columns, rows] ke [objects]
@@ -36,12 +37,13 @@ const transformTransactionData = (apiData: any): Transaction[] => {
 
 const fetchTransactions = async ({
   filters,
+  // sortDescriptor,
+  endpoint,
 }: {
   filters: TransactionFilters;
   sortDescriptor: SortDescriptor;
+  endpoint: string;
 }): Promise<TransactionApiResponse> => {
-  const endpoint = "/transaksi";
-
   const formatDate = (date: DateValue | undefined) => {
     return date ? date.toString().split("T")[0] : undefined;
   };
@@ -54,6 +56,7 @@ const fetchTransactions = async ({
     sn: filters.sn || undefined,
     startDate: formatDate(filters.dateRange?.start),
     endDate: formatDate(filters.dateRange?.end),
+    kodeReseller: filters.kodeReseller || undefined,
   };
 
   if (filters.status !== "all") {
@@ -76,7 +79,7 @@ const fetchTransactions = async ({
   };
 };
 
-export function useTransactions() {
+export function useTransactions({ isAdmin = false, isDownline = false } = {}) {
   const [pageSize, setPageSize] = useState(30);
 
   const initialFilters: TransactionFilters = {
@@ -90,6 +93,7 @@ export function useTransactions() {
       start: today(getLocalTimeZone()),
       end: today(getLocalTimeZone()),
     },
+    kodeReseller: isAdmin || isDownline ? "" : undefined,
   };
 
   const [page, setPage] = useState(1);
@@ -102,17 +106,25 @@ export function useTransactions() {
     direction: "descending",
   });
 
+  const endpoint = isDownline ? "/transaksi/downline" : "/transaksi";
   const {
     data: response,
     refetch,
     isLoading,
     isError,
   } = useQuery<TransactionApiResponse, Error>({
-    queryKey: ["transactions", submittedFilters, sortDescriptor],
+    queryKey: [
+      "transactions",
+      submittedFilters,
+      sortDescriptor,
+      isAdmin,
+      isDownline,
+    ],
     queryFn: () =>
       fetchTransactions({
         filters: submittedFilters,
         sortDescriptor,
+        endpoint,
       }),
     staleTime: Infinity,
   });

@@ -1,10 +1,25 @@
 import { ChipProps } from "@heroui/chip";
 
 // LIST TABLE COLUMNS
-const COLUMN_NAMES = [
+const USER_COLUMN_NAMES = [
   { name: "TRX ID", uid: "kode" },
   { name: "REFF ID", uid: "ref_id" },
   { name: "TGL TRX", uid: "tgl_entri" },
+  { name: "PRODUK", uid: "kode_produk" },
+  { name: "TUJUAN", uid: "tujuan" },
+  { name: "HARGA", uid: "harga" },
+  { name: "STATUS", uid: "status" },
+  { name: "SN", uid: "sn" },
+  { name: "PENGIRIM", uid: "pengirim" },
+  { name: "TGL STATUS", uid: "tgl_status" },
+  { name: "ACTIONS", uid: "actions" },
+];
+
+const ADMIN_DOWNLINE_COLUMN_NAMES = [
+  { name: "TRX ID", uid: "kode" },
+  { name: "REFF ID", uid: "ref_id" },
+  { name: "TGL TRX", uid: "tgl_entri" },
+  { name: "AGEN", uid: "kode_reseller" },
   { name: "PRODUK", uid: "kode_produk" },
   { name: "TUJUAN", uid: "tujuan" },
   { name: "HARGA", uid: "harga" },
@@ -60,4 +75,9 @@ const STATUS_OPTIONS = [
   { name: "Produk Salah", uid: "44" },
 ];
 
-export { COLUMN_NAMES, STATUS_COLORS, STATUS_OPTIONS };
+export {
+  USER_COLUMN_NAMES,
+  ADMIN_DOWNLINE_COLUMN_NAMES,
+  STATUS_COLORS,
+  STATUS_OPTIONS,
+};

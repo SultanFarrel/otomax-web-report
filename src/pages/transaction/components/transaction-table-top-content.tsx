@@ -39,6 +39,7 @@ interface TransactionTableTopContentProps {
     pending: SummaryData;
     failed: SummaryData;
   };
+  showAgentFilter?: boolean;
 }
 
 export const TransactionTableTopContent: React.FC<
@@ -51,6 +52,7 @@ export const TransactionTableTopContent: React.FC<
     onResetFilters,
     totalItems,
     summary,
+    showAgentFilter = false,
   } = props;
 
   const [isCalendarOpen, setIsCalendarOpen] = React.useState(false);
@@ -123,6 +125,14 @@ export const TransactionTableTopContent: React.FC<
             value={filters.refId}
             onValueChange={(v) => onFilterChange("refId", v)}
           />
+          {showAgentFilter && (
+            <Input
+              className="max-w-[120px]"
+              placeholder="Kode Agen"
+              value={filters.kodeReseller}
+              onValueChange={(v) => onFilterChange("kodeReseller", v)}
+            />
+          )}
           <Input
             className="max-w-[120px]"
             placeholder="Produk"

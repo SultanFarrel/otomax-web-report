@@ -21,9 +21,6 @@ const DownlinePage = lazy(() => import("@/pages/downline/downline"));
 const DownlineTreePage = lazy(
   () => import("@/pages/downline-tree/downline-tree")
 );
-const TransaksiDownlinePage = lazy(
-  () => import("@/pages/downline-transaction/downline-transactions")
-);
 const SessionExpiredPage = lazy(() => import("./pages/errors/session-expired"));
 const GenericErrorPage = lazy(() => import("./pages/errors/generic-error"));
 
@@ -52,10 +49,7 @@ function App() {
             <Route path="/mutasi-saldo" element={<MutasiSaldoPage />} />
             <Route path="/downline" element={<DownlinePage />} />
             <Route path="/jaringan-downline" element={<DownlineTreePage />} />
-            <Route
-              path="/transaksi-downline"
-              element={<TransaksiDownlinePage />}
-            />
+            <Route path="/transaksi-downline" element={<TransactionPage />} />
             <Route path="/settings" element={<SettingsPage />} />
           </Route>
         </Route>
@@ -69,10 +63,7 @@ function App() {
             <Route path="mutasi-saldo" element={<MutasiSaldoPage />} />
             <Route path="downline" element={<DownlinePage />} />
             <Route path="jaringan-downline" element={<DownlineTreePage />} />
-            <Route
-              path="transaksi-downline"
-              element={<TransaksiDownlinePage />}
-            />
+            <Route path="transaksi-downline" element={<TransactionPage />} />
             <Route path="settings" element={<SettingsPage />} />
           </Route>
         </Route>
