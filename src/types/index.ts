@@ -87,6 +87,22 @@ export interface Session {
   kode_reseller?: string;
 }
 
+export interface TableCount {
+  tableName: string;
+  rowCount: number;
+}
+
+export interface DatabaseStats {
+  dbSizeMB: number;
+  tableCounts: TableCount[];
+}
+
+export interface ChartStats {
+  labels: string[];
+  depositData: number[];
+  transactionData: number[];
+}
+
 export type ProductApiResponse = {
   rowCount: number;
   data: Product[];
