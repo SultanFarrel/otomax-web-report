@@ -29,6 +29,7 @@ interface BalanceMutationTableTopContentProps {
   onResetFilters: () => void;
   totalItems: number;
   summary: SummaryData;
+  isAdmin?: boolean;
 }
 
 const mutationTypeOptions = [
@@ -51,6 +52,7 @@ export const BalanceMutationTableTopContent: React.FC<
     onResetFilters,
     totalItems,
     summary,
+    isAdmin = false,
   } = props;
 
   const [isCalendarOpen, setIsCalendarOpen] = React.useState(false);
@@ -136,6 +138,15 @@ export const BalanceMutationTableTopContent: React.FC<
               onClear={() => onFilterChange("search", "")}
               onValueChange={(value) => onFilterChange("search", value)}
             />
+            {isAdmin && (
+              <Input
+                isClearable
+                className="w-full sm:w-[150px]"
+                placeholder="Kode Agen"
+                value={filters.kodeReseller}
+                onValueChange={(value) => onFilterChange("kodeReseller", value)}
+              />
+            )}
           </div>
           <div className="flex flex-wrap gap-3 items-end">
             <Button

@@ -11,6 +11,7 @@ export interface BalanceMutationFilters {
   search: string;
   dateRange: RangeValue<DateValue> | null;
   mutationTypes: string[];
+  kodeReseller?: string;
 }
 
 const mutationTypeMap: Record<string, string[]> = {
@@ -65,6 +66,7 @@ const fetchBalanceMutation = async ({
     mutationTypes: mutationTypeChars,
     startDate: formatDate(filters.dateRange?.start),
     endDate: formatDate(filters.dateRange?.end),
+    kodeReseller: filters.kodeReseller || undefined,
   };
 
   Object.keys(params).forEach(
@@ -83,7 +85,7 @@ const fetchBalanceMutation = async ({
   };
 };
 
-export function useBalanceMutation() {
+export function useBalanceMutation({ isAdmin = false } = {}) {
   const initialFilters: BalanceMutationFilters = {
     search: "",
     dateRange: {
@@ -91,6 +93,7 @@ export function useBalanceMutation() {
       end: today(getLocalTimeZone()),
     },
     mutationTypes: ["Semua"],
+    kodeReseller: isAdmin ? "" : undefined,
   };
 
   const [inputFilters, setInputFilters] =
@@ -106,7 +109,7 @@ export function useBalanceMutation() {
     BalanceMutationApiResponse,
     Error
   >({
-    queryKey: ["balanceMutation", submittedFilters, sortDescriptor],
+    queryKey: ["balanceMutation", submittedFilters, sortDescriptor, isAdmin],
     queryFn: () =>
       fetchBalanceMutation({
         filters: submittedFilters,

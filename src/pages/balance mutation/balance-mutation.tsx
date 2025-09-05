@@ -1,6 +1,9 @@
 import { useState, useMemo, useCallback } from "react";
 import { useBalanceMutation } from "@/hooks/useBalanceMutation";
-import { COLUMN_NAMES } from "./constants/balance-mutation-constants";
+import {
+  COLUMN_NAMES,
+  ADMIN_COLUMN_NAMES,
+} from "./constants/balance-mutation-constants";
 import { BalanceMutationTableTopContent } from "./components/balance-mutation-table-top-content";
 import { BalanceMutationTableCellComponent } from "./components/balance-mutation-table-cell";
 import { BalanceMutationTableBottomContent } from "./components/balance-mutation-table-bottom-content";
@@ -16,8 +19,12 @@ import { Spinner } from "@heroui/spinner";
 import { SortDescriptor } from "@heroui/table";
 import { exportToExcel } from "@/utils/exportToExcel";
 import { formatDate } from "@/utils/formatters";
+import { useLocation } from "react-router-dom";
 
 export default function BalanceMutationPage() {
+  const location = useLocation();
+  const isAdmin = location.pathname.startsWith("/adm");
+
   const {
     allFetchedItems,
     totalItems,
@@ -30,7 +37,9 @@ export default function BalanceMutationPage() {
     resetFilters,
     sortDescriptor,
     setSortDescriptor,
-  } = useBalanceMutation();
+  } = useBalanceMutation({ isAdmin });
+
+  const columnNames = isAdmin ? ADMIN_COLUMN_NAMES : COLUMN_NAMES;
 
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
@@ -73,6 +82,7 @@ export default function BalanceMutationPage() {
         onResetFilters={resetFilters}
         totalItems={totalItems}
         summary={mutationSummary}
+        isAdmin={isAdmin}
       />
     ),
     [
@@ -82,6 +92,7 @@ export default function BalanceMutationPage() {
       resetFilters,
       totalItems,
       mutationSummary,
+      isAdmin,
     ]
   );
 
@@ -125,7 +136,7 @@ export default function BalanceMutationPage() {
         wrapper: "max-h-[480px] overflow-y-auto p-0",
       }}
     >
-      <TableHeader columns={COLUMN_NAMES}>
+      <TableHeader columns={columnNames}>
         {(column) => (
           <TableColumn
             key={column.uid}

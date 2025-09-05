@@ -76,6 +76,7 @@ export type BalanceMutation = {
   jumlah: number;
   keterangan: string;
   saldo_akhir: number;
+  kode_reseller?: string;
 };
 
 export interface Session {
