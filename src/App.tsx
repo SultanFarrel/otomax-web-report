@@ -10,9 +10,7 @@ const LoginPage = lazy(() => import("@/pages/login"));
 const DashboardPage = lazy(() => import("@/pages/dashboard/dashboard"));
 const SettingsPage = lazy(() => import("@/pages/settings/settings"));
 const ProdukPage = lazy(() => import("@/pages/product/product-pages"));
-const AdminProdukPage = lazy(
-  () => import("@/pages/product/admin-product-pages")
-);
+
 const TransactionPage = lazy(
   () => import("@/pages/transaction/transaction-pages")
 );
@@ -66,7 +64,7 @@ function App() {
         <Route path="/adm" element={<ProtectedRoute isAdmin />}>
           <Route element={<DefaultLayout />}>
             <Route index element={<DashboardPage />} />
-            <Route path="produk" element={<AdminProdukPage />} />
+            <Route path="produk" element={<ProdukPage />} />
             <Route path="transaksi" element={<TransactionPage />} />
             <Route path="mutasi-saldo" element={<MutasiSaldoPage />} />
             <Route path="downline" element={<DownlinePage />} />

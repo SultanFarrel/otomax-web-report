@@ -86,6 +86,11 @@ export const SidebarContent = ({ isCollapsed }: SidebarProps) => {
       <nav className="flex-1 space-y-1">
         {siteConfig.navItems.map((item) => {
           const Icon = iconMap[item.href];
+          const targetHref = isAdmin
+            ? item.href === "/"
+              ? "/adm"
+              : `/adm${item.href}`
+            : item.href;
 
           return (
             <Tooltip
@@ -96,7 +101,8 @@ export const SidebarContent = ({ isCollapsed }: SidebarProps) => {
               closeDelay={0}
             >
               <NavLink
-                to={item.href}
+                to={targetHref}
+                end={item.href === "/"}
                 className={({ isActive }) =>
                   cn(
                     "flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors",

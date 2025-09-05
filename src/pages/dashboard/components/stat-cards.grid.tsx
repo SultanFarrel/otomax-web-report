@@ -11,29 +11,41 @@ import {
 } from "@heroicons/react/24/outline";
 
 import { useDashboardStats } from "@/hooks/dashboard/useDashboardStats";
-import { useUserStore } from "@/store/userStore";
+import { useUserStore } from "@/store/userStore"; // Untuk data user
 import { StatCardsGridSkeleton } from "./skeleton/stat-cards-grid.skeleton";
 import { Tooltip } from "@heroui/tooltip";
 import { Button } from "@heroui/button";
 
-export const StatCardsGrid: React.FC = () => {
+// Tambahkan prop isAdmin
+interface StatCardsGridProps {
+  isAdmin?: boolean;
+}
+
+export const StatCardsGrid: React.FC<StatCardsGridProps> = ({
+  isAdmin = false,
+}) => {
   const {
     data: stats,
     isLoading,
     error,
     refetch: refetchStats,
     isFetching: isFetchingStats,
-  } = useDashboardStats();
+  } = useDashboardStats({ isAdmin }); // Hook ini sudah bisa menangani admin/user
+
+  // Ambil data user hanya jika bukan admin
   const { user, fetchUserData, isLoading: isFetchingUser } = useUserStore();
 
   const handleRefresh = () => {
     refetchStats();
-    fetchUserData();
+    // Hanya fetch data user jika bukan admin
+    if (!isAdmin) {
+      fetchUserData();
+    }
   };
 
-  const isRefreshing = isFetchingStats || isFetchingUser;
+  const isRefreshing = isFetchingStats || (!isAdmin && isFetchingUser);
 
-  if (isLoading || isRefreshing) {
+  if (isLoading || (isRefreshing && !isAdmin)) {
     return <StatCardsGridSkeleton />;
   }
 
@@ -51,6 +63,10 @@ export const StatCardsGrid: React.FC = () => {
     );
   }
 
+  // Tentukan teks dan nilai berdasarkan peran (admin/user)
+  const card1Title = isAdmin ? "Total Saldo Agen" : "Saldo";
+  const card1Value = isAdmin ? stats?.total_saldo_agen : user?.saldo;
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       {/* Card 1: Saldo */}
@@ -59,7 +75,7 @@ export const StatCardsGrid: React.FC = () => {
           <div>
             <div className="flex justify-between items-start">
               <p className="text-xs text-default-500 uppercase font-semibold">
-                Saldo
+                {card1Title}
               </p>
               <div className="flex items-center gap-2">
                 <Tooltip content="Refresh Stats" closeDelay={0}>
@@ -78,21 +94,26 @@ export const StatCardsGrid: React.FC = () => {
               </div>
             </div>
             <p className="text-2xl font-bold">
-              {user ? formatCurrency(user.saldo) : "0"}
+              {card1Value !== undefined ? formatCurrency(card1Value) : "0"}
             </p>
           </div>
           <div className="flex gap-2 mt-2">
-            <Chip size="sm" variant="flat">
-              Komisi: {user ? formatCurrency(user.komisi) : "0"}
-            </Chip>
-            <Chip size="sm" variant="flat">
-              Poin: {user ? user.poin : "0"}
-            </Chip>
+            {/* Tampilkan chip Komisi & Poin hanya untuk user */}
+            {!isAdmin && (
+              <>
+                <Chip size="sm" variant="flat">
+                  Komisi: {user ? formatCurrency(user.komisi) : "0"}
+                </Chip>
+                <Chip size="sm" variant="flat">
+                  Poin: {user ? user.poin : "0"}
+                </Chip>
+              </>
+            )}
           </div>
         </CardBody>
       </Card>
 
-      {/* Card 2: TRX Sukses Hari Ini */}
+      {/* Card 2, 3, 4: Data Transaksi (Sama untuk Admin dan User) */}
       <Card>
         <CardBody>
           <div className="flex justify-between items-start">
@@ -110,7 +131,6 @@ export const StatCardsGrid: React.FC = () => {
         </CardBody>
       </Card>
 
-      {/* Card 3: TRX Dalam Proses (Placeholder) */}
       <Card>
         <CardBody>
           <div className="flex justify-between items-start">
@@ -128,7 +148,6 @@ export const StatCardsGrid: React.FC = () => {
         </CardBody>
       </Card>
 
-      {/* Card 4: TRX Gagal Hari Ini (Placeholder) */}
       <Card>
         <CardBody>
           <div className="flex justify-between items-start">

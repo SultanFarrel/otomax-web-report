@@ -1,13 +1,14 @@
+// src/pages/product/product-pages.tsx
+
 import React from "react";
-
-import { useProducts } from "@/hooks/useProducts";
+import { useLocation } from "react-router-dom"; // Import useLocation
+import { useProducts } from "@/hooks/useProducts"; // Hook yang sudah digabung
 import { Product } from "@/types";
-
 import { COLUMN_NAMES } from "./constants/product-constants";
 import { ProductTableCell } from "./components/product-table-cell";
+// Import kedua komponen TopContent
 import { ProductTableTopContent } from "./components/product-table-top-content";
 import { ProductTableBottomContent } from "./components/product-table-bottom-content";
-
 import {
   Table,
   TableHeader,
@@ -23,11 +24,13 @@ import { exportToExcel } from "@/utils/exportToExcel";
 const getProductStatus = (product: Product): string => {
   if (product.gangguan) return "Gangguan";
   if (product.kosong) return "Kosong";
-
   return "Aktif";
 };
 
 export default function ProdukPage() {
+  const location = useLocation();
+  const isAdmin = location.pathname.startsWith("/adm");
+
   const {
     data: tableData,
     allData,
@@ -43,7 +46,7 @@ export default function ProdukPage() {
     resetFilters,
     sortDescriptor,
     setSortDescriptor,
-  } = useProducts();
+  } = useProducts({ isAdmin }); // Beri tahu hook bahwa ini mode admin atau bukan
 
   const [isExporting, setIsExporting] = React.useState(false);
 
@@ -61,9 +64,15 @@ export default function ProdukPage() {
     }, 500);
   };
 
+  // Logika dari halaman admin untuk menampilkan tabel
+  const shouldRenderAdminTable =
+    isAdmin && inputFilters.group && inputFilters.group !== "";
+
   const topContent = React.useMemo(
     () => (
+      // Gunakan SATU komponen TopContent dan berikan prop isAdmin
       <ProductTableTopContent
+        isAdmin={isAdmin}
         filters={inputFilters}
         onFilterChange={handleFilterChange}
         onSearchSubmit={onSearchSubmit}
@@ -72,6 +81,7 @@ export default function ProdukPage() {
       />
     ),
     [
+      isAdmin,
       inputFilters,
       handleFilterChange,
       onSearchSubmit,
@@ -107,6 +117,24 @@ export default function ProdukPage() {
     setPage(1);
   };
 
+  // Pesan dinamis untuk tabel kosong
+  const emptyContentMessage = React.useMemo(() => {
+    if (isTableLoading) return " ";
+    if (isTableError) return "Gagal memuat data";
+    if (isAdmin && !shouldRenderAdminTable) {
+      return "Silakan pilih grup terlebih dahulu";
+    }
+    return "Produk tidak ditemukan";
+  }, [isTableLoading, isTableError, isAdmin, shouldRenderAdminTable]);
+
+  // Data dinamis untuk tabel
+  const items = React.useMemo(() => {
+    if (isAdmin && !shouldRenderAdminTable) {
+      return [];
+    }
+    return tableData?.data || [];
+  }, [isAdmin, shouldRenderAdminTable, tableData?.data]);
+
   return (
     <Table
       isStriped
@@ -139,14 +167,8 @@ export default function ProdukPage() {
         )}
       </TableHeader>
       <TableBody
-        emptyContent={
-          isTableLoading
-            ? " "
-            : isTableError
-              ? "Gagal memuat data"
-              : "Produk tidak ditemukan"
-        }
-        items={tableData?.data || []}
+        emptyContent={emptyContentMessage}
+        items={items}
         isLoading={isTableLoading}
         loadingContent={<Spinner label="Memuat data..." />}
       >

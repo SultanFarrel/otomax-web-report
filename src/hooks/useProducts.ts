@@ -7,6 +7,7 @@ import { SortDescriptor } from "@heroui/table";
 export interface ProductFilters {
   search: string;
   status: string;
+  group?: string;
 }
 
 // Fungsi untuk mengubah data dari format [columns, rows] ke [objects]
@@ -36,6 +37,7 @@ const fetchProducts = async ({
   const params: any = {
     search: filters.search || undefined,
     status: filters.status !== "all" ? filters.status : undefined,
+    group: filters.group || undefined,
   };
 
   Object.keys(params).forEach(
@@ -44,7 +46,6 @@ const fetchProducts = async ({
   );
 
   const { data } = await apiClient.get(endpoint, { params });
-
   const transformedData = transformProductData(data.data);
 
   return {
@@ -53,12 +54,13 @@ const fetchProducts = async ({
   };
 };
 
-export function useProducts() {
+export function useProducts({ isAdmin = false } = {}) {
   const [pageSize, setPageSize] = useState(10);
 
   const initialFilters: ProductFilters = {
     search: "",
     status: "all",
+    group: isAdmin ? "" : undefined,
   };
 
   const [page, setPage] = useState(1);
@@ -77,9 +79,10 @@ export function useProducts() {
     isLoading,
     isError,
   } = useQuery<ProductApiResponse, Error>({
-    queryKey: ["products", submittedFilters],
+    queryKey: ["products", submittedFilters, isAdmin],
     queryFn: () => fetchProducts({ filters: submittedFilters }),
     staleTime: Infinity,
+    enabled: isAdmin ? !!submittedFilters.group : true,
   });
 
   // Logika sorting
