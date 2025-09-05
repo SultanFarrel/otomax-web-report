@@ -22,7 +22,7 @@ export const siteConfig = {
     },
     {
       label: "List Downline",
-      href: "/downline",
+      href: "/list",
     },
     {
       label: "Jaringan Downline",

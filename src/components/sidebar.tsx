@@ -57,7 +57,7 @@ export const SidebarContent = ({ isCollapsed }: SidebarProps) => {
     "/produk": ShoppingBagIcon,
     "/transaksi": CurrencyDollarIcon,
     "/mutasi-saldo": ArrowPathIcon,
-    "/downline": UsersIcon,
+    "/list": UsersIcon,
     "/jaringan-downline": ShareIcon,
     "/transaksi-downline": DocumentTextIcon,
   };
@@ -86,16 +86,23 @@ export const SidebarContent = ({ isCollapsed }: SidebarProps) => {
       <nav className="flex-1 space-y-1">
         {siteConfig.navItems.map((item) => {
           const Icon = iconMap[item.href];
-          const targetHref = isAdmin
-            ? item.href === "/"
-              ? "/adm"
-              : `/adm${item.href}`
-            : item.href;
+          let targetHref = isAdmin ? `/adm${item.href}` : item.href;
+          let label = item.label;
+
+          if (item.href === "/list") {
+            if (isAdmin) {
+              targetHref = "/adm/agen";
+              label = "List Agen";
+            } else {
+              targetHref = "/downline";
+              label = "List Downline";
+            }
+          }
 
           return (
             <Tooltip
               key={item.href}
-              content={item.label}
+              content={label}
               isDisabled={!isCollapsed}
               placement="right"
               closeDelay={0}
@@ -121,7 +128,7 @@ export const SidebarContent = ({ isCollapsed }: SidebarProps) => {
                     })}
                   />
                 )}
-                {!isCollapsed && item.label}
+                {!isCollapsed && label}
               </NavLink>
             </Tooltip>
           );

@@ -27,10 +27,9 @@ const transformDownlineData = (apiData: any): Downline[] => {
 };
 
 const fetchDownlines = async (
-  filters: DownlineFilters
+  filters: DownlineFilters,
+  endpoint: string
 ): Promise<DownlineApiResponse> => {
-  const endpoint = "/reseller/downline";
-
   const params: any = {
     search: filters.search || undefined,
     status: filters.status !== "all" ? filters.status : undefined,
@@ -51,7 +50,7 @@ const fetchDownlines = async (
   };
 };
 
-export function useDownlines() {
+export function useDownlines({ isAdmin = false } = {}) {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
@@ -70,14 +69,16 @@ export function useDownlines() {
     direction: "ascending",
   });
 
+  const endpoint = isAdmin ? "/reseller/agen" : "/reseller/downline";
+
   const {
     data: response,
     isLoading,
     isError,
     refetch,
   } = useQuery<DownlineApiResponse, Error>({
-    queryKey: ["downlines", submittedFilters],
-    queryFn: () => fetchDownlines(submittedFilters),
+    queryKey: ["downlines", submittedFilters, isAdmin],
+    queryFn: () => fetchDownlines(submittedFilters, endpoint),
     staleTime: Infinity,
   });
 

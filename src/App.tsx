@@ -61,7 +61,7 @@ function App() {
             <Route path="produk" element={<ProdukPage />} />
             <Route path="transaksi" element={<TransactionPage />} />
             <Route path="mutasi-saldo" element={<MutasiSaldoPage />} />
-            <Route path="downline" element={<DownlinePage />} />
+            <Route path="agen" element={<DownlinePage />} />
             <Route path="jaringan-downline" element={<DownlineTreePage />} />
             <Route path="transaksi-downline" element={<TransactionPage />} />
             <Route path="settings" element={<SettingsPage />} />

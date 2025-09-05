@@ -1,4 +1,5 @@
 import React from "react";
+import { useLocation } from "react-router-dom";
 import {
   Table,
   TableHeader,
@@ -26,6 +27,9 @@ const getDownlineStatus = (downline: Downline): string => {
 };
 
 export default function DownlinePage() {
+  const location = useLocation();
+  const isAdmin = location.pathname.startsWith("/adm");
+
   const {
     data: tableData,
     allData,
@@ -42,7 +46,7 @@ export default function DownlinePage() {
     onResetFilters,
     sortDescriptor,
     setSortDescriptor,
-  } = useDownlines();
+  } = useDownlines({ isAdmin });
 
   const [isExporting, setIsExporting] = React.useState(false);
 
@@ -76,6 +80,7 @@ export default function DownlinePage() {
         onSearchSubmit={onSearchSubmit}
         onResetFilters={onResetFilters}
         totalItems={tableData?.totalItems || 0}
+        isAdmin={isAdmin}
       />
     ),
     [

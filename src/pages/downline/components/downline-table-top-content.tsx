@@ -22,6 +22,7 @@ interface DownlineTableTopContentProps {
   onSearchSubmit: () => void;
   onResetFilters: () => void;
   totalItems: number;
+  isAdmin?: boolean;
 }
 
 export const DownlineTableTopContent: React.FC<
@@ -31,8 +32,11 @@ export const DownlineTableTopContent: React.FC<
   onFilterChange,
   onSearchSubmit,
   onResetFilters,
+  isAdmin = false,
   totalItems,
 }) => {
+  const entityName = isAdmin ? "agen" : "downline";
+
   return (
     <form
       onSubmit={(e) => {
@@ -48,7 +52,7 @@ export const DownlineTableTopContent: React.FC<
           <Input
             isClearable
             className="w-full sm:max-w-xs"
-            placeholder="Cari kode/nama downline..."
+            placeholder={`Cari kode/nama ${entityName}...`}
             startContent={<MagnifyingGlassIcon className="h-5 w-5" />}
             value={filters.search}
             onClear={() => onFilterChange("search", "")}
@@ -106,7 +110,7 @@ export const DownlineTableTopContent: React.FC<
         </div>
       </div>
       <span className="text-default-400 text-small">
-        Total {totalItems} downline ditemukan.
+        Total {totalItems} {entityName} ditemukan.
       </span>
     </form>
   );

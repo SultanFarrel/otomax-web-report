@@ -1,3 +1,5 @@
+// src/components/header.tsx
+
 import { useLocation } from "react-router-dom";
 import { Button } from "@heroui/button";
 
@@ -14,12 +16,37 @@ export const Header = ({ onMenuOpen }: HeaderProps) => {
   const location = useLocation();
 
   const getPageTitle = () => {
-    const currentPath = location.pathname;
+    const rawPath = location.pathname;
+    let currentPath = rawPath;
+
+    // --- TAMBAHKAN LOGIKA INI ---
+    // Jika ini adalah rute admin, hapus prefix /adm untuk pencocokan
+    if (currentPath.startsWith("/adm")) {
+      currentPath = currentPath.substring(4);
+      if (currentPath === "") {
+        currentPath = "/";
+      }
+    }
+
+    if (rawPath === "/downline" || rawPath === "/agen") {
+      return "List Downline";
+    }
+    if (rawPath === "/adm/agen") {
+      return "List Agen";
+    }
+    // ----------------------------
+
+    // Logika pencarian judul tetap sama
     const navItem = siteConfig.navItems.find(
       (item) => item.href === currentPath
     );
 
-    if (currentPath === "/settings") {
+    // Ubah "Home" menjadi "Dashboard" untuk halaman utama
+    if (navItem?.label === "Home") {
+      return "Dashboard";
+    }
+
+    if (currentPath === "/settings" || currentPath === "/adm/settings") {
       return "Settings";
     }
 
