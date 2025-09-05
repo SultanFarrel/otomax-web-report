@@ -12,20 +12,21 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-6">
       <StatCardsGrid isAdmin={isAdmin} />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {isAdmin && (
+          <>
+            <TransactionChartCard />
+            <DatabaseInfoCard />
+          </>
+        )}
 
-      {isAdmin && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <TransactionChartCard />
-          <DatabaseInfoCard />
-        </div>
-      )}
-
-      {!isAdmin && (
-        <>
-          <MutationRecent />
-          <TransactionRecent />
-        </>
-      )}
+        {!isAdmin && (
+          <>
+            <MutationRecent />
+            <TransactionRecent />
+          </>
+        )}
+      </div>
     </div>
   );
 }
