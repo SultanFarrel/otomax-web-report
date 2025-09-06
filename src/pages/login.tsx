@@ -10,6 +10,8 @@ import {
   LockClosedIcon,
   DevicePhoneMobileIcon,
   EnvelopeIcon,
+  EyeIcon,
+  EyeSlashIcon,
 } from "@heroicons/react/24/outline";
 
 export default function LoginPage() {
@@ -27,6 +29,10 @@ export default function LoginPage() {
   // State untuk admin
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const [isPinVisible, setIsPinVisible] = useState(false);
+
+  const togglePinVisibility = () => setIsPinVisible(!isPinVisible);
 
   // Ambil fungsi dan state dari kedua store
   const {
@@ -80,11 +86,24 @@ export default function LoginPage() {
       />
       <Input
         isRequired
-        type="password"
+        type={isPinVisible ? "text" : "password"}
         placeholder="Password"
         value={password}
         onValueChange={setPassword}
         startContent={<LockClosedIcon className="h-5 w-5 text-default-400" />}
+        endContent={
+          <button
+            className="focus:outline-none"
+            type="button"
+            onClick={togglePinVisibility}
+          >
+            {isPinVisible ? (
+              <EyeSlashIcon className="h-5 w-5 text-default-400" />
+            ) : (
+              <EyeIcon className="h-5 w-5 text-default-400" />
+            )}
+          </button>
+        }
       />
     </>
   );
@@ -109,11 +128,24 @@ export default function LoginPage() {
       />
       <Input
         isRequired
-        type="password"
+        type={isPinVisible ? "text" : "password"}
         placeholder="PIN"
         value={pin}
         onValueChange={setPin}
         startContent={<LockClosedIcon className="h-5 w-5 text-default-400" />}
+        endContent={
+          <button
+            className="focus:outline-none"
+            type="button"
+            onClick={togglePinVisibility}
+          >
+            {isPinVisible ? (
+              <EyeSlashIcon className="h-5 w-5 text-default-400" />
+            ) : (
+              <EyeIcon className="h-5 w-5 text-default-400" />
+            )}
+          </button>
+        }
       />
     </>
   );

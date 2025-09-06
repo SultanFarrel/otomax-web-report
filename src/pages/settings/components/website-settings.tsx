@@ -8,6 +8,11 @@ import { useSiteSettings } from "@/hooks/useSiteSettings";
 export const WebsiteSettings: React.FC = () => {
   const { siteSettings, isLoading, isUpdating, updateSettings } =
     useSiteSettings();
+
+  // State untuk nilai awal
+  const [initialJudul, setInitialJudul] = useState("");
+
+  // State untuk nilai saat ini
   const [judul, setJudul] = useState("");
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [faviconFile, setFaviconFile] = useState<File | null>(null);
@@ -16,14 +21,27 @@ export const WebsiteSettings: React.FC = () => {
   const logoInputRef = useRef<HTMLInputElement>(null);
   const faviconInputRef = useRef<HTMLInputElement>(null);
 
+  // Atur nilai awal dan saat ini saat data dari hook tersedia
   useEffect(() => {
     if (siteSettings) {
       setJudul(siteSettings.judul);
+      setInitialJudul(siteSettings.judul);
     }
   }, [siteSettings]);
 
+  // --- LOGIKA VALIDASI ---
+  // Tombol akan dinonaktifkan jika tidak ada perubahan
+  const isUnchanged =
+    judul === initialJudul && logoFile === null && faviconFile === null;
+  // -----------------------
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (isUnchanged) {
+      return;
+    }
+
     const formData = new FormData();
     formData.append("judul", judul);
     if (logoFile) {
@@ -114,7 +132,12 @@ export const WebsiteSettings: React.FC = () => {
         </div>
       </CardBody>
       <CardFooter>
-        <Button type="submit" color="primary" isLoading={isUpdating}>
+        <Button
+          type="submit"
+          color="primary"
+          isLoading={isUpdating}
+          isDisabled={isUnchanged || isUpdating}
+        >
           Simpan Perubahan
         </Button>
       </CardFooter>
