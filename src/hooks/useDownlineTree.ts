@@ -9,7 +9,7 @@ interface ApiError {
 
 const fetchDownlineTree = async (): Promise<DownlineTree> => {
   try {
-    const { data } = await apiClient.get("/reseller/downline_tree");
+    const { data } = await apiClient.get("/agen/downline_tree");
     return data;
   } catch (err) {
     const error = err as AxiosError<ApiError>;

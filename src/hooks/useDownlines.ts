@@ -69,7 +69,7 @@ export function useDownlines({ isAdmin = false } = {}) {
     direction: "ascending",
   });
 
-  const endpoint = isAdmin ? "/reseller/agen" : "/reseller/downline";
+  const endpoint = isAdmin ? "/agen" : "/agen"; // PLEASE DRY
 
   const {
     data: response,

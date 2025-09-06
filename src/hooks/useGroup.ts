@@ -19,7 +19,7 @@ const transformTableData = <T = any>(apiData: any): T[] => {
 };
 
 const fetchGroups = async (): Promise<Group[]> => {
-  const response = await apiClient.get("/group");
+  const response = await apiClient.get("/grup");
   return transformTableData<Group>(response.data.data);
 };
 

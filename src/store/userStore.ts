@@ -33,8 +33,8 @@ export const useUserStore = create<UserState>()(
           const token = useAuthStore.getState().token;
           if (!token) return;
 
-          // Setelah berhasil, hit endpoint kedua (/reseller/me)
-          const response = await apiClient.get("/reseller/me");
+          // Setelah berhasil, hit endpoint kedua (/agen/me)
+          const response = await apiClient.get("/agen/me");
 
           const userData: UserData = {
             kode: response.data.kode,

@@ -9,22 +9,18 @@ import { Header } from "@/components/header";
 import { useUiStore } from "@/store/uiStore";
 
 import { useUserStore } from "@/store/userStore";
-import { useAdminUserStore } from "@/store/adminUserStore";
 
 export default function DefaultLayout() {
   const { fetchUserData } = useUserStore();
-  const { fetchAdminData } = useAdminUserStore();
   const location = useLocation();
   const isAdmin = location.pathname.startsWith("/adm");
 
   useEffect(() => {
-    // Panggil fetch yang sesuai berdasarkan rute
-    if (isAdmin) {
-      fetchAdminData();
-    } else {
+    // Hapus kondisi untuk admin
+    if (!isAdmin) {
       fetchUserData();
     }
-  }, [isAdmin, fetchAdminData, fetchUserData, location.pathname]);
+  }, [isAdmin, fetchUserData, location.pathname]);
 
   useEffect(() => {
     if (isSidebarOpen) {
