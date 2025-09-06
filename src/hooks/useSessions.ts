@@ -42,7 +42,7 @@ const killSession = async (kode: number): Promise<any> => {
 
 export function useSessions({ sessionType = "user" } = {}) {
   const queryClient = useQueryClient();
-  const endpoint = sessionType === "admin" ? "/session" : "/session"; // SESSION TYPE
+  const endpoint = sessionType === "admin" ? "/session/admin" : "/session";
 
   const [search, setSearch] = useState("");
   const [submittedSearch, setSubmittedSearch] = useState("");

@@ -51,28 +51,26 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    // HANYA DALAM MODE DEV, UNCOMMENT UNTUK PRODUCTION
+    if (error.response) {
+      const isLoginRequest = error.config.url?.includes("/auth/login");
+      if (error.response.status === 401 && !isLoginRequest) {
+        const responseData = error.response.data;
+        const isAdminRoute = window.location.pathname.startsWith("/adm");
 
-    // if (error.response) {
-    //   const isLoginRequest = error.config.url?.includes("/auth/login");
-    //   if (error.response.status === 401 && !isLoginRequest) {
-    //     const responseData = error.response.data;
-    //     const isAdminRoute = window.location.pathname.startsWith("/adm");
+        // Hapus token yang tidak valid sebelum redirect
+        if (isAdminRoute) {
+          localStorage.removeItem("adminAuthToken");
+          useAdminAuthStore.setState({ adminToken: null });
+        } else {
+          localStorage.removeItem("authToken");
+          useAuthStore.setState({ token: null });
+        }
 
-    //     // Hapus token yang tidak valid sebelum redirect
-    //     if (isAdminRoute) {
-    //       localStorage.removeItem("adminAuthToken");
-    //       useAdminAuthStore.setState({ adminToken: null });
-    //     } else {
-    //       localStorage.removeItem("authToken");
-    //       useAuthStore.setState({ token: null });
-    //     }
-
-    //     if (responseData && responseData.error === "SESSION_EXPIRED") {
-    //       window.location.href = "/session-expired";
-    //     }
-    //   }
-    // }
+        if (responseData && responseData.error === "SESSION_EXPIRED") {
+          window.location.href = "/session-expired";
+        }
+      }
+    }
     return Promise.reject(error);
   }
 );
