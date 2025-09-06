@@ -15,7 +15,7 @@ import { Button } from "@heroui/button";
 import { Tooltip } from "@heroui/tooltip";
 
 export const DatabaseInfoCard: React.FC = () => {
-  const { data, isLoading, isError, refetch, isFetching } = useDatabaseStats();
+  const { data, isLoading, error, refetch, isFetching } = useDatabaseStats();
 
   const formatNumber = (num: number) => {
     return new Intl.NumberFormat("id-ID").format(num);
@@ -43,9 +43,11 @@ export const DatabaseInfoCard: React.FC = () => {
       </CardHeader>
       <CardBody>
         {isLoading ? (
-          <Spinner label="Memuat data database..." />
-        ) : isError ? (
-          <p className="text-danger">Gagal memuat data.</p>
+          <Spinner label="Memuat informasi database..." />
+        ) : error ? (
+          <p className="text-danger">
+            {error?.message?.trim() ? error.message : "Gagal memuat data"}
+          </p>
         ) : (
           <Table removeWrapper aria-label="Jumlah data per tabel">
             <TableHeader>

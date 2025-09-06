@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { apiClient } from "@/api/axios";
+import { hmacPinWithKode } from "@/utils/crypto";
 
 interface AdminAuthState {
   adminToken: string | null;
@@ -32,10 +33,10 @@ export const useAdminAuthStore = create<AdminAuthState>()(
       login: async (email, password) => {
         set({ isLoading: true, error: null });
         try {
-          // Ganti dengan endpoint login admin yang sesuai (MOCK)
-          const response = await apiClient.post("/mock/adm/auth/login", {
+          const hashedPassword = hmacPinWithKode(password, email);
+          const response = await apiClient.post("/adm/auth/login", {
             email,
-            password,
+            password: hashedPassword,
           });
           const { token } = response.data;
           localStorage.setItem("adminAuthToken", token);
