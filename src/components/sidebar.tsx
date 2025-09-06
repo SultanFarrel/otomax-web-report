@@ -53,6 +53,8 @@ export const SidebarContent = ({ isCollapsed }: SidebarProps) => {
   const currentUser = isAdmin ? adminUser : user;
   const logout = isAdmin ? adminLogout : userLogout;
 
+  const [isProfilePopoverOpen, setProfilePopoverOpen] = React.useState(false);
+
   const iconMap: { [key: string]: React.ElementType } = {
     "/": HomeIcon,
     "/produk": ShoppingBagIcon,
@@ -62,6 +64,14 @@ export const SidebarContent = ({ isCollapsed }: SidebarProps) => {
     "/jaringan-downline": ShareIcon,
     "/transaksi-downline": DocumentTextIcon,
     "/list-login": KeyIcon,
+  };
+
+  const handleSettingsClick = () => {
+    setProfilePopoverOpen(false);
+
+    setTimeout(() => {
+      navigate(isAdmin ? "/adm/settings" : "/settings");
+    }, 50);
   };
 
   return (
@@ -158,7 +168,12 @@ export const SidebarContent = ({ isCollapsed }: SidebarProps) => {
 
       {/* Footer */}
       <div className="mt-auto border-t border-divider pt-4">
-        <Dropdown placement="top-end" offset={15}>
+        <Dropdown
+          placement="top-end"
+          offset={15}
+          isOpen={isProfilePopoverOpen}
+          onOpenChange={setProfilePopoverOpen}
+        >
           <DropdownTrigger>
             <button
               className={cn(
@@ -207,7 +222,7 @@ export const SidebarContent = ({ isCollapsed }: SidebarProps) => {
             </DropdownItem>
             <DropdownItem
               key="settings"
-              onPress={() => navigate(isAdmin ? "/adm/settings" : "/settings")}
+              onPress={handleSettingsClick}
               startContent={<Cog6ToothIcon className="h-5 w-5" />}
             >
               Settings

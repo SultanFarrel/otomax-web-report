@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Card, CardHeader, CardBody } from "@heroui/card";
 import { Button, ButtonGroup } from "@heroui/button";
 import { Spinner } from "@heroui/spinner";
 import {
   Chart as ChartJS,
   CategoryScale,
+  Colors,
   LinearScale,
   PointElement,
   LineElement,
@@ -16,9 +17,11 @@ import {
 import { Line } from "react-chartjs-2";
 import { useChartStats, TimeRange } from "@/hooks/dashboard/useChartStats";
 import { formatCurrency } from "@/utils/formatters";
+import { useThemeStore } from "@/store/themeStore";
 
 ChartJS.register(
   CategoryScale,
+  Colors,
   LinearScale,
   PointElement,
   LineElement,
@@ -28,92 +31,119 @@ ChartJS.register(
   Filler
 );
 
+const lightModeColors = {
+  primary: "#2563eb",
+  primaryBg: "rgba(37, 99, 235, 0.2)",
+  success: "#16a34a",
+  successBg: "rgba(22, 163, 74, 0.2)",
+  foreground: "rgba(23, 37, 84, 0.6)",
+  border: "#e2e8f0",
+  tooltipBg: "#ffffff",
+  tooltipText: "#1e293b",
+};
+
+const darkModeColors = {
+  primary: "#60a5fa",
+  primaryBg: "rgba(96, 165, 250, 0.2)",
+  success: "#4ade80",
+  successBg: "rgba(74, 222, 128, 0.2)",
+  foreground: "rgba(226, 232, 240, 0.6)",
+  border: "#334155",
+  tooltipBg: "#1e293b",
+  tooltipText: "#e2e8f0",
+};
+
 export const TransactionChartCard: React.FC = () => {
+  const { theme } = useThemeStore();
   const [timeRange, setTimeRange] = useState<TimeRange>("weekly");
   const { data, isLoading, isError } = useChartStats(timeRange);
+  const [activeColors, setActiveColors] = useState(lightModeColors);
 
-  const chartData = {
-    labels: data?.labels || [],
-    datasets: [
-      {
-        label: "Deposit Member",
-        data: data?.depositData || [],
-        borderColor: "hsl(var(--heroui-primary))", // Warna Biru untuk Deposit
-        backgroundColor: "hsla(var(--heroui-primary), 0.2)",
-        yAxisID: "y",
-        tension: 0.4,
-      },
-      {
-        label: "Nilai Transaksi Sukses",
-        data: data?.transactionData || [],
-        borderColor: "hsl(var(--heroui-success))", // Warna Hijau untuk Transaksi
-        backgroundColor: "hsla(var(--heroui-success), 0.2)",
-        yAxisID: "y",
-        tension: 0.4,
-      },
-    ],
-  };
+  useEffect(() => {
+    setActiveColors(theme === "dark" ? darkModeColors : lightModeColors);
+  }, [theme]);
 
-  const options = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: "top" as const,
-        labels: {
-          color: "hsl(var(--heroui-foreground) / 0.6)",
+  const chartData = useMemo(
+    () => ({
+      labels: data?.labels || [],
+      datasets: [
+        {
+          label: "Deposit Member",
+          data: data?.depositData || [],
+          borderColor: activeColors.primary,
+          backgroundColor: activeColors.primaryBg,
+          yAxisID: "y",
+          tension: 0.4,
         },
-      },
-      tooltip: {
-        backgroundColor: "hsl(var(--heroui-background))",
-        titleColor: "hsl(var(--heroui-foreground))",
-        bodyColor: "hsl(var(--heroui-foreground))",
-        borderColor: "hsl(var(--heroui-border))",
-        borderWidth: 1,
-        callbacks: {
-          label: function (context: any) {
-            let label = context.dataset.label || "";
-            if (label) {
-              label += ": ";
-            }
-            if (context.parsed.y !== null) {
-              label += formatCurrency(context.parsed.y);
-            }
-            return label;
+        {
+          label: "Nilai Transaksi Sukses",
+          data: data?.transactionData || [],
+          borderColor: activeColors.success,
+          backgroundColor: activeColors.successBg,
+          yAxisID: "y",
+          tension: 0.4,
+        },
+      ],
+    }),
+    [data, activeColors]
+  );
+
+  const options = useMemo(
+    () => ({
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: "top" as const,
+          labels: {
+            color: activeColors.foreground,
+          },
+        },
+        tooltip: {
+          backgroundColor: activeColors.tooltipBg,
+          titleColor: activeColors.tooltipText,
+          bodyColor: activeColors.tooltipText,
+          borderColor: activeColors.border,
+          borderWidth: 1,
+          callbacks: {
+            label: function (context: any) {
+              let label = context.dataset.label || "";
+              if (label) {
+                label += ": ";
+              }
+              if (context.parsed.y !== null) {
+                label += formatCurrency(context.parsed.y);
+              }
+              return label;
+            },
           },
         },
       },
-    },
-    scales: {
-      x: {
-        grid: {
-          display: false,
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: activeColors.foreground },
         },
-        ticks: {
-          color: "hsl(var(--heroui-foreground) / 0.6)",
-        },
-      },
-
-      y: {
-        type: "linear" as const,
-        display: true,
-        position: "left" as const,
-        grid: {
-          color: "hsl(var(--heroui-border))",
-        },
-        ticks: {
-          color: "hsl(var(--heroui-foreground) / 0.6)",
-          callback: function (value: any) {
-            return formatCurrency(value, { notation: "compact" });
+        y: {
+          type: "linear" as const,
+          display: true,
+          position: "left" as const,
+          grid: { color: activeColors.border },
+          ticks: {
+            color: activeColors.foreground,
+            callback: function (value: any) {
+              return formatCurrency(value, { notation: "compact" });
+            },
           },
         },
       },
-    },
-    interaction: {
-      intersect: false,
-      mode: "index" as const,
-    },
-  };
+      interaction: {
+        intersect: false,
+        mode: "index" as const,
+      },
+    }),
+    [activeColors]
+  );
 
   return (
     <Card>

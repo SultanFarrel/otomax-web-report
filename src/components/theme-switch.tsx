@@ -4,7 +4,7 @@ import { SwitchProps, useSwitch } from "@heroui/switch";
 import clsx from "clsx";
 
 import { SunFilledIcon, MoonFilledIcon } from "@/components/icons";
-import { useManualTheme } from "@/hooks/useManualTheme";
+import { useThemeStore } from "@/store/themeStore";
 
 export interface ThemeSwitchProps {
   className?: string;
@@ -17,7 +17,7 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({
 }) => {
   const [isMounted, setIsMounted] = useState(false);
 
-  const { theme, setTheme } = useManualTheme();
+  const { theme, setTheme } = useThemeStore();
 
   const {
     Component,
@@ -33,7 +33,7 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({
 
   useEffect(() => {
     setIsMounted(true);
-  }, [isMounted]);
+  }, []);
 
   if (!isMounted) return <div className="w-6 h-6" />;
 
