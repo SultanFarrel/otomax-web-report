@@ -1,5 +1,5 @@
 import { Card, CardBody } from "@heroui/card";
-import { Tabs, Tab } from "@heroui/tabs"; // Asumsi Anda memiliki komponen Tabs
+import { Tabs, Tab } from "@heroui/tabs";
 import { SessionList } from "@/pages/settings/components/session-list";
 
 export default function LoginListPage() {
@@ -9,7 +9,6 @@ export default function LoginListPage() {
         <Tab key="agen" title="List Login Agen">
           <Card>
             <CardBody>
-              {/* Kita akan gunakan kembali SessionList dengan prop */}
               <SessionList isAdminView={true} sessionType="user" />
             </CardBody>
           </Card>
@@ -25,6 +24,3 @@ export default function LoginListPage() {
     </div>
   );
 }
-
-// Catatan: Jika Anda tidak memiliki komponen Tabs, Anda bisa menggunakan
-// dua Card terpisah dengan judul h2 untuk sementara.

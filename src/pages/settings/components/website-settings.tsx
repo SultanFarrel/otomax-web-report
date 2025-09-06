@@ -1,5 +1,3 @@
-// src/pages/settings/components/website-settings.tsx
-
 import React, { useState, useEffect, useRef } from "react";
 import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";

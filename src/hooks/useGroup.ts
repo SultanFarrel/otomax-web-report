@@ -19,12 +19,10 @@ const transformTableData = <T = any>(apiData: any): T[] => {
 };
 
 const fetchGroups = async (): Promise<Group[]> => {
-  // Interceptor akan menangani prefix /adm secara otomatis
   const response = await apiClient.get("/group");
   return transformTableData<Group>(response.data.data);
 };
 
-// Terima parameter props dengan properti isAdmin
 export function useGroups({ isAdmin = false } = {}) {
   return useQuery<Group[], Error>({
     queryKey: ["groups"],

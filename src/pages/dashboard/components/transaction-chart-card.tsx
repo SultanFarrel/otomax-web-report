@@ -1,5 +1,3 @@
-// src/pages/dashboard/components/transaction-chart-card.tsx
-
 import React, { useState } from "react";
 import { Card, CardHeader, CardBody } from "@heroui/card";
 import { Button, ButtonGroup } from "@heroui/button";
@@ -46,12 +44,11 @@ export const TransactionChartCard: React.FC = () => {
         tension: 0.4,
       },
       {
-        // --- UBAH LABEL DATASET ---
         label: "Nilai Transaksi Sukses",
         data: data?.transactionData || [],
         borderColor: "hsl(var(--heroui-success))", // Warna Hijau untuk Transaksi
         backgroundColor: "hsla(var(--heroui-success), 0.2)",
-        yAxisID: "y", // Gunakan sumbu Y yang sama (kiri)
+        yAxisID: "y",
         tension: 0.4,
       },
     ],
@@ -74,7 +71,6 @@ export const TransactionChartCard: React.FC = () => {
         borderColor: "hsl(var(--heroui-border))",
         borderWidth: 1,
         callbacks: {
-          // --- SEMUA TOOLTIP SEKARANG MENGGUNAKAN FORMAT RUPIAH ---
           label: function (context: any) {
             let label = context.dataset.label || "";
             if (label) {
@@ -97,7 +93,7 @@ export const TransactionChartCard: React.FC = () => {
           color: "hsl(var(--heroui-foreground) / 0.6)",
         },
       },
-      // --- HANYA GUNAKAN SATU SUMBU Y ---
+
       y: {
         type: "linear" as const,
         display: true,
@@ -112,7 +108,6 @@ export const TransactionChartCard: React.FC = () => {
           },
         },
       },
-      // Hapus sumbu y1
     },
     interaction: {
       intersect: false,

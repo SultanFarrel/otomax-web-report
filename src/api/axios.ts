@@ -9,7 +9,7 @@ const API_PORT = "4000";
 const currentHostname =
   typeof window !== "undefined" ? window.location.hostname : "";
 
-const baseURL = `${API_PROTOCOL}://${currentHostname}:${API_PORT}/api`; // pakai URL asli saat build
+const baseURL = `${API_PROTOCOL}://${currentHostname}:${API_PORT}/api`;
 
 export const apiClient = axios.create({
   baseURL: baseURL,
@@ -31,7 +31,7 @@ apiClient.interceptors.request.use(
       if (adminToken) {
         config.headers.Authorization = `Bearer ${adminToken}`;
       }
-      // Tambahkan prefix /adm ke semua request non-publik di rute admin
+      // Tambahkan prefix /adm ke semua request non-publik di rute admin MOCK
       config.url = `/mock/adm${config.url}`;
     } else {
       const token = useAuthStore.getState().token;

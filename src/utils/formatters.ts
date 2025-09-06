@@ -19,6 +19,9 @@ const DEFAULT_DATE_OPTIONS: Intl.DateTimeFormatOptions = {
   hour12: false,
 };
 
+const formatNumber = (amount: number) =>
+  new Intl.NumberFormat("id-ID").format(amount);
+
 const formatDate = (
   dateString: string,
   options?: Intl.DateTimeFormatOptions
@@ -45,4 +48,4 @@ const formatDateRange = (range: RangeValue<DateValue> | null) => {
   return `${start} - ${end}`;
 };
 
-export { formatCurrency, formatDate, formatDateRange };
+export { formatCurrency, formatNumber, formatDate, formatDateRange };

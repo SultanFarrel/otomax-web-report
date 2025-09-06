@@ -1,5 +1,3 @@
-// src/pages/dashboard/components/database-info-card.tsx
-
 import React from "react";
 import { Card, CardHeader, CardBody, CardFooter } from "@heroui/card";
 import {

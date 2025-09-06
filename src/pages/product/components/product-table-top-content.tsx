@@ -15,7 +15,7 @@ import {
   ArrowsRightLeftIcon,
 } from "@heroicons/react/24/outline";
 import { ProductFilters } from "@/hooks/useProducts";
-import { useGroups } from "@/hooks/useGroup"; // Selalu import useGroups
+import { useGroups } from "@/hooks/useGroup";
 
 interface ProductTableTopContentProps {
   filters: ProductFilters;
@@ -23,7 +23,7 @@ interface ProductTableTopContentProps {
   onSearchSubmit: () => void;
   onResetFilters: () => void;
   totalItems: number;
-  isAdmin?: boolean; // Tambahkan prop isAdmin
+  isAdmin?: boolean;
 }
 
 export const ProductTableTopContent: React.FC<ProductTableTopContentProps> = ({
@@ -32,7 +32,7 @@ export const ProductTableTopContent: React.FC<ProductTableTopContentProps> = ({
   onSearchSubmit,
   onResetFilters,
   totalItems,
-  isAdmin = false, // Default value false
+  isAdmin = false,
 }) => {
   const [isStatusFilterTouched, setIsStatusFilterTouched] =
     React.useState(false);

@@ -7,7 +7,7 @@ interface AdminAuthState {
   isLoading: boolean;
   error: string | null;
   isInitialized: boolean;
-  login: (email: string, nomorHp: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   initialize: () => void;
 }
@@ -29,13 +29,12 @@ export const useAdminAuthStore = create<AdminAuthState>()(
         }
       },
 
-      login: async (email, nomorHp, password) => {
+      login: async (email, password) => {
         set({ isLoading: true, error: null });
         try {
           // Ganti dengan endpoint login admin yang sesuai (MOCK)
           const response = await apiClient.post("/mock/adm/auth/login", {
             email,
-            nomorHp,
             password,
           });
           const { token } = response.data;
@@ -77,5 +76,4 @@ export const useAdminAuthStore = create<AdminAuthState>()(
   )
 );
 
-// Panggil initialize saat store pertama kali dimuat
 useAdminAuthStore.getState().initialize();

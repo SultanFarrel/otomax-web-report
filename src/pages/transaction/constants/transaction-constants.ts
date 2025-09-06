@@ -10,7 +10,6 @@ const USER_COLUMN_NAMES = [
   { name: "HARGA", uid: "harga" },
   { name: "STATUS", uid: "status" },
   { name: "SN", uid: "sn" },
-  { name: "PENGIRIM", uid: "pengirim" },
   { name: "TGL STATUS", uid: "tgl_status" },
   { name: "ACTIONS", uid: "actions" },
 ];
@@ -25,7 +24,6 @@ const ADMIN_DOWNLINE_COLUMN_NAMES = [
   { name: "HARGA", uid: "harga" },
   { name: "STATUS", uid: "status" },
   { name: "SN", uid: "sn" },
-  { name: "PENGIRIM", uid: "pengirim" },
   { name: "TGL STATUS", uid: "tgl_status" },
   { name: "ACTIONS", uid: "actions" },
 ];

@@ -8,18 +8,16 @@ import {
   TableCell,
 } from "@heroui/table";
 import { Button } from "@heroui/button";
-import { Chip } from "@heroui/chip";
 import { Spinner } from "@heroui/spinner";
 import { Tooltip } from "@heroui/tooltip";
 import {
-  TrashIcon,
   ArrowPathIcon,
   MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
 import { useSessions } from "@/hooks/useSessions";
-import { formatDate } from "@/utils/formatters";
 import { Session } from "@/types";
 import { Input } from "@heroui/input";
+import { SessionTableCell } from "./session-table-cell";
 
 interface SessionListProps {
   isAdminView?: boolean;
@@ -29,6 +27,7 @@ interface SessionListProps {
 const USER_SESSION_COLUMNS = [
   { name: "TANGGAL LOGIN", uid: "tgl_login" },
   { name: "ALAMAT IP", uid: "ip" },
+  { name: "USERAGENT", uid: "user_agent" },
   { name: "STATUS", uid: "status" },
   { name: "AKSI", uid: "actions" },
 ];
@@ -37,6 +36,7 @@ const ADMIN_AGENT_SESSION_COLUMNS = [
   { name: "TANGGAL LOGIN", uid: "tgl_login" },
   { name: "KODE AGEN", uid: "kode_reseller" },
   { name: "ALAMAT IP", uid: "ip" },
+  { name: "USERAGENT", uid: "user_agent" },
   { name: "STATUS", uid: "status" },
   { name: "AKSI", uid: "actions" },
 ];
@@ -77,13 +77,6 @@ export const SessionList: React.FC<SessionListProps> = ({
     if (window.confirm("Apakah Anda yakin ingin menghentikan sesi ini?")) {
       killSession(kode);
     }
-  };
-
-  const formatIp = (ip: string) => {
-    if (ip && ip.startsWith("::ffff:")) {
-      return ip.substring(7);
-    }
-    return ip;
   };
 
   return (
@@ -143,32 +136,12 @@ export const SessionList: React.FC<SessionListProps> = ({
             <TableRow key={item.kode}>
               {(columnKey) => (
                 <TableCell>
-                  {columnKey === "tgl_login" ? (
-                    formatDate(item.tgl_login)
-                  ) : columnKey === "ip" ? (
-                    formatIp(item.ip)
-                  ) : columnKey === "kode_reseller" ? (
-                    item.kode_reseller
-                  ) : columnKey === "status" && item.is_current === 1 ? (
-                    <Chip color="success" size="sm" variant="flat">
-                      Sesi Saat Ini
-                    </Chip>
-                  ) : columnKey === "actions" ? (
-                    <div className="flex justify-end">
-                      <Tooltip content="Hentikan Sesi" color="danger">
-                        <Button
-                          isIconOnly
-                          size="sm"
-                          variant="light"
-                          color="danger"
-                          onPress={() => handleKillSession(item.kode)}
-                          isDisabled={item.is_current === 1 || isKilling}
-                        >
-                          <TrashIcon className="h-5 w-5" />
-                        </Button>
-                      </Tooltip>
-                    </div>
-                  ) : null}
+                  <SessionTableCell
+                    session={item}
+                    columnKey={columnKey}
+                    onKillSession={handleKillSession}
+                    isKilling={isKilling}
+                  />
                 </TableCell>
               )}
             </TableRow>

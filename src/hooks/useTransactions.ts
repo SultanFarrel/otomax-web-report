@@ -15,7 +15,7 @@ export interface TransactionFilters {
   sn: string;
   status: string;
   dateRange: RangeValue<DateValue> | null;
-  kodeReseller?: string; // Tambahkan filter kode agen (opsional)
+  kodeReseller?: string;
 }
 
 // Fungsi untuk mengubah data dari format [columns, rows] ke [objects]

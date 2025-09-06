@@ -3,13 +3,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
 import { useAuthStore } from "@/store/authStore";
-import { useAdminAuthStore } from "@/store/adminAuthStore"; // Import admin store
+import { useAdminAuthStore } from "@/store/adminAuthStore";
 import { useSiteStore } from "@/store/siteStore";
 import {
   UserIcon,
   LockClosedIcon,
   DevicePhoneMobileIcon,
-  EnvelopeIcon, // Import ikon email
+  EnvelopeIcon,
 } from "@heroicons/react/24/outline";
 
 export default function LoginPage() {
@@ -26,6 +26,7 @@ export default function LoginPage() {
 
   // State untuk admin
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   // Ambil fungsi dan state dari kedua store
   const {
@@ -59,7 +60,7 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isAdminLogin) {
-      const loginSuccess = await adminLogin(email, nomorHp, pin);
+      const loginSuccess = await adminLogin(email, password);
       if (loginSuccess) navigate("/adm");
     } else {
       const loginSuccess = await userLogin(kodeRs, nomorHp, pin);
@@ -79,19 +80,10 @@ export default function LoginPage() {
       />
       <Input
         isRequired
-        placeholder="Nomor Hp"
-        value={nomorHp}
-        onValueChange={setNomorHp}
-        startContent={
-          <DevicePhoneMobileIcon className="h-5 w-5 text-default-400" />
-        }
-      />
-      <Input
-        isRequired
         type="password"
-        placeholder="PIN"
-        value={pin}
-        onValueChange={setPin}
+        placeholder="Password"
+        value={password}
+        onValueChange={setPassword}
         startContent={<LockClosedIcon className="h-5 w-5 text-default-400" />}
       />
     </>

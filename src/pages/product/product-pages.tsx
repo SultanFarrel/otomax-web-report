@@ -1,12 +1,10 @@
-// src/pages/product/product-pages.tsx
-
 import React from "react";
-import { useLocation } from "react-router-dom"; // Import useLocation
-import { useProducts } from "@/hooks/useProducts"; // Hook yang sudah digabung
+import { useLocation } from "react-router-dom";
+import { useProducts } from "@/hooks/useProducts";
 import { Product } from "@/types";
 import { COLUMN_NAMES } from "./constants/product-constants";
 import { ProductTableCell } from "./components/product-table-cell";
-// Import kedua komponen TopContent
+
 import { ProductTableTopContent } from "./components/product-table-top-content";
 import { ProductTableBottomContent } from "./components/product-table-bottom-content";
 import {
@@ -46,7 +44,7 @@ export default function ProdukPage() {
     resetFilters,
     sortDescriptor,
     setSortDescriptor,
-  } = useProducts({ isAdmin }); // Beri tahu hook bahwa ini mode admin atau bukan
+  } = useProducts({ isAdmin });
 
   const [isExporting, setIsExporting] = React.useState(false);
 
@@ -70,7 +68,6 @@ export default function ProdukPage() {
 
   const topContent = React.useMemo(
     () => (
-      // Gunakan SATU komponen TopContent dan berikan prop isAdmin
       <ProductTableTopContent
         isAdmin={isAdmin}
         filters={inputFilters}

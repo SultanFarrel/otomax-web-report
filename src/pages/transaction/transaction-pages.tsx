@@ -81,7 +81,7 @@ export default function TransactionPage() {
           "Ref ID": trx.ref_id,
           "Tgl TRX": formatDate(trx.tgl_entri),
         };
-        // Tambahkan kolom Agen jika perlu
+
         if (isAdmin || isDownline) {
           baseData["Agen"] = trx.kode_reseller;
         }
@@ -135,7 +135,7 @@ export default function TransactionPage() {
         pageSize={pageSize}
         onPageSizeChange={handlePageSizeChange}
         onExport={handleExport}
-        isExporting={isExporting} // <-- Pass state loading
+        isExporting={isExporting}
       />
     );
   }, [

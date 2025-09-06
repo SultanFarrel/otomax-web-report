@@ -14,7 +14,7 @@ export type Product = {
   harga_jual: number;
   kosong: number;
   gangguan: number;
-  // Jadikan properti lama opsional agar tidak menimbulkan error di tempat lain
+
   aktif?: number;
   harga_beli?: number;
   harga_jual_final?: number;
@@ -36,7 +36,7 @@ export type Transaction = {
   saldo_akhir: number;
   pengirim: string;
   tgl_status: string;
-  // Jadikan properti lama opsional agar tidak menimbulkan error di komponen lain
+
   kode_reseller?: string;
   harga_beli?: number;
   laba?: number;
@@ -58,7 +58,6 @@ export interface Downline {
   suspend: number | null;
   total_downline: number;
 
-  // Properti baru untuk frontend
   komisi?: number;
   poin?: number;
   markup?: string;
@@ -85,6 +84,7 @@ export interface Session {
   tgl_login: string;
   is_current: 0 | 1;
   kode_reseller?: string;
+  user_agent?: string;
 }
 
 export interface TableCount {
@@ -131,7 +131,6 @@ export interface SessionApiResponse {
   data: Session[];
 }
 
-// Tipe data untuk ringkasan statistik
 interface DashboardStats {
   total_saldo_agen: number;
   total_sukses: number;
@@ -142,7 +141,6 @@ interface DashboardStats {
   harga_gagal: number;
 }
 
-// Tipe data untuk respons gabungan dari API
 export interface DashboardData {
   stats: DashboardStats;
   recentTransactions: Transaction[];

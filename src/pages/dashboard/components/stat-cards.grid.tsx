@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, CardBody } from "@heroui/card";
 import { Chip } from "@heroui/chip";
-import { formatCurrency } from "@/utils/formatters";
+import { formatCurrency, formatNumber } from "@/utils/formatters";
 import {
   CreditCardIcon,
   CheckCircleIcon,
@@ -11,12 +11,11 @@ import {
 } from "@heroicons/react/24/outline";
 
 import { useDashboardStats } from "@/hooks/dashboard/useDashboardStats";
-import { useUserStore } from "@/store/userStore"; // Untuk data user
+import { useUserStore } from "@/store/userStore";
 import { StatCardsGridSkeleton } from "./skeleton/stat-cards-grid.skeleton";
 import { Tooltip } from "@heroui/tooltip";
 import { Button } from "@heroui/button";
 
-// Tambahkan prop isAdmin
 interface StatCardsGridProps {
   isAdmin?: boolean;
 }
@@ -30,7 +29,7 @@ export const StatCardsGrid: React.FC<StatCardsGridProps> = ({
     error,
     refetch: refetchStats,
     isFetching: isFetchingStats,
-  } = useDashboardStats({ isAdmin }); // Hook ini sudah bisa menangani admin/user
+  } = useDashboardStats({ isAdmin });
 
   // Ambil data user hanya jika bukan admin
   const { user, fetchUserData, isLoading: isFetchingUser } = useUserStore();
@@ -126,7 +125,7 @@ export const StatCardsGrid: React.FC<StatCardsGridProps> = ({
             {formatCurrency(stats ? stats.harga_sukses : 0)}
           </p>
           <p className="text-sm text-default-500">
-            {stats ? stats.total_sukses : 0} TRX
+            {stats ? formatNumber(stats.total_sukses) : 0} TRX
           </p>
         </CardBody>
       </Card>
@@ -143,7 +142,7 @@ export const StatCardsGrid: React.FC<StatCardsGridProps> = ({
             {formatCurrency(stats ? stats.harga_pending : 0)}
           </p>
           <p className="text-sm text-default-500">
-            {stats ? stats.total_pending : 0} TRX
+            {stats ? formatNumber(stats.total_pending) : 0} TRX
           </p>
         </CardBody>
       </Card>
@@ -160,7 +159,7 @@ export const StatCardsGrid: React.FC<StatCardsGridProps> = ({
             {formatCurrency(stats ? stats.harga_gagal : 0)}
           </p>
           <p className="text-sm text-default-500">
-            {stats ? stats.total_gagal : 0} TRX
+            {stats ? formatNumber(stats.total_gagal) : 0} TRX
           </p>
         </CardBody>
       </Card>
