@@ -34,8 +34,6 @@ import { useUserStore } from "@/store/userStore";
 
 import { useSiteStore } from "@/store/siteStore";
 
-import { apiClient } from "@/api/axios";
-
 interface SidebarProps {
   isCollapsed?: boolean;
   onCollapse?: () => void;
@@ -45,34 +43,13 @@ export const SidebarContent = ({ isCollapsed }: SidebarProps) => {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith("/adm");
 
-  // State lokal untuk menyimpan data profil admin
-  const [adminProfile, setAdminProfile] = React.useState<{
-    nama: string;
-    kode: string;
-  } | null>(null);
-
   const { user } = useUserStore();
   const siteInfo = useSiteStore((state) => state.siteInfo);
   const { logout: userLogout } = useAuthStore();
   const { logout: adminLogout } = useAdminAuthStore();
   const navigate = useNavigate();
 
-  // useEffect untuk mengambil data profil admin
-  React.useEffect(() => {
-    // Hanya jalankan jika sedang di rute admin
-    if (isAdmin) {
-      apiClient
-        .get("mock/adm/admin/me")
-        .then((response) => {
-          setAdminProfile(response.data);
-        })
-        .catch((err) => {
-          console.error("Gagal mengambil profil admin:", err);
-        });
-    }
-  }, [isAdmin]); // Jalankan setiap kali status isAdmin berubah
-
-  const currentUser = isAdmin ? adminProfile : user;
+  const currentUser = isAdmin ? { nama: "Admin", kode: "ADMIN" } : user;
   const logout = isAdmin ? adminLogout : userLogout;
 
   const [isProfilePopoverOpen, setProfilePopoverOpen] = React.useState(false);

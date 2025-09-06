@@ -20,7 +20,8 @@ apiClient.interceptors.request.use(
     const isAdminRoute = window.location.pathname.startsWith("/adm");
 
     // URL publik yang tidak akan pernah dimodifikasi
-    const publicUrls = ["/webreport/me", "/auth/login", "/admin/me"]; // hapus /admin/me jika sudah ada endpoint asli
+    const mockUrls = ["/chart/stats"];
+    const publicUrls = [...mockUrls, "/webreport/me", "/auth/login"];
 
     if (publicUrls.some((url) => config.url?.includes(url))) {
       return config;

@@ -37,7 +37,7 @@ export const DatabaseInfoCard: React.FC = () => {
             onPress={() => refetch()}
             isLoading={isFetching}
           >
-            <ArrowPathIcon className="h-5 w-5" />
+            <ArrowPathIcon className="h-5 w-5 text-default-500" />
           </Button>
         </Tooltip>
       </CardHeader>
@@ -49,7 +49,14 @@ export const DatabaseInfoCard: React.FC = () => {
             {error?.message?.trim() ? error.message : "Gagal memuat data"}
           </p>
         ) : (
-          <Table removeWrapper aria-label="Jumlah data per tabel">
+          <Table
+            isStriped
+            isHeaderSticky
+            aria-label="Jumlah data per tabel"
+            classNames={{
+              wrapper: "max-h-80 p-0",
+            }}
+          >
             <TableHeader>
               <TableColumn>NAMA TABEL</TableColumn>
               <TableColumn align="end">JUMLAH DATA</TableColumn>

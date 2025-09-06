@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Card, CardHeader, CardBody } from "@heroui/card";
 import { Button, ButtonGroup } from "@heroui/button";
+import { Tooltip } from "@heroui/tooltip";
 import { Spinner } from "@heroui/spinner";
 import {
   Chart as ChartJS,
@@ -10,7 +11,7 @@ import {
   PointElement,
   LineElement,
   Title,
-  Tooltip,
+  Tooltip as TooltipChart,
   Legend,
   Filler,
 } from "chart.js";
@@ -18,6 +19,7 @@ import { Line } from "react-chartjs-2";
 import { useChartStats, TimeRange } from "@/hooks/dashboard/useChartStats";
 import { formatCurrency } from "@/utils/formatters";
 import { useThemeStore } from "@/store/themeStore";
+import { ArrowPathIcon } from "@heroicons/react/24/outline";
 
 ChartJS.register(
   CategoryScale,
@@ -26,7 +28,7 @@ ChartJS.register(
   PointElement,
   LineElement,
   Title,
-  Tooltip,
+  TooltipChart,
   Legend,
   Filler
 );
@@ -56,7 +58,8 @@ const darkModeColors = {
 export const TransactionChartCard: React.FC = () => {
   const { theme } = useThemeStore();
   const [timeRange, setTimeRange] = useState<TimeRange>("weekly");
-  const { data, isLoading, isError } = useChartStats(timeRange);
+  const { data, isLoading, isError, refetch, isFetching } =
+    useChartStats(timeRange);
   const [activeColors, setActiveColors] = useState(lightModeColors);
 
   useEffect(() => {
@@ -147,36 +150,44 @@ export const TransactionChartCard: React.FC = () => {
 
   return (
     <Card>
-      <CardHeader>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full gap-2">
-          <div>
-            <h3 className="text-lg font-semibold">Grafik Performa</h3>
-            <p className="text-sm text-default-500">
-              Analitik deposit member dan transaksi sukses.
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <ButtonGroup>
-              <Button
-                variant={timeRange === "weekly" ? "solid" : "flat"}
-                onPress={() => setTimeRange("weekly")}
-              >
-                Mingguan
-              </Button>
-              <Button
-                variant={timeRange === "monthly" ? "solid" : "flat"}
-                onPress={() => setTimeRange("monthly")}
-              >
-                Bulanan
-              </Button>
-              <Button
-                variant={timeRange === "yearly" ? "solid" : "flat"}
-                onPress={() => setTimeRange("yearly")}
-              >
-                Tahunan
-              </Button>
-            </ButtonGroup>
-          </div>
+      <CardHeader className="flex items-start justify-between">
+        <div>
+          <h3 className="text-lg font-semibold">Grafik Performa</h3>
+          <p className="text-sm text-default-500">
+            Analitik deposit member dan transaksi sukses.
+          </p>
+        </div>
+        <div className="flex flex-col items-end gap-2">
+          <Tooltip content="Refresh Chart">
+            <Button
+              isIconOnly
+              variant="light"
+              onPress={() => refetch()}
+              isLoading={isFetching}
+            >
+              <ArrowPathIcon className="h-5 w-5 text-default-500" />
+            </Button>
+          </Tooltip>
+          <ButtonGroup>
+            <Button
+              variant={timeRange === "weekly" ? "solid" : "flat"}
+              onPress={() => setTimeRange("weekly")}
+            >
+              Mingguan
+            </Button>
+            <Button
+              variant={timeRange === "monthly" ? "solid" : "flat"}
+              onPress={() => setTimeRange("monthly")}
+            >
+              Bulanan
+            </Button>
+            <Button
+              variant={timeRange === "yearly" ? "solid" : "flat"}
+              onPress={() => setTimeRange("yearly")}
+            >
+              Tahunan
+            </Button>
+          </ButtonGroup>
         </div>
       </CardHeader>
       <CardBody>

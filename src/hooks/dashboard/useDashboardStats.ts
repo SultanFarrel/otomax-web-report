@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/api/axios";
 import { useUserStore } from "@/store/userStore";
-import { useAdminUserStore } from "@/store/adminUserStore";
 import { DashboardData } from "@/types";
 import { AxiosError } from "axios";
 
@@ -31,19 +30,17 @@ const fetchDashboardStats = async (): Promise<StatsData> => {
 };
 
 export function useDashboardStats({ isAdmin = false } = {}) {
-  // Ambil data dari kedua store
   const user = useUserStore((state) => state.user);
-  const adminUser = useAdminUserStore((state) => state.adminUser);
 
-  // Tentukan pengguna mana yang aktif
-  const currentUser = isAdmin ? adminUser : user;
+  const queryKey = isAdmin
+    ? ["dashboardStats", "admin"]
+    : ["dashboardStats", user?.kode];
+  const enabled = isAdmin ? true : !!user?.kode;
 
   return useQuery<StatsData, Error>({
-    // Tambahkan currentUser?.kode ke queryKey agar query berjalan ulang jika user berubah
-    queryKey: ["dashboardStats", currentUser?.kode],
+    queryKey: queryKey,
     queryFn: () => fetchDashboardStats(),
-    // Aktifkan query HANYA JIKA data pengguna yang relevan sudah ada
-    enabled: !!currentUser?.kode,
+    enabled: enabled,
     staleTime: Infinity,
   });
 }
